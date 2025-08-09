@@ -6,7 +6,7 @@ import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 
-
+//用户服务接口
 public interface UserFacadeService {
 
     //用户信息查询

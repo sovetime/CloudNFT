@@ -13,86 +13,56 @@ import lombok.Setter;
 
 import java.util.Date;
 
-/**
- * 用户
- *
- * @author hollis
- */
+
 @Setter
 @Getter
 @TableName("users")
 public class User extends BaseEntity {
-    /**
-     * 昵称
-     */
+
+    //昵称
     private String nickName;
 
-    /**
-     * 密码
-     */
+    //密码
     private String passwordHash;
 
-    /**
-     * 状态
-     */
+    //状态
     private UserStateEnum state;
 
-    /**
-     * 邀请码
-     */
+    //邀请码
     private String inviteCode;
 
-    /**
-     * 邀请人用户ID
-     */
+    //邀请人用户ID
     private String inviterId;
 
-    /**
-     * 手机号
-     */
+    //手机号
+    //@SensitiveStrategyPhone 手机号码脱敏注解
     @SensitiveStrategyPhone
     private String telephone;
 
-    /**
-     * 最后登录时间
-     */
+    //最后登录时间
     private Date lastLoginTime;
 
-    /**
-     * 头像地址
-     */
+    //头像地址
     private String profilePhotoUrl;
 
-    /**
-     * 区块链地址
-     */
+    //区块链地址
     private String blockChainUrl;
 
-    /**
-     * 区块链平台
-     */
+    //区块链平台
     private String blockChainPlatform;
 
-    /**
-     * 实名认证
-     */
+    //实名认证
     private Boolean certification;
 
-    /**
-     * 真实姓名
-     */
+    //真实姓名
     @TableField(typeHandler = AesEncryptTypeHandler.class)
     private String realName;
 
-    /**
-     * 身份证hash
-     */
+    //身份证hash
     @TableField(typeHandler = AesEncryptTypeHandler.class)
     private String idCardNo;
 
-    /**
-     * 用户角色
-     */
+    //用户角色
     private UserRole userRole;
 
     public User register(String telephone, String nickName, String password,String inviteCode,String inviterId) {

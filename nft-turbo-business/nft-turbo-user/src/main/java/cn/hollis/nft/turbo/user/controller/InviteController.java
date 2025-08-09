@@ -19,11 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 邀请
- *
- * @author
- */
+
+//用户邀请
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -33,6 +30,7 @@ public class InviteController {
     @Autowired
     private UserService userService;
 
+    //获取邀请排行
     @GetMapping("/getTopN")
     public MultiResult<InviteRankInfo> getTopN(@Max(100) Integer topN) {
         if (topN == null) {
@@ -43,6 +41,7 @@ public class InviteController {
         return MultiResult.successMulti(inviteRankInfos, topN, 1, 10);
     }
 
+    //获取我的排名
     @GetMapping("/getMyRank")
     public Result<Integer> getMyRank() {
         String userId = (String) StpUtil.getLoginId();
@@ -50,6 +49,7 @@ public class InviteController {
         return Result.success(rank);
     }
 
+    //获取邀请列表
     @GetMapping("/getInviteList")
     public MultiResult<UserInfo> getInviteList(int currentPage) {
         String userId = (String) StpUtil.getLoginId();

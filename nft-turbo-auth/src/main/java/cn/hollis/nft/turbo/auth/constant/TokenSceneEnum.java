@@ -1,11 +1,14 @@
 package cn.hollis.nft.turbo.auth.constant;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
 
 
 //token获取的场景
+@Getter
+@AllArgsConstructor
 public enum TokenSceneEnum {
 
     //下单-藏品
@@ -16,14 +19,6 @@ public enum TokenSceneEnum {
 
     //场景的值
     private String scene;
-
-    TokenSceneEnum(String scene) {
-        this.scene = scene;
-    }
-
-    public String getScene() {
-        return scene;
-    }
 
     public void setScene(String scene) {
         this.scene = scene;

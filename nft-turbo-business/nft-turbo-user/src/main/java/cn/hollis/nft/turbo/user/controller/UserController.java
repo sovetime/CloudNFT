@@ -20,6 +20,7 @@ import cn.hollis.nft.turbo.user.param.UserAuthParam;
 import cn.hollis.nft.turbo.user.param.UserModifyParam;
 import cn.hollis.nft.turbo.web.vo.Result;
 import cn.hutool.crypto.digest.DigestUtil;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +35,8 @@ import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.APP_NAME_UP
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.user.infrastructure.exception.UserErrorCode.*;
 
-/**
- * 用户信息
- *
- * @author
- */
+
+//用户信息
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -51,9 +49,10 @@ public class UserController {
     @Autowired
     private FileService fileService;
 
-    @Autowired
+    @Resource
     private ChainFacadeService chainFacadeService;
 
+    //获取用户信息
     @GetMapping("/getUserInfo")
     public Result<UserInfo> getUserInfo() {
         String userId = (String) StpUtil.getLoginId();
@@ -65,6 +64,7 @@ public class UserController {
         return Result.success(UserConvertor.INSTANCE.mapToVo(user));
     }
 
+    //根据电话查询用户信息
     @GetMapping("/queryUserByTel")
     public Result<BasicUserInfo> queryUserByTel(String telephone) {
         User user = userService.findByTelephone(telephone);
@@ -74,6 +74,7 @@ public class UserController {
         return Result.success(UserConvertor.INSTANCE.mapToBasicVo(user));
     }
 
+    //修改昵称
     @PostMapping("/modifyNickName")
     public Result<Boolean> modifyNickName(@Valid @RequestBody UserModifyParam userModifyParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -87,6 +88,7 @@ public class UserController {
         return Result.success(registerResult);
     }
 
+    //修改密码
     @PostMapping("/modifyPassword")
     public Result<Boolean> modifyPassword(@Valid @RequestBody UserModifyParam userModifyParam) {
         //查询用户信息
@@ -107,6 +109,7 @@ public class UserController {
         return Result.success(registerResult);
     }
 
+    //修改头像
     @PostMapping("/modifyProfilePhoto")
     public Result<String> modifyProfilePhoto(@RequestParam("file_data") MultipartFile file) throws Exception {
         String userId = (String) StpUtil.getLoginId();
@@ -133,6 +136,7 @@ public class UserController {
         return Result.success(prefix + path);
     }
 
+    //实名认证
     @PostMapping("/auth")
     public Result<Boolean> auth(@Valid @RequestBody UserAuthParam userAuthParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -171,6 +175,7 @@ public class UserController {
         return Result.error(authResult.getResponseCode(), authResult.getResponseMessage());
     }
 
+    //刷新用户信息
     private void refreshUserInSession(String userId) {
         User user = userService.getById(userId);
         UserInfo userInfo = UserConvertor.INSTANCE.mapToVo(user);

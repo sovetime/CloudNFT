@@ -22,7 +22,7 @@ public class SaTokenConfigure {
     @Bean
     public SaReactorFilter getSaReactorFilter() {
         return new SaReactorFilter()
-                // 拦截地址
+                // 拦截所有请求
                 .addInclude("/**")
                 // 开放地址
                 .addExclude("/favicon.ico")
@@ -30,9 +30,9 @@ public class SaTokenConfigure {
                 .setAuth(obj -> {
                     // 登录校验 -- 拦截所有路由，并排除/auth/login 用于开放登录
                     SaRouter.match("/**")
-                            .notMatch("/auth/**",
-                                    "/collection/collectionList", "/collection/collectionInfo", "/wxPay/**")
-                                    .check(r -> StpUtil.checkLogin());
+                            .notMatch("/auth/**", "/collection/collectionList",
+                                            "/collection/collectionInfo", "/wxPay/**")
+                            .check(r -> StpUtil.checkLogin());
 
                     // 权限认证 -- 不同模块走不同的权限认证逻辑
                     SaRouter.match("/admin/**", r -> StpUtil.checkRole(UserRole.ADMIN.name()));

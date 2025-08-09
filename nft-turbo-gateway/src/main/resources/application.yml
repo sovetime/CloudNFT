@@ -5,19 +5,20 @@ spring:
     import: classpath:base.yml,classpath:cache.yml,classpath:config.yml,classpath:limiter.yml
   cloud:
     gateway:
-      default-filters:
+      default-filters:           # 全局默认过滤器
         - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_UNIQUE
-      globalcors:
+      globalcors:                # 全局跨域配置
         cors-configurations:
-          '[/**]':
-            allowedHeaders: '*'
-            allowedMethods: '*'
-            allowedOrigins: '*'
-      routes:
-        - id: nfturbo-auth
+          '[/**]':               # 对所有请求路径生效
+            allowedHeaders: '*'  # 允许所有请求头
+            allowedMethods: '*'  # 允许所有请求方法(GET, POST, PUT, DELETE等)
+            allowedOrigins: '*'  # 允许所有来源的跨域请求
+      routes:                    # 定义路由规则，gateway 根据请求路径匹配转发到指定服务
+        - id: nfturbo-auth       # 路由ID，唯一标识该路由
           uri: lb://nfturbo-auth
           predicates:
             - Path=/auth/**,/token/**
+
         - id: nfturbo-business
           uri: lb://nfturbo-business
           predicates:

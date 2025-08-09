@@ -14,11 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.util.Collection;
 
-/**
- * 脱敏响应体处理
- *
- * @author hollis
- */
+
+//脱敏响应体处理
 @ControllerAdvice
 public class SensitiveResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 

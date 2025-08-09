@@ -10,14 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-/**
- * <p>
- * 用户操作流水表 服务类
- * </p>
- *
- * @author wswyb001
- * @since 2024-01-13
- */
+//用户操作流水表 服务类
 @Service
 public class UserOperateStreamService extends ServiceImpl<UserOperateStreamMapper, UserOperateStream> {
 

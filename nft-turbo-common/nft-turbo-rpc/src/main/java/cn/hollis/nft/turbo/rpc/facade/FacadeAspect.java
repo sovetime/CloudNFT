@@ -64,15 +64,7 @@ public class FacadeAspect {
         }
     }
 
-    /**
-     * 日志打印
-     *
-     * @param stopWatch
-     * @param method
-     * @param args
-     * @param action
-     * @param response
-     */
+    //日志打印
     private void printLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response,
                           Throwable throwable) {
         try {
@@ -84,18 +76,7 @@ public class FacadeAspect {
         }
     }
 
-    /**
-     * 统一格式输出，方便做日志统计
-     * <p>
-     * *** 如果调整此处的格式，需要同步调整日志监控 ***
-     *
-     * @param action    行为
-     * @param stopWatch 耗时
-     * @param method    方法
-     * @param args      参数
-     * @param response  响应
-     * @return 拼接后的字符串
-     */
+    //统一格式输出，方便做日志统计，如果调整此处的格式，需要同步调整日志监控
     private String getInfoMessage(String action, StopWatch stopWatch, Method method, Object[] args, Object response,
                                   Throwable exception) {
 
@@ -135,11 +116,8 @@ public class FacadeAspect {
         return stringBuilder.toString();
     }
 
-    /**
-     * 将response的信息补全，主要是code和message
-     *
-     * @param response
-     */
+
+    //将response的信息补全，主要是code和message
     private void enrichObject(Object response) {
         if (response instanceof BaseResponse) {
             if (((BaseResponse) response).getSuccess()) {
@@ -156,9 +134,7 @@ public class FacadeAspect {
         }
     }
 
-    /**
-     * 定义并返回一个通用的失败响应
-     */
+    // 定义并返回一个通用的失败响应
     private Object getFailedResponse(Class returnType, Throwable throwable)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 

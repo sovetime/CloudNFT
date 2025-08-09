@@ -32,7 +32,7 @@ import static cn.hollis.nft.turbo.auth.exception.AuthErrorCode.VERIFICATION_CODE
 
 //认证相关接口
 @Slf4j
-@RequiredArgsConstructor
+@RequiredArgsConstructor //自动生成带有 final 字段和带有 @NonNull 注解字段的构造函数
 @RestController
 @RequestMapping("auth")
 public class AuthController {
@@ -51,13 +51,12 @@ public class AuthController {
 
     private static final String ROOT_CAPTCHA = "8888";
 
-    /**
-     * 默认登录超时时间：7天
-     */
+    //默认登录超时时间：7天
     private static final Integer DEFAULT_LOGIN_SESSION_TIMEOUT = 60 * 60 * 24 * 7;
 
     @GetMapping("/sendCaptcha")
     public Result<Boolean> sendCaptcha(@IsMobile String telephone) {
+        //生成并发送短信验证码
         NoticeResponse noticeResponse = noticeFacadeService.generateAndSendSmsCaptcha(telephone);
         return Result.success(noticeResponse.getSuccess());
     }
@@ -83,12 +82,6 @@ public class AuthController {
         return Result.error(registerResult.getResponseCode(), registerResult.getResponseMessage());
     }
 
-    /**
-     * 登录方法
-     *
-     * @param loginParam 登录信息
-     * @return 结果
-     */
     @PostMapping("/login")
     public Result<LoginVO> login(@Valid @RequestBody LoginParam loginParam) {
         //fixme 为了方便，暂时直接跳过
@@ -100,22 +93,24 @@ public class AuthController {
             }
         }
 
-        //判断是注册还是登陆
         //查询用户信息
         UserQueryRequest userQueryRequest = new UserQueryRequest(loginParam.getTelephone());
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
         UserInfo userInfo = userQueryResponse.getData();
+
+        //用户不存在进行注册逻辑，存在进行登录逻辑
         if (userInfo == null) {
-            //需要注册
             UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
             userRegisterRequest.setTelephone(loginParam.getTelephone());
             userRegisterRequest.setInviteCode(loginParam.getInviteCode());
 
+            //用户注册
             UserOperatorResponse response = userFacadeService.register(userRegisterRequest);
             if (response.getSuccess()) {
                 userQueryResponse = userFacadeService.query(userQueryRequest);
                 userInfo = userQueryResponse.getData();
-                StpUtil.login(userInfo.getUserId(), new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())
+                StpUtil.login(userInfo.getUserId(),
+                        new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())
                         .setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));
                 StpUtil.getSession().set(userInfo.getUserId().toString(), userInfo);
                 LoginVO loginVO = new LoginVO(userInfo);
@@ -124,9 +119,10 @@ public class AuthController {
 
             return Result.error(response.getResponseCode(), response.getResponseMessage());
         } else {
-            //登录
-            StpUtil.login(userInfo.getUserId(), new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())
-                    .setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));
+            //用户登录
+            StpUtil.login(userInfo.getUserId(),
+                    new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())//持久化登录（记住我）
+                    .setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));    //超时时间
             StpUtil.getSession().set(userInfo.getUserId().toString(), userInfo);
             LoginVO loginVO = new LoginVO(userInfo);
             return Result.success(loginVO);
@@ -137,11 +133,6 @@ public class AuthController {
     public Result<Boolean> logout() {
         StpUtil.logout();
         return Result.success(true);
-    }
-
-    @RequestMapping("test")
-    public String test() {
-        return "test";
     }
 
 }

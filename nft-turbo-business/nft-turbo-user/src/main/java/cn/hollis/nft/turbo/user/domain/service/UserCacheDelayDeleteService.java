@@ -11,11 +11,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-/**
- * 用户缓存延迟删除服务
- *
- * @author hollis
- */
+
+//用户缓存延迟删除服务
 @Service
 @Slf4j
 public class UserCacheDelayDeleteService {

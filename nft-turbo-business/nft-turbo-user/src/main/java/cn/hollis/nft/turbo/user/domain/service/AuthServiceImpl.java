@@ -8,11 +8,8 @@ import org.apache.http.util.EntityUtils;
 
 import java.util.Map;
 
-/**
- * 认证服务
- *
- * @author hollis
- */
+
+//认证服务
 @Slf4j
 public class AuthServiceImpl implements AuthService {
     private String host;

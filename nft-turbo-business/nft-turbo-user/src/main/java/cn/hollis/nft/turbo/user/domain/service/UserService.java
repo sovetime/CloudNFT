@@ -50,11 +50,8 @@ import java.util.concurrent.TimeUnit;
 
 import static cn.hollis.nft.turbo.user.infrastructure.exception.UserErrorCode.*;
 
-/**
- * 用户服务
- *
- * @author hollis
- */
+
+//用户服务
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> implements InitializingBean {
 
@@ -113,6 +110,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         String defaultNickName;
         String randomString;
         do {
+            //将随机数转换成大写
             randomString = RandomUtil.randomString(6).toUpperCase();
             //前缀 + 6位随机数 + 手机号后四位
             defaultNickName = DEFAULT_NICK_NAME_PREFIX + randomString + telephone.substring(7, 11);
@@ -144,13 +142,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
-    /**
-     * 管理员注册
-     *
-     * @param telephone
-     * @param password
-     * @return
-     */
+    //管理员注册
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse registerAdmin(String telephone, String password) {
@@ -168,14 +160,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
-    /**
-     * 注册
-     *
-     * @param telephone
-     * @param nickName
-     * @param password
-     * @return
-     */
+
+    //注册
     private User register(String telephone, String nickName, String password, String inviteCode, String inviterId) {
         if (userMapper.findByTelephone(telephone) != null) {
             throw new UserException(DUPLICATE_TELEPHONE_NUMBER);
@@ -196,12 +182,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return save(user) ? user : null;
     }
 
-    /**
-     * 实名认证
-     *
-     * @param userAuthRequest
-     * @return
-     */
+
+    //实名认证
     @CacheInvalidate(name = ":user:cache:id:", key = "#userAuthRequest.userId")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse auth(UserAuthRequest userAuthRequest) {
@@ -233,12 +215,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
-    /**
-     * 用户激活
-     *
-     * @param userActiveRequest
-     * @return
-     */
+
+    //用户激活
     @CacheInvalidate(name = ":user:cache:id:", key = "#userActiveRequest.userId")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse active(UserActiveRequest userActiveRequest) {
@@ -261,12 +239,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
-    /**
-     * 冻结
-     *
-     * @param userId
-     * @return
-     */
+
+    //冻结
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse freeze(Long userId) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
@@ -295,12 +269,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
-    /**
-     * 解冻
-     *
-     * @param userId
-     * @return
-     */
+
+    //解冻
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse unfreeze(Long userId) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
@@ -329,15 +299,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
-    /**
-     * 分页查询用户信息
-     *
-     * @param keyWord
-     * @param state
-     * @param currentPage
-     * @param pageSize
-     * @return
-     */
+
+    //分页查询用户信息
     public PageResponse<User> pageQueryByState(String keyWord, String state, int currentPage, int pageSize) {
         Page<User> page = new Page<>(currentPage, pageSize);
         QueryWrapper<User> wrapper = new QueryWrapper<>();
@@ -353,45 +316,24 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return PageResponse.of(userPage.getRecords(), (int) userPage.getTotal(), pageSize, currentPage);
     }
 
-    /**
-     * 通过手机号和密码查询用户信息
-     *
-     * @param telephone
-     * @param password
-     * @return
-     */
+    //通过手机号和密码查询用户信息
     public User findByTelephoneAndPass(String telephone, String password) {
         return userMapper.findByTelephoneAndPass(telephone, DigestUtil.md5Hex(password));
     }
 
-    /**
-     * 通过手机号查询用户信息
-     *
-     * @param telephone
-     * @return
-     */
+    //通过手机号查询用户信息
     public User findByTelephone(String telephone) {
         return userMapper.findByTelephone(telephone);
     }
 
-    /**
-     * 通过用户ID查询用户信息
-     *
-     * @param userId
-     * @return
-     */
+    //通过用户ID查询用户信息
     @Cached(name = ":user:cache:id:", cacheType = CacheType.BOTH, key = "#userId", cacheNullValue = true)
     @CacheRefresh(refresh = 60, timeUnit = TimeUnit.MINUTES)
     public User findById(Long userId) {
         return userMapper.findById(userId);
     }
 
-    /**
-     * 更新用户信息
-     *
-     * @param userModifyRequest
-     * @return
-     */
+    //更新用户信息
     @CacheInvalidate(name = ":user:cache:id:", key = "#userModifyRequest.userId")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse modify(UserModifyRequest userModifyRequest) {
@@ -494,15 +436,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return this.inviteCodeBloomFilter != null && this.inviteCodeBloomFilter.add(inviteCode);
     }
 
-    /**
-     * 更新排名，排名规则：
-     * <pre>
-     *     1、优先按照分数排，分数越大的，排名越靠前
-     *     2、分数相同，则按照上榜时间排，上榜越早的排名越靠前
-     * </pre>
-     *
-     * @param inviterId
-     */
+
+    //更新排名，排名规则：
+    //1、优先按照分数排，分数越大的，排名越靠前
+    //2、分数相同，则按照上榜时间排，上榜越早的排名越靠前
     private void updateInviteRank(String inviterId) {
         if (inviterId == null) {
             return;
