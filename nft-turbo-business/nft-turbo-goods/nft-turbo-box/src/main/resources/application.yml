@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: prod
+  application:
+    name: @application.name@
+  config:
+    import: classpath:base.yml,classpath:datasource.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml  #这里爆红可以直接忽略，没有任何影响
+  cloud:
+    function:
+      definition: chain
+    stream:
+      rocketmq:
+        bindings:
+          chain-in-0:
+            consumer:
+              subscription:
+                expression: 'BLIND_BOX' # 这里设置你希望订阅的Tag
+      bindings:
+        chain-in-0:
+          content-type: application/json
+          destination: chain-result-topic
+          group: chain-group
+          binder: rocketmq
+
+server:
+  port: 8091
+

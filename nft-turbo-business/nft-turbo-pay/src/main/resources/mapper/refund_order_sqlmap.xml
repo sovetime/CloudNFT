@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.pay.infrastructure.mapper.RefundOrderMapper">
+    <!--  Generate by Octopus Date: 2024-01-19 10:48:24 -->
+
+    <resultMap id="refundOrderMap" type="cn.hollis.nft.turbo.pay.domain.entity.RefundOrder">
+
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="refundOrderId" column="refund_order_id"/>
+        <result property="identifier" column="identifier"/>
+        <result property="payOrderId" column="pay_order_id"/>
+        <result property="payChannelStreamId" column="pay_channel_stream_id"/>
+        <result property="paidAmount" column="paid_amount"/>
+        <result property="payerId" column="payer_id"/>
+        <result property="payerType" column="payer_type"/>
+        <result property="payeeId" column="payee_id"/>
+        <result property="payeeType" column="payee_type"/>
+        <result property="applyRefundAmount" column="apply_refund_amount"/>
+        <result property="refundedAmount" column="refunded_amount"/>
+        <result property="refundChannelStreamId" column="refund_channel_stream_id"/>
+        <result property="refundChannel" column="refund_channel"/>
+        <result property="memo" column="memo"/>
+        <result property="refundOrderState" column="refund_order_state"/>
+        <result property="refundSucceedTime" column="refund_succeed_time"/>
+        <result property="deleted" column="deleted"/>
+        <result property="lockVersion" column="lock_version"/>
+    </resultMap>
+
+    <select id="selectByIdentifier" resultMap="refundOrderMap">
+        SELECT
+        *
+        FROM `refund_order`
+        where deleted=0
+        <if test="payOrderId!=null">
+            AND pay_order_id = #{payOrderId}
+        </if>
+        <if test="identifier!=null">
+            AND identifier = #{identifier}
+        </if>
+        <if test="refundChannel!=null">
+            AND refund_channel = #{refundChannel}
+        </if>
+    </select>
+
+    <select id="selectByRefundOrderId" resultMap="refundOrderMap">
+        SELECT
+        *
+        FROM `refund_order`
+        where deleted=0
+        AND refund_order_id = #{refundOrderId}
+    </select>
+
+</mapper>

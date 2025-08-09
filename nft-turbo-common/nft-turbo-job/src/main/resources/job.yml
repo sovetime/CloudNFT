@@ -1,0 +1,8 @@
+spring:
+  xxl:
+    job:
+      enabled: true
+      adminAddresses: http://${nft.turbo.xxl-job.url}/xxl-job-admin/
+      appName: ${nft.turbo.xxl-job.appName}
+      accessToken: ${nft.turbo.xxl-job.accessToken}
+

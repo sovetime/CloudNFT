@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionStreamMapper">
+
+    <resultMap id="resultCollectionStreamMap" type="cn.hollis.nft.turbo.collection.domain.entity.CollectionStream">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="name" column="NAME"/>
+        <result property="collectionId" column="collection_id"/>
+        <result property="streamType" column="stream_type"/>
+        <result property="cover" column="COVER"/>
+        <result property="classId" column="CLASS_ID"/>
+        <result property="price" column="PRICE"/>
+        <result property="quantity" column="QUANTITY"/>
+        <result property="detail" column="DETAIL"/>
+        <result property="saleableInventory" column="SALEABLE_INVENTORY"/>
+        <result property="occupiedInventory" column="OCCUPIED_INVENTORY"/>
+        <result property="frozenInventory" column="FROZEN_INVENTORY"/>
+        <result property="state" column="STATE"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="saleTime" column="SALE_TIME"/>
+        <result property="syncChainTime" column="SYNC_CHAIN_TIME"/>
+        <result property="identifier" column="IDENTIFIER"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="lockVersion" column="LOCK_VERSION"/>
+    </resultMap>
+
+    <select id="selectByIdentifier" resultMap="resultCollectionStreamMap">
+        SELECT
+        *
+        FROM `collection_stream`
+        where deleted=0
+        <if test="identifier!=null">
+            AND identifier = #{identifier}
+        </if>
+        <if test="collectionId!=null">
+            AND collection_id = #{collectionId}
+        </if>
+        <if test="streamType!=null">
+            AND stream_type = #{streamType}
+        </if>
+    </select>
+
+</mapper>

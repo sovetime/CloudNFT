@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.chain.infrastructure.mapper.ChainOperateInfoMapper">
+    <!--  Generate by Octopus Date: 2024-01-19 10:48:24 -->
+
+    <resultMap id="resultChainOperateInfoMap" type="cn.hollis.nft.turbo.chain.domain.entity.ChainOperateInfo">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="chainType" column="CHAIN_TYPE"/>
+        <result property="bizId" column="BIZ_ID"/>
+        <result property="bizType" column="BIZ_TYPE"/>
+        <result property="operateType" column="OPERATE_TYPE"/>
+        <result property="state" column="STATE"/>
+        <result property="operateTime" column="OPERATE_TIME"/>
+        <result property="succeedTime" column="SUCCEED_TIME"/>
+        <result property="param" column="PARAM"/>
+        <result property="result" column="RESULT"/>
+        <result property="outBizId" column="OUT_BIZ_ID"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="lockVersion" column="LOCK_VERSION"/>
+    </resultMap>
+
+    <select id="scanAll" resultMap="resultChainOperateInfoMap">
+        SELECT
+        *
+        FROM `chain_operate_info`
+    </select>
+
+
+    <select id="queryMinIdByState" resultType="java.lang.Long" parameterType="java.lang.String">
+        SELECT
+        min(id)
+        FROM `chain_operate_info`
+        where state = #{state}
+    </select>
+</mapper>

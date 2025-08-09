@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.goods.infrastructure.mapper.GoodsBookMapper">
+
+    <resultMap id="resultGoodsBookMap" type="cn.hollis.nft.turbo.goods.entity.GoodsBook">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="goodsId" column="GOODS_ID"/>
+        <result property="goodsType" column="GOODS_TYPE"/>
+        <result property="buyerId" column="BUYER_ID"/>
+        <result property="buyerType" column="BUYER_TYPE"/>
+        <result property="identifier" column="IDENTIFIER"/>
+        <result property="bookSucceedTime" column="BOOK_SUCCEED_TIME"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="lockVersion" column="LOCK_VERSION"/>
+    </resultMap>
+
+    <select id="selectByGoodsIdAndBuyerId" resultMap="resultGoodsBookMap">
+        SELECT
+        *
+        FROM `goods_book`
+        where deleted=0
+        <if test="goodsId!=null">
+            AND goods_id = #{goodsId}
+        </if>
+        <if test="goodsType!=null">
+            AND goods_type = #{goodsType}
+        </if>
+        <if test="buyerId!=null">
+            AND buyer_id = #{buyerId}
+        </if>
+    </select>
+
+</mapper>

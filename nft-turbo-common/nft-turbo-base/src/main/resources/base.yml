@@ -1,0 +1,38 @@
+nft:
+  turbo:
+    nacos:
+      server:
+        url: localhost:8848
+    mysql:
+      url: jdbc:mysql://localhost:3307/nfturbo
+      username: root
+      password: 123456
+    redis:
+      url: localhost
+      port: 6379
+      password: 123456
+    elasticsearch:
+      enable: false #要启用改成true
+      url: localhost:9200
+      username: elastic
+      password: 123456
+    xxl-job:
+      url: localhost:8999
+      appName: nfturbo-executor
+      accessToken: default_token
+    sentinel:
+      url: localhost:8089
+      port: 8089
+      nacos:
+        data-id: nfturbo-gateway-sentinel
+    rocketmq:
+      url: 139.129.32.11:9876
+    dubbo:
+      nacos:
+        namespace: aa1c1c78-52b1-4ea7-b8fb-c50075b2f26d
+        group: dubbo
+    seata:
+      nacos:
+        data-id: seataServer.properties
+        group: seata
+        namespace: 7ebdfb9b-cd9d-4a5e-8969-1ada0bb9ba04

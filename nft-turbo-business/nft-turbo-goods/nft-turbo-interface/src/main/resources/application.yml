@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: @application.name@
+  config:
+    import: classpath:base.yml,classpath:datasource.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml
+  cloud:
+    function:
+      definition: chain;heldCollection
+    stream:
+      rocketmq:
+        bindings:
+          chain-in-0:
+            consumer:
+              subscription:
+                expression: 'COLLECTION || BLIND_BOX' # 这里设置你希望订阅的Tag
+      bindings:
+        chain-in-0:
+          content-type: application/json
+          destination: chain-result-topic
+          group: chain-group
+          binder: rocketmq
+        heldCollection-out-0:
+          content-type: application/json
+          destination: held-collection-result-topic
+          group: held-collection-group
+          binder: rocketmq
+server:
+  port: 8099

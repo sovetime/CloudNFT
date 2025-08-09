@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionAirdropStreamMapper">
+
+    <resultMap id="resultCollectionAirdropStreamMap" type="cn.hollis.nft.turbo.collection.domain.entity.CollectionAirdropStream">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="collectionId" column="COLLECTION_ID"/>
+        <result property="recipientUserId" column="RECIPIENT_USER_ID"/>
+        <result property="quantity" column="QUANTITY"/>
+        <result property="streamType" column="STREAM_TYPE"/>
+        <result property="identifier" column="IDENTIFIER"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="lockVersion" column="LOCK_VERSION"/>
+    </resultMap>
+
+    <select id="selectByIdentifier" resultMap="resultCollectionAirdropStreamMap">
+        SELECT
+        *
+        FROM `collection_airdrop_stream`
+        where deleted=0
+        <if test="identifier!=null">
+            AND identifier = #{identifier}
+        </if>
+        <if test="collectionId!=null">
+            AND collection_id = #{collectionId}
+        </if>
+        <if test="streamType!=null">
+            AND stream_type = #{streamType}
+        </if>
+        <if test="recipientUserId!=null">
+            AND recipient_user_id = #{recipientUserId}
+        </if>
+    </select>
+
+</mapper>

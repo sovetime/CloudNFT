@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nft.turbo.nacos.server.url}
+      config:
+        server-addr: ${nft.turbo.nacos.server.url}
+        file-extension: properties
+        name: ${spring.application.name}

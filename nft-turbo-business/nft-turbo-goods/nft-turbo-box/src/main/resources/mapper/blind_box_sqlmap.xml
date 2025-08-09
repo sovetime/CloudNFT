@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxMapper">
+
+    <resultMap id="resultBlindBoxMap" type="cn.hollis.nft.turbo.box.domain.entity.BlindBox">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="name" column="NAME"/>
+        <result property="cover" column="COVER"/>
+        <result property="detail" column="DETAIL"/>
+        <result property="identifier" column="IDENTIFIER"/>
+        <result property="state" column="STATE"/>
+        <result property="quantity" column="QUANTITY"/>
+        <result property="price" column="PRICE"/>
+        <result property="saleableInventory" column="SALEABLE_INVENTORY"/>
+        <result property="occupiedInventory" column="OCCUPIED_INVENTORY"/>
+        <result property="frozenInventory" column="FROZEN_INVENTORY"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="saleTime" column="SALE_TIME"/>
+        <result property="syncChainTime" column="SYNC_CHAIN_TIME"/>
+        <result property="allocateRule" column="ALLOCATE_RULE"/>
+        <result property="collectionConfigs" column="COLLECTION_CONFIGS"/>
+        <result property="creatorId" column="CREATOR_ID"/>
+        <result property="canBook" column="CAN_BOOK"/>
+        <result property="bookStartTime" column="BOOK_START_TIME"/>
+        <result property="bookEndTime" column="BOOK_END_TIME"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="lockVersion" column="LOCK_VERSION"/>
+    </resultMap>
+
+    <!--  库存扣减  -->
+    <update id="sale">
+        UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ blind_box
+        SET saleable_inventory = saleable_inventory - #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
+        WHERE id = #{id} and <![CDATA[saleable_inventory >= #{quantity}]]>
+    </update>
+
+    <!--  库存扣减-无hint版  -->
+    <update id="saleWithoutHint">
+        UPDATE blind_box
+        SET saleable_inventory = saleable_inventory - #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
+        WHERE id = #{id} and <![CDATA[saleable_inventory >= #{quantity}]]>
+    </update>
+
+    <!--  库存退还 -->
+    <update id="cancel">
+        UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ blind_box
+        SET saleable_inventory = saleable_inventory + #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
+        WHERE id = #{id} and <![CDATA[saleable_inventory  + #{quantity} <= quantity]]>
+    </update>
+
+    <!--  库存占用 @Deprecated -->
+<!--    <update id="confirmSale">-->
+<!--        UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ blind_box-->
+<!--        SET occupied_inventory = occupied_inventory + #{quantity}, lock_version = lock_version + 1,gmt_modified = now()-->
+<!--        WHERE id = #{id} and <![CDATA[occupied_inventory + #{quantity} <= quantity ]]>-->
+<!--    </update>-->
+
+    <!--  冻结库存  -->
+    <update id="freezeInventory">
+        UPDATE blind_box
+        SET frozen_inventory = frozen_inventory + #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
+        WHERE id = #{id} and <![CDATA[saleable_inventory - frozen_inventory >= #{quantity}]]>
+    </update>
+
+    <!--  解冻库存  -->
+    <update id="unfreezeInventory">
+        UPDATE blind_box
+        SET frozen_inventory = frozen_inventory - #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
+        WHERE id = #{id} and <![CDATA[frozen_inventory >= #{quantity}]]>
+    </update>
+
+
+    <!--  解冻并扣减库存  -->
+    <update id="unfreezeAndSale">
+        UPDATE blind_box
+        SET saleable_inventory = saleable_inventory - #{quantity}, frozen_inventory = frozen_inventory - #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
+        WHERE id = #{id} and <![CDATA[saleable_inventory >= #{quantity}]]> and <![CDATA[frozen_inventory >= #{quantity}]]>
+    </update>
+
+</mapper>

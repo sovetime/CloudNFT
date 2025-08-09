@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.order.infrastructure.mapper.OrderMapper">
+    <!--  Generate by Octopus Date: 2024-01-19 10:48:24 -->
+
+    <resultMap id="tradeOrderMap" type="cn.hollis.nft.turbo.order.domain.entity.TradeOrder">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="orderId" column="order_id"/>
+        <result property="buyerId" column="buyer_id"/>
+        <result property="reverseBuyerId" column="reverse_buyer_id"/>
+        <result property="buyerType" column="buyer_type"/>
+        <result property="sellerId" column="seller_id"/>
+        <result property="sellerType" column="seller_type"/>
+        <result property="identifier" column="identifier"/>
+        <result property="goodsId" column="goods_id"/>
+        <result property="goodsType" column="goods_type"/>
+        <result property="goodsName" column="goods_name"/>
+        <result property="goodsPicUrl" column="goods_pic_url"/>
+        <result property="orderAmount" column="order_amount"/>
+        <result property="orderState" column="order_state"/>
+        <result property="paidAmount" column="paid_amount"/>
+        <result property="itemPrice" column="item_price"/>
+        <result property="itemCount" column="item_count"/>
+        <result property="paySucceedTime" column="pay_succeed_time"/>
+        <result property="orderConfirmedTime" column="order_confirmed_time"/>
+        <result property="orderFinishedTime" column="order_finished_time"/>
+        <result property="orderClosedTime" column="order_closed_time"/>
+        <result property="payChannel" column="pay_channel"/>
+        <result property="payStreamId" column="pay_stream_id"/>
+        <result property="closeType" column="close_type"/>
+        <result property="deleted" column="deleted"/>
+        <result property="lockVersion" column="lock_version"/>
+    </resultMap>
+
+    <select id="selectByOrderId" resultMap="tradeOrderMap">
+        SELECT
+        *
+        FROM `trade_order`
+        where deleted=0
+        AND order_id = #{orderId}
+    </select>
+
+    <select id="selectByOrderIdAndBuyer" resultMap="tradeOrderMap">
+        SELECT
+        *
+        FROM `trade_order`
+        where deleted=0
+        AND order_id = #{orderId}
+        AND buyer_id = #{buyerId}
+    </select>
+
+    <select id="selectByIdentifier" resultMap="tradeOrderMap">
+        SELECT
+        *
+        FROM `trade_order`
+        where deleted=0
+        <if test="buyerId!=null">
+            AND buyer_id = #{buyerId}
+        </if>
+        <if test="identifier!=null">
+            AND identifier = #{identifier}
+        </if>
+    </select>
+
+    <update id="updateByOrderId" parameterType="cn.hollis.nft.turbo.order.domain.entity.TradeOrder">
+        update trade_order set gmt_modified = now(),lock_version = lock_version + 1
+        <if test="orderState != null">
+            , order_state = #{orderState}
+        </if>
+        <if test="paidAmount != null">
+            , paid_amount = #{paidAmount}
+        </if>
+        <if test="orderFinishedTime != null">
+            , order_finished_time = #{orderFinishedTime}
+        </if>
+        <if test="paySucceedTime != null">
+            , pay_succeed_time = #{paySucceedTime}
+        </if>
+        <if test="orderConfirmedTime != null">
+            , order_confirmed_time = #{orderConfirmedTime}
+        </if>
+        <if test="orderClosedTime != null">
+            , order_closed_time = #{orderClosedTime}
+        </if>
+        <if test="payChannel != null">
+            , pay_channel = #{payChannel}
+        </if>
+        <if test="payStreamId != null">
+            , pay_stream_id = #{payStreamId}
+        </if>
+        <if test="closeType != null">
+            , close_type = #{closeType}
+        </if>
+
+        where order_id = #{orderId} and deleted = 0 and lock_version = #{lockVersion}
+    </update>
+
+</mapper>

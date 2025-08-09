@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: nfturbo-test
+  config:
+    import: classpath:base.yml,classpath:test.yml,classpath:cache.yml,classpath:es.yml
+#dubbo:
+#  # 关闭启动时检查
+#  consumer:
+#    check: false

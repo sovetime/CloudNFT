@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: nfturbo-ut
+  config:
+    import: classpath:base.yml,classpath:config.yml

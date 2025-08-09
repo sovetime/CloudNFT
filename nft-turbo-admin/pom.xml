@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cn.hollis</groupId>
+        <artifactId>NFTurbo</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>cn.hollis</groupId>
+    <artifactId>nft-turbo-admin</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <application.name>nfturbo-admin</application.name>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-file</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-lock</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-rpc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-skywalking</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-sa-token</artifactId>
+        </dependency>
+
+        <!--  TEST  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--        h2内存数据库-->
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-mate-annotation</artifactId>
+            <version>1.3.4</version>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>cn.hollis.nft.turbo.admin.NfTurboAdminApplication</mainClass>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

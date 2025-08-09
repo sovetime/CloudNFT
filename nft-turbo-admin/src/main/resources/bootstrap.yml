@@ -1,0 +1,8 @@
+
+# @application.name@ ，Maven 占位符，打包的时候会用 pom.xml 里的 <application.name> 值替换
+spring:
+  application:
+    name: @application.name@
+  config:
+    #启动时导入其他模块的配置文件一起加载
+    import: classpath:base.yml,classpath:config.yml

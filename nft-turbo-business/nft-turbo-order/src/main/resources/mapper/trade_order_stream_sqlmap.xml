@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.order.infrastructure.mapper.OrderStreamMapper">
+    <!--  Generate by Octopus Date: 2024-01-19 10:48:24 -->
+
+    <resultMap id="tradeOrderMap" type="cn.hollis.nft.turbo.order.domain.entity.TradeOrderStream">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="orderId" column="order_id"/>
+        <result property="buyerId" column="buyer_id"/>
+        <result property="buyerType" column="buyer_type"/>
+        <result property="sellerId" column="seller_id"/>
+        <result property="sellerType" column="seller_type"/>
+        <result property="identifier" column="identifier"/>
+        <result property="goodsId" column="goods_id"/>
+        <result property="goodsType" column="goods_type"/>
+        <result property="goodsName" column="goods_name"/>
+        <result property="goodsPicUrl" column="goods_pic_url"/>
+        <result property="orderAmount" column="order_amount"/>
+        <result property="orderState" column="order_state"/>
+        <result property="paidAmount" column="paid_amount"/>
+        <result property="itemPrice" column="item_price"/>
+        <result property="itemCount" column="item_count"/>
+        <result property="paySucceedTime" column="pay_succeed_time"/>
+        <result property="orderConfirmedTime" column="`order_confirmed_time`"/>
+        <result property="orderFinishedTime" column="order_finished_time"/>
+        <result property="orderClosedTime" column="order_closed_time"/>
+        <result property="payChannel" column="pay_channel"/>
+        <result property="payStreamId" column="pay_stream_id"/>
+        <result property="closeType" column="close_type"/>
+        <result property="deleted" column="deleted"/>
+        <result property="lockVersion" column="lock_version"/>
+        <result property="streamType" column="stream_type"/>
+        <result property="streamIdentifier" column="stream_identifier"/>
+    </resultMap>
+
+
+    <select id="selectByIdentifier" resultMap="tradeOrderMap">
+        SELECT
+        *
+        FROM `trade_order_stream`
+        where deleted=0
+        <if test="orderId!=null">
+            AND order_id = #{orderId}
+        </if>
+        <if test="streamIdentifier!=null">
+            AND stream_identifier = #{streamIdentifier}
+        </if>
+        <if test="streamType!=null">
+            AND stream_type = #{streamType}
+        </if>
+    </select>
+
+</mapper>

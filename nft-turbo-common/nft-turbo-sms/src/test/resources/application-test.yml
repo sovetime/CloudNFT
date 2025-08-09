@@ -1,0 +1,8 @@
+spring:
+  sms:
+    enabled: true
+    host: xxx
+    path: xxx
+    appcode: xxx
+    smsSignId: xxx
+    templateId: xxx

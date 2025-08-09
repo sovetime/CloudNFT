@@ -1,0 +1,158 @@
+spring:
+  profiles:
+    active: dev
+  chain:
+    type: WEN_CHANG
+  application:
+    name: @application.name@
+  config:
+    import: classpath:base.yml,classpath:datasource-sharding.yml,classpath:rpc.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml,classpath:prometheus.yml   #这里爆红可以直接忽略，没有任何影响
+  cloud:
+    function:
+      definition: chain;orderClose;heldCollection;newBuy;normalBuyCancel;normalBuyPreCancel
+    stream:
+      rocketmq:
+        bindings:
+          chain-in-0:
+            consumer:
+              subscription:
+                expression: 'COLLECTION || BLIND_BOX' # 这里设置你希望订阅的Tag
+          orderClose-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: orderCloseTransactionListener
+          heldCollection-in-0:
+            consumer:
+              subscription:
+                expression: 'ACTIVE' # 这里设置你希望订阅的Tag
+          newBuy-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: inventoryDecreaseTransactionListener
+      bindings:
+        heldCollection-out-0:
+          content-type: application/json
+          destination: held-collection-result-topic
+          group: held-collection-group
+          binder: rocketmq
+        heldCollection-in-0:
+          content-type: application/json
+          destination: held-collection-result-topic
+          group: held-collection-group
+          binder: rocketmq
+        chain-out-0:
+          content-type: application/json
+          destination: chain-result-topic
+          group: chain-group
+          binder: rocketmq
+        chain-in-0:
+          content-type: application/json
+          destination: chain-result-topic
+          group: chain-group
+          binder: rocketmq
+        orderClose-out-0:
+          content-type: application/json
+          destination: order-close-topic
+          group: order-group
+          binder: rocketmq
+        orderClose-in-0:
+          content-type: application/json
+          destination: order-close-topic
+          group: order-group
+          binder: rocketmq
+        newBuy-out-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
+          binder: rocketmq
+        newBuy-in-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
+          binder: rocketmq
+        normalBuyCancel-out-0:
+          content-type: application/json
+          destination: normal-buy-cancel-topic
+          group: trade-cancel-group
+          binder: rocketmq
+        normalBuyPreCancel-out-0:
+          content-type: application/json
+          destination: normal-buy-pre-cancel-topic
+          group: trade-pre-cancel-group
+          binder: rocketmq
+        normalBuyCancel-in-0:
+          content-type: application/json
+          destination: normal-buy-cancel-topic
+          group: trade-cancel-group
+          binder: rocketmq
+        normalBuyPreCancel-in-0:
+          content-type: application/json
+          destination: normal-buy-pre-cancel-topic
+          group: trade-pre-cancel-group
+          binder: rocketmq
+  shardingsphere:
+    rules:
+      sharding:
+        tables:
+          trade_order:
+            actual-data-nodes: ds.trade_order_000${0..3}
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: snowflake
+            table-strategy:
+              complex:
+                shardingColumns: buyer_id,order_id
+                shardingAlgorithmName: turbo-complex-sharding
+#              hint:
+#                shardingAlgorithmName: turbo-hint-sharding
+          trade_order_stream:
+            actual-data-nodes: ds.trade_order_stream_000${0..3}
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: snowflake
+            table-strategy:
+              complex:
+                shardingColumns: buyer_id,order_id
+                shardingAlgorithmName: turbo-complex-sharding
+        shardingAlgorithms:
+          #          t-order-inline:
+          #            type: INLINE
+          #            props:
+          #              algorithm-expression: trade_order_0${Math.abs(buyer_id.hashCode()) % 4}
+          turbo-complex-sharding:
+            type: CLASS_BASED
+            props:
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
+              strategy: complex
+              tableCount: 4
+              mainColum: buyer_id
+          turbo-hint-sharding:
+            type: CLASS_BASED
+            props:
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboHintShardingAlgorithm
+              strategy: hint
+        keyGenerators:
+          snowflake:
+            type: SNOWFLAKE
+        auditors:
+          sharding_key_required_auditor:
+            type: DML_SHARDING_CONDITIONS
+
+server:
+  port: 8085
+
+dubbo:
+  application:
+    qos-port: 33334
+
+
+seata:
+  use-jdk-proxy: true
+  enable-auto-data-source-proxy: false
+
+rocketmq:
+  consumer:
+    group: trade-group
+    # 一次拉取消息最大值，注意是拉取消息的最大值而非消费最大值
+    pull-batch-size: 64
+    consume-message-batch-max-size: 32

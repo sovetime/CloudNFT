@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.pay.infrastructure.mapper.PayOrderMapper">
+    <!--  Generate by Octopus Date: 2024-01-19 10:48:24 -->
+
+    <resultMap id="payOrderMap" type="cn.hollis.nft.turbo.pay.domain.entity.PayOrder">
+
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="payOrderId" column="pay_order_id"/>
+        <result property="payerId" column="payer_id"/>
+        <result property="payerType" column="payer_type"/>
+        <result property="payeeId" column="payee_id"/>
+        <result property="payeeType" column="payee_type"/>
+        <result property="bizNo" column="biz_no"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="orderAmount" column="order_amount"/>
+        <result property="paidAmount" column="paid_amount"/>
+        <result property="channelStreamId" column="channel_stream_id"/>
+        <result property="payUrl" column="pay_url"/>
+        <result property="payChannel" column="pay_channel"/>
+        <result property="memo" column="memo"/>
+        <result property="orderState" column="order_state"/>
+        <result property="paySucceedTime" column="pay_succeed_time"/>
+        <result property="payFailedTime" column="pay_failed_time"/>
+        <result property="payExpireTime" column="pay_expire_time"/>
+        <result property="deleted" column="deleted"/>
+        <result property="lockVersion" column="lock_version"/>
+    </resultMap>
+
+    <select id="selectByBizNoAndPayer" resultMap="payOrderMap">
+        SELECT
+        *
+        FROM `pay_order`
+        where deleted=0
+        <if test="payerId!=null">
+            AND payer_id = #{payerId}
+        </if>
+        <if test="bizNo!=null">
+            AND biz_no = #{bizNo}
+        </if>
+        <if test="bizType!=null">
+            AND biz_type = #{bizType}
+        </if>
+        <if test="payChannel!=null">
+            AND pay_channel = #{payChannel}
+        </if>
+    </select>
+
+    <select id="selectByPayOrderId" resultMap="payOrderMap">
+        SELECT
+        *
+        FROM `pay_order`
+        where deleted=0
+        AND pay_order_id = #{payOrderId}
+    </select>
+
+</mapper>

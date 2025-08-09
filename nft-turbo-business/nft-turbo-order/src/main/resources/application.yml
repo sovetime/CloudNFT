@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: nfturbo-order
+  main:
+    allow-bean-definition-overriding: true
+  config:
+    import: classpath:base.yml,classpath:rpc.yml,classpath:datasource-sharding.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:seata.yml
+  cloud:
+    function:
+      definition: orderClose;heldCollection
+    stream:
+      rocketmq:
+        bindings:
+          orderClose-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: orderCloseTransactionListener
+          heldCollection-in-0:
+            consumer:
+              subscription:
+                expression: 'ACTIVE' # 这里设置你希望订阅的Tag
+      bindings:
+        heldCollection-in-0:
+          content-type: application/json
+          destination: held-collection-result-topic
+          group: held-collection-group
+          binder: rocketmq
+        orderClose-out-0:
+          content-type: application/json
+          destination: order-close-topic
+          group: order-group
+          binder: rocketmq
+        newBuy-in-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
+          binder: rocketmq
+  shardingsphere:
+    rules:
+      sharding:
+        tables:
+          trade_order:
+            actual-data-nodes: ds.trade_order_000${0..3}
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: snowflake
+            table-strategy:
+              complex:
+                shardingColumns: buyer_id,order_id
+                shardingAlgorithmName: trade-order-sharding
+          trade_order_stream:
+            actual-data-nodes: ds.trade_order_stream_000${0..3}
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: snowflake
+            table-strategy:
+              complex:
+                shardingColumns: buyer_id,order_id
+                shardingAlgorithmName: trade-order-sharding
+        shardingAlgorithms:
+#          t-order-inline:
+#            type: INLINE
+#            props:
+#              algorithm-expression: trade_order_0${Math.abs(buyer_id.hashCode()) % 4}
+          trade-order-sharding:
+            type: CLASS_BASED
+            props:
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
+              strategy: complex
+              tableCount: 4
+              mainColum: buyer_id
+        keyGenerators:
+          snowflake:
+            type: SNOWFLAKE
+        auditors:
+          sharding_key_required_auditor:
+            type: DML_SHARDING_CONDITIONS
+
+server:
+  port: 9000
+
+
+seata:
+  use-jdk-proxy: true
+  enable-auto-data-source-proxy: false
+
+rocketmq:
+  consumer:
+    group: trade-group
+    # 一次拉取消息最大值，注意是拉取消息的最大值而非消费最大值
+    pull-batch-size: 64
+    consume-message-batch-max-size: 32

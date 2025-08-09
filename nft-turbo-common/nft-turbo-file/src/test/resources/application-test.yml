@@ -1,0 +1,7 @@
+spring:
+  oss:
+    enabled: true
+    bucket: nfturbo-file
+    endPoint: https://oss-cn-hangzhou.aliyuncs.com
+    accessKey: xxx
+    accessSecret: xxx

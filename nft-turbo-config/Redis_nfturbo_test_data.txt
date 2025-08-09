@@ -1,0 +1,14 @@
+-- 在 redis 中初始化库存
+
+set "clc:inventory:10000" "99"
+set "clc:inventory:10000" "99"
+set "clc:inventory:10002" "100"
+set "clc:inventory:10003" "100"
+set "clc:inventory:10004" "96"
+set "clc:inventory:10005" "100"
+set "clc:inventory:10006" "100"
+set "clc:inventory:10007" "100"
+set "blb:inventory:22" "184"
+
+
+

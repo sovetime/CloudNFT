@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: @application.name@
+  config:
+    import: classpath:base.yml,classpath:datasource.yml,classpath:rpc.yml,classpath:cache.yml
+  cloud:
+    stream:
+      bindings:
+        chain-out-0:
+          content-type: application/json
+          destination: chain-result-topic
+          group: chain-group
+          binder: rocketmq
+
+server:
+  port: 8089
+

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxInventoryStreamMapper">
+
+    <resultMap id="resultBlindBoxInventoryStreamMap"
+               type="cn.hollis.nft.turbo.box.domain.entity.BlindBoxInventoryStream">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="blindBoxId" column="BLIND_BOX_ID"/>
+        <result property="streamType" column="STREAM_TYPE"/>
+        <result property="price" column="PRICE"/>
+        <result property="quantity" column="QUANTITY"/>
+        <result property="saleableInventory" column="SALEABLE_INVENTORY"/>
+        <result property="occupiedInventory" column="OCCUPIED_INVENTORY"/>
+        <result property="changedQuantity" column="CHANGED_QUANTITY"/>
+        <result property="state" column="STATE"/>
+        <result property="identifier" column="IDENTIFIER"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="lockVersion" column="LOCK_VERSION"/>
+    </resultMap>
+
+    <select id="selectByIdentifier" resultMap="resultBlindBoxInventoryStreamMap">
+        SELECT
+        *
+        FROM `blind_box_inventory_stream`
+        where deleted=0
+        <if test="identifier!=null">
+            AND identifier = #{identifier}
+        </if>
+        <if test="blindBoxId!=null">
+            AND blind_box_id = #{blindBoxId}
+        </if>
+        <if test="streamType!=null">
+            AND stream_type = #{streamType}
+        </if>
+    </select>
+
+</mapper>

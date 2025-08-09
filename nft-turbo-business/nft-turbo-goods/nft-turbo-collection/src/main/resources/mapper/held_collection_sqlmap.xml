@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.hollis.nft.turbo.collection.infrastructure.mapper.HeldCollectionMapper">
+
+    <resultMap id="resultHeldCollectionMap" type="cn.hollis.nft.turbo.collection.domain.entity.HeldCollection">
+        <result property="id" column="ID"/>
+        <result property="gmtCreate" column="GMT_CREATE"/>
+        <result property="gmtModified" column="GMT_MODIFIED"/>
+        <result property="collectionId" column="COLLECTION_ID"/>
+        <result property="serialNo" column="SERIAL_NO"/>
+        <result property="nftId" column="NFT_ID"/>
+        <result property="preId" column="PRE_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="state" column="STATE"/>
+        <result property="bizType" column="BIZ_TYPE"/>
+        <result property="bizNo" column="BIZ_NO"/>
+        <result property="purchasePrice" column="PURCHASE_PRICE"/>
+        <result property="referencePrice" column="REFERENCE_PRICE"/>
+        <result property="rarity" column="rarity"/>
+        <result property="txHash" column="TX_HASH"/>
+        <result property="holdTime" column="HOLD_TIME"/>
+        <result property="syncChainTime" column="SYNC_CHAIN_TIME"/>
+        <result property="deleteTime" column="DELETE_TIME"/>
+        <result property="deleted" column="DELETED"/>
+        <result property="lockVersion" column="LOCK_VERSION"/>
+    </resultMap>
+
+</mapper>
