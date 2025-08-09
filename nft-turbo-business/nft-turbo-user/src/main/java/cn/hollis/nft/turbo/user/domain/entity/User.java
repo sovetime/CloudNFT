@@ -21,16 +21,12 @@ public class User extends BaseEntity {
 
     //昵称
     private String nickName;
-
     //密码
     private String passwordHash;
-
     //状态
     private UserStateEnum state;
-
     //邀请码
     private String inviteCode;
-
     //邀请人用户ID
     private String inviterId;
 

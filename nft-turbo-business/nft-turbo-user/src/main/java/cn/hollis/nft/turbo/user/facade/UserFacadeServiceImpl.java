@@ -16,9 +16,7 @@ import cn.hollis.nft.turbo.user.domain.service.UserService;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author Hollis
- */
+
 @DubboService(version = "1.0.0")
 public class UserFacadeServiceImpl implements UserFacadeService {
 
@@ -27,8 +25,6 @@ public class UserFacadeServiceImpl implements UserFacadeService {
 
     @Override
     public UserQueryResponse<UserInfo> query(UserQueryRequest userQueryRequest) {
-        //使用switch表达式精简代码，如果这里编译不过，参考我的文档调整IDEA的JDK版本
-        //文档地址：https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/6673f26c5e11940001c810fb#667971268a5c151234adcf92
         User user = switch (userQueryRequest.getUserQueryCondition()) {
             case UserIdQueryCondition userIdQueryCondition:
                 yield userService.findById(userIdQueryCondition.getUserId());

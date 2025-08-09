@@ -185,6 +185,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse auth(UserAuthRequest userAuthRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
+        //根据id查询用户
         User user = userMapper.findById(userAuthRequest.getUserId());
         Assert.notNull(user, () -> new UserException(USER_NOT_EXIST));
 
@@ -214,7 +215,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
 
     //用户激活
-    //@CacheInvalidate，标识这个方法被调用时需要移除缓存
+    //@CacheInvalidate，标识这个方法被调用时需要移除用户缓存
     @CacheInvalidate(name = ":user:cache:id:", key = "#userActiveRequest.userId")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse active(UserActiveRequest userActiveRequest) {
@@ -241,7 +242,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     }
 
 
-    //冻结
+    //冻结，
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse freeze(Long userId) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
@@ -263,7 +264,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         long result = userOperateStreamService.insertStream(user, UserOperateTypeEnum.FREEZE);
         Assert.notNull(result, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
-        //第二次删除缓存
+        //使用延时任务第二次删除缓存
         userCacheDelayDeleteService.delayedCacheDelete(idUserCache, user);
 
         userOperatorResponse.setSuccess(true);
@@ -293,7 +294,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         long result = userOperateStreamService.insertStream(user, UserOperateTypeEnum.UNFREEZE);
         Assert.notNull(result, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
-        //第二次删除缓存
+        //使用延时任务第二次删除缓存
         userCacheDelayDeleteService.delayedCacheDelete(idUserCache, user);
 
         userOperatorResponse.setSuccess(true);
@@ -355,6 +356,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
             user.setPasswordHash(DigestUtil.md5Hex(userModifyRequest.getPassword()));
         }
 
+        //更新数据库
         if (updateById(user)) {
             //加入流水
             long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.MODIFY);
@@ -483,6 +485,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         idUserCache.put(userId, user);
     }
 
+    //初始化布隆过滤器
     @Override
     public void afterPropertiesSet() throws Exception {
         this.nickNameBloomFilter = redissonClient.getBloomFilter("nickName");

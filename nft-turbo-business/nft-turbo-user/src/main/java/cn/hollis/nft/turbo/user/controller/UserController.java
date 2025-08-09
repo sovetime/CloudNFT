@@ -138,7 +138,7 @@ public class UserController {
         return Result.success(prefix + path);
     }
 
-    //实名认证
+    //实名认证（待完善）
     @PostMapping("/auth")
     public Result<Boolean> auth(@Valid @RequestBody UserAuthParam userAuthParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -148,7 +148,9 @@ public class UserController {
         userAuthRequest.setUserId(Long.valueOf(userId));
         userAuthRequest.setRealName(userAuthParam.getRealName());
         userAuthRequest.setIdCard(userAuthParam.getIdCard());
+
         UserOperatorResponse authResult = userService.auth(userAuthRequest);
+
         //实名认证成功，需要进行上链操作
         if (authResult.getSuccess()) {
             ChainProcessRequest chainCreateRequest = new ChainProcessRequest();
@@ -164,6 +166,7 @@ public class UserController {
                 userActiveRequest.setUserId(Long.valueOf(userId));
                 userActiveRequest.setBlockChainUrl(chainCreateData.getAccount());
                 userActiveRequest.setBlockChainPlatform(chainCreateData.getPlatform());
+
                 UserOperatorResponse activeResponse = userService.active(userActiveRequest);
                 if (activeResponse.getSuccess()) {
                     refreshUserInSession(userId);
