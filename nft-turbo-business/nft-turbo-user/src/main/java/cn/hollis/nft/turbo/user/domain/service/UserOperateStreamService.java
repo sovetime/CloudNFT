@@ -14,6 +14,7 @@ import java.util.Date;
 @Service
 public class UserOperateStreamService extends ServiceImpl<UserOperateStreamMapper, UserOperateStream> {
 
+    // 保存流水记录并返回结果
     public Long insertStream(User user, UserOperateTypeEnum type) {
         UserOperateStream stream = new UserOperateStream();
         stream.setUserId(String.valueOf(user.getId()));

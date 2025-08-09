@@ -17,9 +17,13 @@ import lombok.ToString;
 public class UserModifyRequest extends BaseRequest {
     @NotNull(message = "userId不能为空")
     private Long userId;
+
     private String nickName;
+
     private String password;
+
     private String profilePhotoUrl;
+
     private String telephone;
 
 }

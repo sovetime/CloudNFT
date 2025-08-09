@@ -54,9 +54,9 @@ public class AuthController {
     //默认登录超时时间：7天
     private static final Integer DEFAULT_LOGIN_SESSION_TIMEOUT = 60 * 60 * 24 * 7;
 
+    //生成并发送短信验证码
     @GetMapping("/sendCaptcha")
     public Result<Boolean> sendCaptcha(@IsMobile String telephone) {
-        //生成并发送短信验证码
         NoticeResponse noticeResponse = noticeFacadeService.generateAndSendSmsCaptcha(telephone);
         return Result.success(noticeResponse.getSuccess());
     }

@@ -52,7 +52,7 @@ public class UserController {
     @Resource
     private ChainFacadeService chainFacadeService;
 
-    //获取用户信息
+    //获取用户信息，使用jetcache进行缓存，方便后续订单等模块查询使用
     @GetMapping("/getUserInfo")
     public Result<UserInfo> getUserInfo() {
         String userId = (String) StpUtil.getLoginId();
@@ -74,7 +74,7 @@ public class UserController {
         return Result.success(UserConvertor.INSTANCE.mapToBasicVo(user));
     }
 
-    //修改昵称
+    //修改昵称，先从布隆过滤器中查询出信息，没有在查询数据库
     @PostMapping("/modifyNickName")
     public Result<Boolean> modifyNickName(@Valid @RequestBody UserModifyParam userModifyParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -105,6 +105,7 @@ public class UserController {
         UserModifyRequest userModifyRequest = new UserModifyRequest();
         userModifyRequest.setUserId(Long.valueOf(userId));
         userModifyRequest.setPassword(userModifyParam.getNewPassword());
+
         Boolean registerResult = userService.modify(userModifyRequest).getSuccess();
         return Result.success(registerResult);
     }
@@ -129,6 +130,7 @@ public class UserController {
         UserModifyRequest userModifyRequest = new UserModifyRequest();
         userModifyRequest.setUserId(Long.valueOf(userId));
         userModifyRequest.setProfilePhotoUrl(prefix + path);
+
         Boolean registerResult = userService.modify(userModifyRequest).getSuccess();
         if (!registerResult) {
             throw new UserException(USER_UPLOAD_PICTURE_FAIL);

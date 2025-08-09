@@ -20,6 +20,7 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    //环境配置注解，指定当前bean只有在特定的环境激活时才会被创建
     @Profile({"default", "prod"})
     public AuthService authService() {
         return new AuthServiceImpl(authProperties.getHost(), authProperties.getPath(), authProperties.getAppcode());

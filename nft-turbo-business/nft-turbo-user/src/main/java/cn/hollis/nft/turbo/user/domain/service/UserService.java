@@ -74,26 +74,20 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     @Autowired
     private UserCacheDelayDeleteService userCacheDelayDeleteService;
-    /**
-     * 用户名布隆过滤器
-     */
+
+    //用户名布隆过滤器
     private RBloomFilter<String> nickNameBloomFilter;
 
-    /**
-     * 邀请码布隆过滤器
-     */
+    //邀请码布隆过滤器
     private RBloomFilter<String> inviteCodeBloomFilter;
 
-    /**
-     * 邀请排行榜
-     */
+    //邀请排行榜
     private RScoredSortedSet<String> inviteRank;
 
-    /**
-     * 通过用户ID对用户信息做的缓存
-     */
+    //通过用户ID对用户信息做的缓存
     private Cache<String, User> idUserCache;
 
+    //@PostConstruct 作用，确保依赖注入完成、避免重复创建
     @PostConstruct
     public void init() {
         QuickConfig idQc = QuickConfig.newBuilder(":user:cache:id:")
@@ -104,6 +98,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         idUserCache = cacheManager.getOrCreateCache(idQc);
     }
 
+    // 注册
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse register(String telephone, String inviteCode) {
@@ -116,6 +111,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
             defaultNickName = DEFAULT_NICK_NAME_PREFIX + randomString + telephone.substring(7, 11);
         } while (nickNameExist(defaultNickName) || inviteCodeExist(randomString));
 
+        //邀请码逻辑
         String inviterId = null;
         if (StringUtils.isNotBlank(inviteCode)) {
             User inviter = userMapper.findByInviteCode(inviteCode);
@@ -127,6 +123,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         User user = register(telephone, defaultNickName, telephone, randomString, inviterId);
         Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
 
+        //添加对应信息到缓存中，缓存中有BloomFilter维护用户信息缓存以及邀请排行榜
         addNickName(defaultNickName);
         addInviteCode(randomString);
         updateInviteRank(inviterId);
@@ -160,7 +157,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
-
     //注册
     private User register(String telephone, String nickName, String password, String inviteCode, String inviterId) {
         if (userMapper.findByTelephone(telephone) != null) {
@@ -172,6 +168,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return save(user) ? user : null;
     }
 
+    //管理员注册
     private User registerAdmin(String telephone, String nickName, String password) {
         if (userMapper.findByTelephone(telephone) != null) {
             throw new UserException(DUPLICATE_TELEPHONE_NUMBER);
@@ -217,14 +214,18 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
 
     //用户激活
+    //@CacheInvalidate，标识这个方法被调用时需要移除缓存
     @CacheInvalidate(name = ":user:cache:id:", key = "#userActiveRequest.userId")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse active(UserActiveRequest userActiveRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
+        //根据id查询用户
         User user = userMapper.findById(userActiveRequest.getUserId());
         Assert.notNull(user, () -> new UserException(USER_NOT_EXIST));
         Assert.isTrue(user.getState() == UserStateEnum.AUTH, () -> new UserException(USER_STATUS_IS_NOT_AUTH));
+
         user.active(userActiveRequest.getBlockChainUrl(), userActiveRequest.getBlockChainPlatform());
+        //更新用户
         boolean result = updateById(user);
         if (result) {
             //加入流水
@@ -333,27 +334,32 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userMapper.findById(userId);
     }
 
-    //更新用户信息
+    //更新用户信息，缓存中删除
     @CacheInvalidate(name = ":user:cache:id:", key = "#userModifyRequest.userId")
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse modify(UserModifyRequest userModifyRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
+        //数据库中进行查询
         User user = userMapper.findById(userModifyRequest.getUserId());
         Assert.notNull(user, () -> new UserException(USER_NOT_EXIST));
         Assert.isTrue(user.canModifyInfo(), () -> new UserException(USER_STATUS_CANT_OPERATE));
 
+        //从布隆过滤器中查询用户名称
         if (StringUtils.isNotBlank(userModifyRequest.getNickName()) && nickNameExist(userModifyRequest.getNickName())) {
             throw new UserException(NICK_NAME_EXIST);
         }
         BeanUtils.copyProperties(userModifyRequest, user);
 
+        //密码更新
         if (StringUtils.isNotBlank(userModifyRequest.getPassword())) {
             user.setPasswordHash(DigestUtil.md5Hex(userModifyRequest.getPassword()));
         }
+
         if (updateById(user)) {
             //加入流水
             long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.MODIFY);
             Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
+            //添加到BloomFilter列表中（缓存中）
             addNickName(userModifyRequest.getNickName());
             userOperatorResponse.setSuccess(true);
 
@@ -366,6 +372,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
+    //获取我的排名
     public Integer getInviteRank(String userId) {
         Integer rank = inviteRank.revRank(userId);
         if (rank != null) {
@@ -374,6 +381,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return null;
     }
 
+    //获取邀请列表
     public PageResponse<User> getUsersByInviterId(String inviterId, int currentPage, int pageSize) {
         Page<User> page = new Page<>(currentPage, pageSize);
         QueryWrapper<User> wrapper = new QueryWrapper<>();
@@ -386,6 +394,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return PageResponse.of(userPage.getRecords(), (int) userPage.getTotal(), pageSize, currentPage);
     }
 
+    //获取邀请排行
     public List<InviteRankInfo> getTopN(Integer topN) {
         Collection<ScoredEntry<String>> rankInfos = inviteRank.entryRangeReversed(0, topN - 1);
 
@@ -410,8 +419,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return inviteRankInfos;
     }
 
+    //如果布隆过滤器中存在，再进行数据库二次判断
     public boolean nickNameExist(String nickName) {
-        //如果布隆过滤器中存在，再进行数据库二次判断
         if (this.nickNameBloomFilter != null && this.nickNameBloomFilter.contains(nickName)) {
             return userMapper.findByNickname(nickName) != null;
         }
@@ -419,8 +428,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return false;
     }
 
+    //如果布隆过滤器中存在，再进行数据库二次判断
     public boolean inviteCodeExist(String inviteCode) {
-        //如果布隆过滤器中存在，再进行数据库二次判断
         if (this.inviteCodeBloomFilter != null && this.inviteCodeBloomFilter.contains(inviteCode)) {
             return userMapper.findByInviteCode(inviteCode) != null;
         }
@@ -444,6 +453,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         if (inviterId == null) {
             return;
         }
+
         //1、这里因为是一个私有方法，无法通过注解方式实现分布式锁。
         //2、register方法已经加了锁，这里需要二次加锁的原因是register锁的是注册人，这里锁的是邀请人
         RLock rLock = redissonClient.getLock(inviterId);

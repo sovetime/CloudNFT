@@ -8,40 +8,75 @@ spring:
         enabled: true
   redis:
     redisson:
-      config: |
+      config:
+        # 单服务器配置
         singleServerConfig:
+          # 连接空闲超时时间(毫秒)
           idleConnectionTimeout: 10000
+          # 连接超时时间(毫秒)
           connectTimeout: 10000
+          # 命令执行超时时间(毫秒)
           timeout: 3000
+          # 命令重试次数
           retryAttempts: 3
+          # 命令重试间隔时间(毫秒)
           retryInterval: 1500
+          # Redis服务器密码，从环境变量获取
           password: ${nft.turbo.redis.password}
+          # 每个连接的订阅数量
           subscriptionsPerConnection: 5
+          # 客户端名称
           clientName: null
+          # Redis服务器地址，由环境变量拼接而成
           address: "redis://${nft.turbo.redis.url}:${nft.turbo.redis.port}"
+          # 订阅连接最小空闲连接数
           subscriptionConnectionMinimumIdleSize: 1
+          # 订阅连接池大小
           subscriptionConnectionPoolSize: 50
+          # 最小空闲连接数
           connectionMinimumIdleSize: 24
+          # 连接池大小
           connectionPoolSize: 64
+          # 数据库索引
           database: 0
+          # DNS监控间隔时间(毫秒)
           dnsMonitoringInterval: 5000
+        # 工作线程数
         threads: 16
+        # Netty线程数
         nettyThreads: 32
+        # 编解码器配置，使用StringCodec
         codec: !<org.redisson.client.codec.StringCodec> {}
+        # 传输模式，使用NIO
         transportMode: "NIO"
+
+# JetCache缓存配置
 jetcache:
+  # 统计信息收集间隔时间(分钟)
   statIntervalMinutes: 1
+  # 缓存名称中是否包含区域信息
   areaInCacheName: false
+  # 本地缓存配置
   local:
     default:
+      # 缓存类型为Caffeine
       type: caffeine
+      # 键转换器使用fastjson2
       keyConvertor: fastjson2
+  # 远程缓存配置
   remote:
     default:
+      # 缓存类型为Redisson
       type: redisson
+      # 键转换器使用fastjson2
       keyConvertor: fastjson2
+      # 广播频道名称，使用应用名称
       broadcastChannel: ${spring.application.name}
+      # 键前缀，使用应用名称
       keyPrefix: ${spring.application.name}
+      # 值编码器使用Java序列化
       valueEncoder: java
+      # 值解码器使用Java反序列化
       valueDecoder: java
+      # 默认过期时间(毫秒)
       defaultExpireInMillis: 5000
