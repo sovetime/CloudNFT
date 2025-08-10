@@ -23,6 +23,7 @@ public class UserFacadeServiceImpl implements UserFacadeService {
     @Autowired
     private UserService userService;
 
+    //用户信息查询
     @Override
     public UserQueryResponse<UserInfo> query(UserQueryRequest userQueryRequest) {
         User user = switch (userQueryRequest.getUserQueryCondition()) {
@@ -43,6 +44,7 @@ public class UserFacadeServiceImpl implements UserFacadeService {
         return response;
     }
 
+    //分页查询用户信息
     @Override
     public PageResponse<UserInfo> pageQuery(UserPageQueryRequest userPageQueryRequest) {
         var queryResult = userService.pageQueryByState(userPageQueryRequest.getKeyWord(), userPageQueryRequest.getState(), userPageQueryRequest.getCurrentPage(), userPageQueryRequest.getPageSize());
@@ -58,24 +60,28 @@ public class UserFacadeServiceImpl implements UserFacadeService {
         return response;
     }
 
+    //用户注册
     @Override
     @Facade
     public UserOperatorResponse register(UserRegisterRequest userRegisterRequest) {
         return userService.register(userRegisterRequest.getTelephone(), userRegisterRequest.getInviteCode());
     }
 
+    //用户信息修改
     @Override
     @Facade
     public UserOperatorResponse modify(UserModifyRequest userModifyRequest) {
         return userService.modify(userModifyRequest);
     }
 
+    //用户实名认证
     @Override
     @Facade
     public UserOperatorResponse auth(UserAuthRequest userAuthRequest) {
         return userService.auth(userAuthRequest);
     }
 
+    //用户激活
     @Override
     @Facade
     public UserOperatorResponse active(UserActiveRequest userActiveRequest) {

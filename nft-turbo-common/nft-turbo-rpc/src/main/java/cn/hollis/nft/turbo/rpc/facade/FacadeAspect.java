@@ -22,7 +22,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-//切面处理类，统一统计进行参数校验及异常捕获
+
+// FacadeAspect 是一个切面类，用于统一处理带有 @Facade 注解的方法调用
+//它提供了参数校验、方法执行、日志记录、响应补全以及异常处理等功能。
 @Aspect
 @Component
 @Order(Integer.MIN_VALUE)
@@ -30,6 +32,8 @@ public class FacadeAspect {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FacadeAspect.class);
 
+    //切面环绕通知方法，用于处理标注了 @Facade 注解的方法
+    //主要功能：参数校验，方法执行，响应补全，日志记录，异常处理及失败响应构造。
     @Around("@annotation(cn.hollis.nft.turbo.rpc.facade.Facade)")
     public Object facade(ProceedingJoinPoint pjp) throws Exception {
 
@@ -41,7 +45,7 @@ public class FacadeAspect {
 
         Class returnType = ((MethodSignature) pjp.getSignature()).getMethod().getReturnType();
 
-        //循环遍历所有参数，进行参数校验
+        // 循环遍历所有参数，进行参数校验
         for (Object parameter : args) {
             try {
                 BeanValidator.validateObject(parameter);
@@ -64,21 +68,20 @@ public class FacadeAspect {
         }
     }
 
-    //日志打印
+    //打印方法执行日志,包含方法名、执行耗时、参数、响应结果或异常信息等
     private void printLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response,
                           Throwable throwable) {
         try {
-            //因为此处有JSON.toJSONString，可能会有异常，需要进行捕获，避免影响主干流程
+            // 因为此处有 JSON.toJSONString，可能会有异常，需要进行捕获，避免影响主干流程
             LOGGER.info(getInfoMessage(action, stopWatch, method, args, response, throwable), throwable);
-            // 如果校验失败，则返回一个失败的response
         } catch (Exception e1) {
             LOGGER.error("log failed", e1);
         }
     }
 
-    //统一格式输出，方便做日志统计，如果调整此处的格式，需要同步调整日志监控
-    private String getInfoMessage(String action, StopWatch stopWatch, Method method, Object[] args, Object response,
-                                  Throwable exception) {
+    //构造统一格式的日志信息字符串,包含方法名、执行时间、参数、响应结果、异常信息等。
+    private String getInfoMessage(String action, StopWatch stopWatch, Method method, Object[] args,
+                                                            Object response, Throwable exception) {
 
         StringBuilder stringBuilder = new StringBuilder(action);
         stringBuilder.append(" ,method = ");
@@ -117,16 +120,18 @@ public class FacadeAspect {
     }
 
 
-    //将response的信息补全，主要是code和message
+    //补全响应对象中的 code 和 message 字段
+    //如果响应成功但未设置 code，则默认为 SUCCESS
+    //如果响应失败但未设置 code，则默认为 BIZ_ERROR
     private void enrichObject(Object response) {
         if (response instanceof BaseResponse) {
             if (((BaseResponse) response).getSuccess()) {
-                //如果状态是成功的，需要将未设置的responseCode设置成SUCCESS
+                // 如果状态是成功的，需要将未设置的responseCode设置成SUCCESS
                 if (StringUtils.isEmpty(((BaseResponse) response).getResponseCode())) {
                     ((BaseResponse) response).setResponseCode(ResponseCode.SUCCESS.name());
                 }
             } else {
-                //如果状态是成功的，需要将未设置的responseCode设置成BIZ_ERROR
+                // 如果状态是失败的，需要将未设置的responseCode设置成BIZ_ERROR
                 if (StringUtils.isEmpty(((BaseResponse) response).getResponseCode())) {
                     ((BaseResponse) response).setResponseCode(ResponseCode.BIZ_ERROR.name());
                 }
@@ -134,11 +139,12 @@ public class FacadeAspect {
         }
     }
 
-    // 定义并返回一个通用的失败响应
+
+    //构造一个通用的失败响应对象.根据异常类型设置对应的错误码和错误信息。
     private Object getFailedResponse(Class returnType, Throwable throwable)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        //如果返回值的类型为BaseResponse 的子类，则创建一个通用的失败响应
+        // 如果返回值的类型为BaseResponse 的子类，则创建一个通用的失败响应
         if (returnType.getDeclaredConstructor().newInstance() instanceof BaseResponse) {
             BaseResponse response = (BaseResponse) returnType.getDeclaredConstructor().newInstance();
             response.setSuccess(false);
@@ -161,3 +167,4 @@ public class FacadeAspect {
         return null;
     }
 }
+

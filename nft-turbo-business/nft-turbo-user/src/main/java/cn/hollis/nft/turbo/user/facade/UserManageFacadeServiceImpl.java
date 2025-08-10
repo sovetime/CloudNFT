@@ -15,17 +15,20 @@ public class UserManageFacadeServiceImpl implements UserManageFacadeService {
     @Autowired
     private UserService userService;
 
+    //管理员注册
     @Override
     @Facade
     public UserOperatorResponse registerAdmin(UserRegisterRequest userRegisterRequest) {
         return userService.registerAdmin(userRegisterRequest.getTelephone(), userRegisterRequest.getPassword());
     }
 
+    //冻结
     @Override
     public UserOperatorResponse freeze(Long userId) {
         return userService.freeze(userId);
     }
 
+    //解冻
     @Override
     public UserOperatorResponse unfreeze(Long userId) {
         return userService.unfreeze(userId);
