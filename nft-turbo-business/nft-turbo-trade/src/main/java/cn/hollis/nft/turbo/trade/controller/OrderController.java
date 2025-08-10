@@ -13,6 +13,7 @@ import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.web.util.MultiResultConvertor;
 import cn.hollis.nft.turbo.web.vo.MultiResult;
 import cn.hollis.nft.turbo.web.vo.Result;
+import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,27 +27,20 @@ import java.util.UUID;
 
 import static cn.hollis.nft.turbo.api.user.constant.UserType.PLATFORM;
 
-/**
- * @author Hollis
- */
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("order")
 public class OrderController {
 
-    @Autowired
+    @Resource
     private OrderFacadeService orderFacadeService;
 
-    @Autowired
+    @Resource
     private PayFacadeService payFacadeService;
 
-    /**
-     * 订单列表
-     *
-     * @param
-     * @return 结果
-     */
+    //订单列表
     @GetMapping("/orderList")
     public MultiResult<TradeOrderVO> orderList(String state, int pageSize, int currentPage) {
         String userId = (String) StpUtil.getLoginId();

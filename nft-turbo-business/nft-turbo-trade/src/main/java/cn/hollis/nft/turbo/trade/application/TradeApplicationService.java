@@ -9,6 +9,7 @@ import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,34 +19,26 @@ import static cn.hollis.nft.turbo.trade.exception.TradeErrorCode.NORMAL_BUY_TCC_
 import static cn.hollis.nft.turbo.trade.exception.TradeErrorCode.NORMAL_BUY_TCC_CONFIRM_FAILED;
 import static cn.hollis.turbo.stream.producer.StreamProducer.DELAY_LEVEL_1_M;
 
-/**
- * @author Hollis
- */
+
 @Service
 @Slf4j
 public class TradeApplicationService {
 
     private static final int MAX_RETRY_TIMES = 2;
 
-    @Autowired
+    @Resource
     private OrderTransactionFacadeService orderTransactionFacadeService;
 
-    @Autowired
+    @Resource
     private GoodsTransactionFacadeService goodsTransactionFacadeService;
 
     @Autowired
     private StreamProducer streamProducer;
 
-    /**
-     * 普通交易，基于TCC实现分布式一致性
-     * <p>
-     * Try -> Confirm ：Try成功，执行Confirm
-     * Try --> Cancel ： Try失败，执行Cancel
-     * Try -> Confirm --> Cancel ：Try成功，Confirm失败，执行Cancel
-     *
-     * @param orderCreateRequest
-     * @returnc
-     */
+    //普通交易，基于TCC实现分布式一致性
+    //Try -> Confirm ：Try成功，执行Confirm
+    //Try --> Cancel ： Try失败，执行Cancel
+    //Try -> Confirm --> Cancel ：Try成功，Confirm失败，执行Cancel
     public OrderResponse normalBuy(OrderCreateAndConfirmRequest orderCreateRequest) {
 
         boolean isTrySuccess = true;

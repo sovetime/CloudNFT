@@ -5,6 +5,7 @@ import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import com.alibaba.fastjson2.JSON;
+import jakarta.annotation.Resource;
 import org.apache.rocketmq.client.producer.LocalTransactionState;
 import org.apache.rocketmq.client.producer.TransactionListener;
 import org.apache.rocketmq.common.message.Message;
@@ -14,15 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author Hollis
- */
+
 @Component
 public class InventoryDecreaseTransactionListener implements TransactionListener {
 
     private static final Logger logger = LoggerFactory.getLogger(InventoryDecreaseTransactionListener.class);
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
     @Override

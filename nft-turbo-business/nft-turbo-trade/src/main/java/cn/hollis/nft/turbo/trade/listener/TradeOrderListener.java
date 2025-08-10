@@ -17,6 +17,7 @@ import cn.hollis.nft.turbo.trade.exception.TradeException;
 import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,22 +28,19 @@ import java.util.function.Consumer;
 
 import static cn.hollis.nft.turbo.trade.exception.TradeErrorCode.INVENTORY_ROLLBACK_FAILED;
 
-/**
- * 交易订单监听器
- *
- * @author hollis
- */
+
+//交易订单监听器
 @Slf4j
 @Component
 public class TradeOrderListener extends AbstractStreamConsumer {
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    @Autowired
+    @Resource
     private GoodsFacadeService goodsFacadeService;
 
-    @Autowired
+    @Resource
     private OrderFacadeService orderFacadeService;
 
     @Bean

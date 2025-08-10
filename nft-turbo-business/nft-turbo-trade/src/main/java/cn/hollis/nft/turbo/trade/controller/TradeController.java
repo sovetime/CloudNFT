@@ -44,6 +44,7 @@ import cn.hollis.nft.turbo.web.vo.Result;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,9 +67,7 @@ import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.api.user.constant.UserType.PLATFORM;
 import static cn.hollis.nft.turbo.web.filter.TokenFilter.TOKEN_THREAD_LOCAL;
 
-/**
- * @author Hollis
- */
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -80,36 +79,31 @@ public class TradeController {
 
     private ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(10, inventoryBypassVerifyThreadFactory);
 
-    @Autowired
+    @Resource
     private OrderFacadeService orderFacadeService;
 
     @Autowired
     private TradeApplicationService tradeApplicationService;
 
-    @Autowired
+    @Resource
     private PayFacadeService payFacadeService;
 
-    @Autowired
+    @Resource
     private GoodsFacadeService goodsFacadeService;
 
     @Autowired
     private StreamProducer streamProducer;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
     @Autowired
     private OrderCreateValidator orderPreValidatorChain;
 
-    @Autowired
+    @Resource
     private InventoryCheckFacadeService inventoryCheckFacadeService;
 
-    /**
-     * 预定
-     *
-     * @param
-     * @return 预定id
-     */
+    //预定
     @PostMapping("/book")
     public Result<Long> book(@Valid @RequestBody BookParam bookParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -127,13 +121,8 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.GOODS_BOOK_FAILED);
     }
 
-    /**
-     * 下单
-     * 秒杀下单，热点商品
-     *
-     * @param
-     * @return 订单号
-     */
+    //下单
+    //秒杀下单，热点商品
     @PostMapping("/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
@@ -149,12 +138,7 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
     }
 
-    /**
-     * 秒杀下单（不基于inventory hint的实现），热点商品
-     *
-     * @param
-     * @return 幂等号
-     */
+    //秒杀下单（不基于inventory hint的实现），热点商品
     @PostMapping("/newBuy")
     public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateRequest orderCreateRequest = null;
@@ -188,11 +172,8 @@ public class TradeController {
         return Result.error(TradeErrorCode.ORDER_CREATE_FAILED.getCode(), TradeErrorCode.ORDER_CREATE_FAILED.getMessage());
     }
 
-    /**
-     * 库存扣减旁路验证
-     *
-     * @param inventoryRequest
-     */
+
+    //库存扣减旁路验证
     private void inventoryBypassVerify(InventoryRequest inventoryRequest) {
         try {
             //延迟3秒检查数据库中是否有库存扣减记录
@@ -294,12 +275,7 @@ public class TradeController {
         return orderCreateAndConfirmRequest;
     }
 
-    /**
-     * 支付
-     *
-     * @param
-     * @return 支付链接地址
-     */
+    //支付
     @PostMapping("/pay")
     public Result<PayOrderVO> pay(@Valid @RequestBody PayParam payParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -361,12 +337,7 @@ public class TradeController {
         }
     }
 
-    /**
-     * 取消订单
-     *
-     * @param
-     * @return 是否成功
-     */
+    //取消订单
     @PostMapping("/cancel")
     public Result<Boolean> cancel(@Valid @RequestBody CancelParam cancelParam) {
         String userId = (String) StpUtil.getLoginId();

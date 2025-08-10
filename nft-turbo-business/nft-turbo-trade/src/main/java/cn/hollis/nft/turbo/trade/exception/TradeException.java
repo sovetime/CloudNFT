@@ -3,9 +3,7 @@ package cn.hollis.nft.turbo.trade.exception;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.ErrorCode;
 
-/**
- * @author Hollis
- */
+
 public class TradeException extends BizException {
     public TradeException(ErrorCode errorCode) {
         super(errorCode);
