@@ -7,33 +7,19 @@ import lombok.Setter;
 
 import static cn.hollis.nft.turbo.api.user.constant.UserType.PLATFORM;
 
-/**
- * 持有藏品流水表实体
- *
- * @author Hollis
- */
+
+//持有藏品流水表实体
 @Setter
 @Getter
 public class HeldCollectionStream extends BaseEntity {
 
-    /**
-     * 持有藏品ID
-     */
+    //持有藏品ID
     private Long heldCollectionId;
-
-    /**
-     * 流水类型
-     */
+    //流水类型
     private String streamType;
-
-    /**
-     * 操作人
-     */
+    //操作人
     private String operator;
-
-    /**
-     * 幂等号
-     */
+    //幂等号
     private String identifier;
 
     public HeldCollectionStream generateForCreate(Long heldCollectionId, String identifier) {

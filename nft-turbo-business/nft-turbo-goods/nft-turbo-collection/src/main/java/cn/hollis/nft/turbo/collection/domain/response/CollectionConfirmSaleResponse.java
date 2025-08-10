@@ -6,9 +6,7 @@ import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author Hollis
- */
+
 @Setter
 @Getter
 public class CollectionConfirmSaleResponse extends BaseResponse {

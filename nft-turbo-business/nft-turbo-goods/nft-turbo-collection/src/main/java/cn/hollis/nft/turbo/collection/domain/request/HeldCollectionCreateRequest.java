@@ -11,10 +11,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-/**
- * @author wswyb001
- * @date 2024/01/17
- */
 
 @Setter
 @Getter
@@ -22,67 +18,34 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HeldCollectionCreateRequest extends BaseHeldCollectionRequest {
-    /**
-     * 藏品名称
-     */
+
+    //藏品名称
     private String name;
-
-    /**
-     * 藏品封面
-     */
+    //藏品封面
     private String cover;
-
-    /**
-     * 购入价格
-     */
+    //购入价格
     private BigDecimal purchasePrice;
-
-    /**
-     * 参考价格
-     */
+    //参考价格
     private BigDecimal referencePrice;
-
-    /**
-     * 稀有度
-     */
+    //稀有度
     private CollectionRarity rarity;
-
-    /**
-     * 商品 id
-     */
+    //商品 id
     private Long goodsId;
 
-    /**
-     * @see cn.hollis.nft.turbo.api.goods.constant.GoodsType
-     */
     private String goodsType;
 
-    /**
-     * '持有人id'
-     */
+    //持有人id
     private String userId;
 
-    /**
-     * '藏品编号'
-     *
-     * @deprecated 外部不要在传入这个值了，不再使用，改为内部自己计算
-     */
+    //藏品编号，不再使用
     @Deprecated
     private String serialNo;
 
-    /**
-     * 序列号生成的 baseId，在商品为藏品时，该 id 为藏品 id，在商品为盲盒时，该 id 为盲盒 id
-     */
+    //序列号生成的 baseId，在商品为藏品时，该 id 为藏品 id，在商品为盲盒时，该 id 为盲盒 id
     private String serialNoBaseId;
-
-    /**
-     * '业务Id'
-     */
+    //业务Id
     private String bizNo;
-
-    /**
-     * '业务类型'
-     */
+    //业务类型
     private String bizType;
 
     @Deprecated

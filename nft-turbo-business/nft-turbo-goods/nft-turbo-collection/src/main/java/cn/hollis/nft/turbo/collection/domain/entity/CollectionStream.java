@@ -9,98 +9,46 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * <p>
- * 藏品流水信息
- * </p>
- *
- * @author wswyb001
- * @since 2024-01-19
- */
+
+//藏品流水信息
 @Getter
 @Setter
 public class CollectionStream extends BaseEntity {
 
-    /**
-     * 流水类型
-     */
+    //流水类型
     private GoodsEvent streamType;
-
-    /**
-     * 藏品id
-     */
+    //藏品id
     private Long collectionId;
-
-    /**
-     * '藏品名称'
-     */
+    //藏品名称
     private String name;
-
-    /**
-     * '藏品封面'
-     */
+    //藏品封面
     private String cover;
-
-    /**
-     * '藏品类目id'
-     */
+    //藏品类目id
     private String classId;
-
-    /**
-     * '价格'
-     */
+    //价格
     private BigDecimal price;
-
-    /**
-     * '藏品数量'
-     */
+    //藏品数量
     private Integer quantity;
-
-    /**
-     * '藏品详情'
-     */
+    //藏品详情
     private String detail;
-
-    /**
-     * '可售库存'
-     */
+    //可售库存
     private Long saleableInventory;
 
-    /**
-     * '已占库存'
-     * @deprecated 这个字段不再使用，详见 CollecitonSerivce.confirmSale
-     */
+    //已占库存（不再使用）
     @Deprecated
     private Long occupiedInventory;
 
-    /**
-     * '冻结库存'
-     */
+    //冻结库存
     private Long frozenInventory;
-
-    /**
-     * '状态'
-     */
+    //状态
     private CollectionStateEnum state;
-
-    /**
-     * '藏品创建时间'
-     */
+    //藏品创建时间
     private Date createTime;
-
-    /**
-     * '藏品发售时间'
-     */
+    //藏品发售时间
     private Date saleTime;
-
-    /**
-     * '藏品上链时间'
-     */
+    //藏品上链时间
     private Date syncChainTime;
-
-    /**
-     * '幂等号'
-     */
+    //幂等号
     private String identifier;
 
     @SuppressWarnings("deprecation")

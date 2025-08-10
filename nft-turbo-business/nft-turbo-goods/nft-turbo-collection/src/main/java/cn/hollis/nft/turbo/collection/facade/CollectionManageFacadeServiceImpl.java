@@ -25,6 +25,7 @@ import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import com.alibaba.fastjson.JSON;
+import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,17 +38,14 @@ import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.*;
 import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_INVENTORY_UPDATE_FAILED;
 
-/**
- * 藏品管理服务
- *
- * @author hollis
- */
+
+//藏品管理服务
 @DubboService(version = "1.0.0")
 public class CollectionManageFacadeServiceImpl implements CollectionManageFacadeService {
 
     private static final Logger logger = LoggerFactory.getLogger(CollectionManageFacadeServiceImpl.class);
 
-    @Autowired
+    @Resource
     private ChainFacadeService chainFacadeService;
 
     @Autowired
@@ -56,10 +54,10 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
     @Autowired
     private CollectionReadFacadeService collectionReadFacadeService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    @Autowired
+    @Resource
     private UserFacadeService userFacadeService;
 
     @Override

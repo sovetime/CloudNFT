@@ -5,11 +5,8 @@ import cn.hollis.nft.turbo.collection.infrastructure.mapper.HeldCollectionStream
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-/**
- * 持有藏品流水表服务
- *
- * @author Hollis
- */
+
+//持有藏品流水表服务
 @Service
 public class HeldCollectionStreamService extends ServiceImpl<HeldCollectionStreamMapper, HeldCollectionStream> {
 

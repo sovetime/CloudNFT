@@ -39,11 +39,8 @@ import java.util.concurrent.TimeUnit;
 
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.*;
 
-/**
- * 持有的藏品服务
- *
- * @author Hollis
- */
+
+//持有的藏品服务
 @Service
 public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, HeldCollection> {
     @Autowired

@@ -31,11 +31,8 @@ import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
 import static cn.hollis.nft.turbo.base.response.ResponseCode.SUCCESS;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.*;
 
-/**
- * @author Hollis
- * <p>
- * 通用的藏品服务
- */
+
+//通用的藏品服务
 public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper, Collection> implements CollectionService {
 
     @Autowired

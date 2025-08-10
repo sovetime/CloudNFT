@@ -6,42 +6,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * <p>
- * 藏品空投流水信息
- * </p>
- *
- * @author wswyb001
- * @since 2024-01-19
- */
+
+//藏品空投流水信息
 @Getter
 @Setter
 @NoArgsConstructor
 public class CollectionAirdropStream extends BaseEntity {
 
-    /**
-     * 藏品id
-     */
+    //藏品id
     private Long collectionId;
-
-    /**
-     * '接收用户ID'
-     */
+    //接收用户ID
     private String recipientUserId;
-
-    /**
-     * '空投数量'
-     */
+    //空投数量
     private Integer quantity;
-
-    /**
-     * 流水类型
-     */
+    //流水类型
     private GoodsEvent streamType;
-
-    /**
-     * '幂等号'
-     */
+    //幂等号
     private String identifier;
 
     public CollectionAirdropStream(Collection collection, String identifier, GoodsEvent streamType, Integer quantity, String recipientUserId) {

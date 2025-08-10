@@ -13,101 +13,45 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * <p>
- * 藏品信息
- * </p>
- *
- * @author wswyb001
- * @since 2024-01-19
- */
+
+//藏品信息
 @Getter
 @Setter
 public class HeldCollection extends BaseEntity {
 
-    /**
-     * 藏品名称
-     */
+    //藏品名称
     private String name;
-
-    /**
-     * 藏品封面
-     */
+    //藏品封面
     private String cover;
-
-    /**
-     * 购入价格
-     */
+    //购入价格
     private BigDecimal purchasePrice;
-
-    /**
-     * 参考价格
-     */
+    //参考价格
     private BigDecimal referencePrice;
-
-    /**
-     * 稀有度
-     */
+    //稀有度
     private CollectionRarity rarity;
-
-    /**
-     * '藏品id'
-     */
+    //藏品id
     private Long collectionId;
-
-    /**
-     * '藏品编号'
-     */
+    //藏品编号
     private String serialNo;
-
-    /**
-     * 'nft唯一编号'
-     */
+    //nft唯一编号
     private String nftId;
-
-    /**
-     * '上一个持有人id'
-     */
+    //上一个持有人id
     private String preId;
-
-    /**
-     * '持有人id'
-     */
+    //持有人id
     private String userId;
-
-    /**
-     * '状态'
-     */
+    //状态
     private HeldCollectionState state;
-
-    /**
-     * '交易hash'
-     */
+    //交易hash
     private String txHash;
-
-    /**
-     * '藏品持有时间'
-     */
+    //藏品持有时间
     private Date holdTime;
-
-    /**
-     * '藏品同步时间'
-     */
+    //藏品同步时间
     private Date syncChainTime;
-
-    /**
-     * '藏品销毁时间'
-     */
+    //藏品销毁时间
     private Date deleteTime;
-
-    /**
-     * '业务类型'
-     */
+    //业务类型
     private GoodsSaleBizType bizType;
-
-    /**
-     * '业务编号'
-     */
+    //业务编号
     private String bizNo;
 
     public HeldCollection init(HeldCollectionCreateRequest request,String serialNo) {

@@ -20,11 +20,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * 藏品上链铸造重试任务
- *
- * @author Hollis
- */
+
+//藏品上链铸造重试任务
 @Component
 public class CollectionChainMintRetryJob {
 

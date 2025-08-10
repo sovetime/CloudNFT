@@ -25,16 +25,14 @@ import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionAirdropStr
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * 藏品服务
- *
- * @author hollis
- */
+
+//藏品服务
 @DubboService(version = "1.0.0")
 public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeService {
 
@@ -46,10 +44,10 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
     @Autowired
     private HeldCollectionService heldCollectionService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    @Autowired
+    @Resource
     private GoodsFacadeService goodsFacadeService;
 
     @Autowired

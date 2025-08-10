@@ -29,6 +29,7 @@ import cn.hollis.nft.turbo.web.util.MultiResultConvertor;
 import cn.hollis.nft.turbo.web.vo.MultiResult;
 import cn.hollis.nft.turbo.web.vo.Result;
 import cn.hutool.core.lang.Assert;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -42,32 +43,25 @@ import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.*;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_OWNER_CHECK_ERROR;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_SAVE_FAILED;
 
-/**
- * @author wswyb001
- */
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("collection")
 public class CollectionController {
 
-    @Autowired
+    @Resource
     private GoodsFacadeService goodsFacadeService;
     @Autowired
     private CollectionReadFacadeService collectionReadFacadeService;
-    @Autowired
+    @Resource
     private ChainFacadeService chainFacadeService;
-    @Autowired
+    @Resource
     private UserFacadeService userFacadeService;
     @Autowired
     private HeldCollectionService heldCollectionService;
 
-    /**
-     * 藏品列表
-     *
-     * @param
-     * @return 结果
-     */
+    //藏品列表
     @GetMapping("/collectionList")
     public MultiResult<CollectionVO> collectionList(@NotBlank String state, String keyword, int pageSize, int currentPage) {
         CollectionPageQueryRequest collectionPageQueryRequest = new CollectionPageQueryRequest();
@@ -79,12 +73,7 @@ public class CollectionController {
         return MultiResultConvertor.convert(pageResponse);
     }
 
-    /**
-     * 藏品详情
-     *
-     * @param
-     * @return 结果
-     */
+    //藏品详情
     @GetMapping("/collectionInfo")
     public Result<CollectionVO> collectionInfo(@NotBlank String collectionId) {
         CollectionVO collectionVO = (CollectionVO) goodsFacadeService.getGoods(collectionId, GoodsType.COLLECTION);
@@ -101,12 +90,7 @@ public class CollectionController {
         return Result.success(collectionVO);
     }
 
-    /**
-     * 用户持有藏品列表
-     *
-     * @param
-     * @return 结果
-     */
+    //用户持有藏品列表
     @GetMapping("/heldCollectionList")
     public MultiResult<HeldCollectionVO> heldCollectionList(String keyword, String state, int pageSize, int currentPage) {
         String userId = (String) StpUtil.getLoginId();
@@ -120,12 +104,7 @@ public class CollectionController {
         return MultiResultConvertor.convert(pageResponse);
     }
 
-    /**
-     * 用户持有藏品列表
-     *
-     * @param
-     * @return 结果
-     */
+    //用户持有藏品列表
     @GetMapping("/heldCollectionCount")
     public Result<Long> heldCollectionCount() {
         String userId = (String) StpUtil.getLoginId();
@@ -134,12 +113,7 @@ public class CollectionController {
         return Result.success(response.getData());
     }
 
-    /**
-     * 用户持有藏品详情
-     *
-     * @param
-     * @return 结果
-     */
+    //用户持有藏品详情
     @GetMapping("/heldCollectionInfo")
     public Result<HeldCollectionVO> heldCollectionInfo(@NotBlank String heldCollectionId) {
         SingleResponse<HeldCollectionVO> singleResponse = collectionReadFacadeService.queryHeldCollectionById(Long.valueOf(heldCollectionId));

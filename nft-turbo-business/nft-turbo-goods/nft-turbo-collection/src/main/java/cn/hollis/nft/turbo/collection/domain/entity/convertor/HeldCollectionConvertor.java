@@ -9,43 +9,22 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface HeldCollectionConvertor {
 
     HeldCollectionConvertor INSTANCE = Mappers.getMapper(HeldCollectionConvertor.class);
 
-    /**
-     * 转换为vo
-     *
-     * @param request
-     * @return
-     */
+    //转换为vo
     public HeldCollectionVO mapToVo(HeldCollection request);
 
-    /**
-     * 转换为 DTO
-     * @param request
-     * @return
-     */
+    //转换为 DTO
     public HeldCollectionDTO mapToDto(HeldCollection request);
 
-    /**
-     * 转换为vo
-     *
-     * @param request
-     * @return
-     */
+    //转换为vo
     public List<HeldCollectionVO> mapToVo(List<HeldCollection> request);
 
-    /**
-     * 转换为实体
-     *
-     * @param request
-     * @return
-     */
+    //转换为实体
     public HeldCollection mapToEntity(HeldCollectionVO request);
 
 }

@@ -10,15 +10,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-/**
- * 藏品服务-数据库
- *
- * @author Hollis
- */
+
+//藏品服务-数据库
 @Service
 @ConditionalOnProperty(name = "spring.elasticsearch.enable", havingValue = "false", matchIfMissing = true)
 public class CollectionDbService extends BaseCollectionService {
-
 
     @Override
     public PageResponse<Collection> pageQueryByState(String keyWord, String state, int currentPage, int pageSize) {

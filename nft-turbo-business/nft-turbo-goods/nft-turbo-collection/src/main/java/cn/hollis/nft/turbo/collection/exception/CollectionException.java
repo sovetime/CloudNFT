@@ -3,11 +3,8 @@ package cn.hollis.nft.turbo.collection.exception;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.ErrorCode;
 
-/**
- * 藏品异常
- *
- * @author hollis
- */
+
+//藏品异常
 public class CollectionException extends BizException {
 
     public CollectionException(ErrorCode errorCode) {

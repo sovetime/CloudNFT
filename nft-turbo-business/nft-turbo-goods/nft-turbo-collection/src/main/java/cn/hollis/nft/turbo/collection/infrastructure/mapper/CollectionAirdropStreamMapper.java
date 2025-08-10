@@ -5,14 +5,7 @@ import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
-/**
- * <p>
- * 藏品空投流水信息 Mapper 接口
- * </p>
- *
- * @author wswyb001
- * @since 2024-01-19
- */
+//藏品空投流水信息 Mapper 接口
 @Mapper
 public interface CollectionAirdropStreamMapper extends BaseMapper<CollectionAirdropStream> {
     /**
