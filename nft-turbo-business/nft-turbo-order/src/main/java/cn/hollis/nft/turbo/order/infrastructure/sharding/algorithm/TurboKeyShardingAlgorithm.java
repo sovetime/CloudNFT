@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 
 
+// 自定义分片算法
 public class TurboKeyShardingAlgorithm implements ComplexKeysShardingAlgorithm<String>, HintShardingAlgorithm<String> {
 
     private static Logger logger = LoggerFactory.getLogger(TurboKeyShardingAlgorithm.class);

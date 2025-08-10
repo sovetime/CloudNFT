@@ -5,45 +5,82 @@ spring:
     import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml
   cloud:
     function:
+      # 定义可用的函数列表，包括新购买、普通购买取消、普通购买预取消
       definition: newBuy;normalBuyCancel;normalBuyPreCancel
     stream:
       rocketmq:
         bindings:
+          # 新购买消息输出绑定配置
           newBuy-out-0:
+            # 生产者配置
             producer:
+              # 生产者类型为事务类型
               producerType: Trans
+              # 事务监听器为库存减少事务监听器
               transactionListener: inventoryDecreaseTransactionListener
+      # 消息绑定配置
       bindings:
+        # 新购买消息输出通道配置
         newBuy-out-0:
+          # 消息内容类型为JSON格式
           content-type: application/json
+          # 目标主题为新购买主题
           destination: new-buy-topic
+          # 消费者组为交易组
           group: trade-group
+          # 使用的绑定器为RocketMQ
           binder: rocketmq
+        # 订单关闭消息输入通道配置
         orderClose-in-0:
+          # 消息内容类型为JSON格式
           content-type: application/json
+          # 目标主题为订单关闭主题
           destination: order-close-topic
+          # 消费者组为订单组
           group: order-group
+          # 使用的绑定器为RocketMQ
           binder: rocketmq
+        # 普通购买取消消息输出通道配置
         normalBuyCancel-out-0:
+          # 消息内容类型为JSON格式
           content-type: application/json
+          # 目标主题为普通购买取消主题
           destination: normal-buy-cancel-topic
+          # 消费者组为交易取消组
           group: trade-cancel-group
+          # 使用的绑定器为RocketMQ
           binder: rocketmq
+        # 普通购买预取消消息输出通道配置
         normalBuyPreCancel-out-0:
+          # 消息内容类型为JSON格式
           content-type: application/json
+          # 目标主题为普通购买预取消主题
           destination: normal-buy-pre-cancel-topic
+          # 消费者组为交易预取消组
           group: trade-pre-cancel-group
+          # 使用的绑定器为RocketMQ
           binder: rocketmq
+        # 普通购买取消消息输入通道配置
         normalBuyCancel-in-0:
+          # 消息内容类型为JSON格式
           content-type: application/json
+          # 目标主题为普通购买取消主题
           destination: normal-buy-cancel-topic
+          # 消费者组为交易取消组
           group: trade-cancel-group
+          # 使用的绑定器为RocketMQ
           binder: rocketmq
+        # 普通购买预取消消息输入通道配置
         normalBuyPreCancel-in-0:
+          # 消息内容类型为JSON格式
           content-type: application/json
+          # 目标主题为普通购买预取消主题
           destination: normal-buy-pre-cancel-topic
+          # 消费者组为交易预取消组
           group: trade-pre-cancel-group
+          # 使用的绑定器为RocketMQ
           binder: rocketmq
+
 
 server:
   port: 8084

@@ -1,9 +1,9 @@
 package cn.hollis.nft.turbo.api.common.constant;
 
-
+//
 public enum BusinessCode {
 
-    //订单
+    //订单，tablecount是分表数量
     TRADE_ORDER(10, 4),
 
     //支付单

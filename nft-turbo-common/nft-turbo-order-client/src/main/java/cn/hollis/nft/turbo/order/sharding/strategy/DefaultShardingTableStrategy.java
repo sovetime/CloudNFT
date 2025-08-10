@@ -1,13 +1,13 @@
 package cn.hollis.nft.turbo.order.sharding.strategy;
 
-/**
- * @author Hollis
- */
+
+// 默认的分表策略
 public class DefaultShardingTableStrategy implements ShardingTableStrategy {
 
     public DefaultShardingTableStrategy() {
     }
 
+    // 获取分表名
     @Override
     public int getTable(String externalId,int tableCount) {
         int hashCode = externalId.hashCode();

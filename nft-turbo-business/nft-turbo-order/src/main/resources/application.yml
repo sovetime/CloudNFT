@@ -35,19 +35,31 @@ spring:
           destination: new-buy-topic
           group: trade-group
           binder: rocketmq
-  shardingsphere:
+    shardingsphere:
     rules:
       sharding:
+        #表配置
         tables:
+          # trade_order表分片配置
           trade_order:
+            # 实际数据节点配置，使用表达式定义4个分表：trade_order_0000, trade_order_0001, trade_order_0002, trade_order_0003
             actual-data-nodes: ds.trade_order_000${0..3}
+            # 主键生成策略配置
             keyGenerateStrategy:
+              # 指定主键列名为id
               column: id
+              # 使用snowflake算法生成主键
               keyGeneratorName: snowflake
+            # 表分片策略配置
             table-strategy:
+              # 复合分片策略
               complex:
+                # 分片列包括buyer_id和 order_id
                 shardingColumns: buyer_id,order_id
+                # 使用trade-order-sharding分片算法
                 shardingAlgorithmName: trade-order-sharding
+
+          # trade_order_stream表分片配置，和trade_order表结构一致
           trade_order_stream:
             actual-data-nodes: ds.trade_order_stream_000${0..3}
             keyGenerateStrategy:
@@ -57,24 +69,48 @@ spring:
               complex:
                 shardingColumns: buyer_id,order_id
                 shardingAlgorithmName: trade-order-sharding
+
+        # 分片算法配置
         shardingAlgorithms:
+#          # t-order-inline分片算法（已注释）
+#          # 使用INLINE类型的分片算法，通过表达式进行分片
 #          t-order-inline:
+#            # 算法类型为INLINE
 #            type: INLINE
+#            # 算法属性配置
 #            props:
+#              # 分片表达式：根据buyer_id的hash值取模4来确定分表
 #              algorithm-expression: trade_order_0${Math.abs(buyer_id.hashCode()) % 4}
+          # trade-order-sharding分片算法配置
+          # 使用CLASS_BASED类型的自定义分片算法
           trade-order-sharding:
+            # 算法类型为CLASS_BASED，基于自定义类实现
             type: CLASS_BASED
+            # 算法属性配置
             props:
+              # 自定义分片算法类的全限定名
               algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
+              # 分片策略为complex复合策略
               strategy: complex
+              # 分表数量为4
               tableCount: 4
+              # 主分片列名为buyer_id
               mainColum: buyer_id
+        # 主键生成器配置
         keyGenerators:
+          # snowflake主键生成器配置
+          # 使用雪花算法生成全局唯一的主键
           snowflake:
+            # 算法类型为SNOWFLAKE
             type: SNOWFLAKE
+        # 审计器配置
         auditors:
+          # 分片键必要性审计器配置
+          # 用于检查DML操作是否包含分片条件
           sharding_key_required_auditor:
+            # 审计器类型为DML_SHARDING_CONDITIONS，确保DML操作包含分片键条件
             type: DML_SHARDING_CONDITIONS
+
 
 server:
   port: 9000

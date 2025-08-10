@@ -79,12 +79,7 @@ public class OrderController {
         }
     }
 
-    /**
-     * 订单列表
-     *
-     * @param
-     * @return 结果
-     */
+    //订单列表
     @GetMapping("/getPayStatus")
     public Result<PayOrderVO> getPayStatus(@NotNull String payOrderId) {
         String userId = (String) StpUtil.getLoginId();

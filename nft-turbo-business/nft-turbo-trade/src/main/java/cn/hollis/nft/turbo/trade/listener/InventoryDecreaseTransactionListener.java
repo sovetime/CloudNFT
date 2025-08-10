@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
+//事务监听器
 @Component
 public class InventoryDecreaseTransactionListener implements TransactionListener {
 

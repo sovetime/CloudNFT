@@ -125,6 +125,7 @@ public class TradeController {
     //秒杀下单，热点商品
     @PostMapping("/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
+        //
         OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
 
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
@@ -221,9 +222,11 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
     }
 
+    //创建并确认订单
     @NotNull
     private OrderCreateRequest getOrderCreateRequest(BuyParam buyParam) {
         String userId = (String) StpUtil.getLoginId();
+        //使用雪花算法生成唯一的订单id
         String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
         //创建订单
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
