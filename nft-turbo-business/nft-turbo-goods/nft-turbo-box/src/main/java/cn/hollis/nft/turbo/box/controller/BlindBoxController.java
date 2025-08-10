@@ -18,6 +18,7 @@ import cn.hollis.nft.turbo.web.util.MultiResultConvertor;
 import cn.hollis.nft.turbo.web.vo.MultiResult;
 import cn.hollis.nft.turbo.web.vo.Result;
 import cn.hutool.core.lang.Assert;
+import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +29,7 @@ import java.util.Map;
 
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.*;
 
-/**
- * @author Hollis
- */
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -42,18 +41,13 @@ public class BlindBoxController {
     @Autowired
     private BlindBoxService blindBoxService;
 
-    @Autowired
+    @Resource
     private BlindBoxReadFacadeService blindBoxReadFacadeService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    /**
-     * 盲盒列表
-     *
-     * @param
-     * @return 结果
-     */
+    //盲盒列表
     @GetMapping("/boxList")
     public MultiResult<BlindBoxVO> boxList(@NotBlank String state, String keyword, int pageSize, int currentPage) {
         BlindBoxPageQueryRequest blindBoxPageQueryRequest = new BlindBoxPageQueryRequest();
@@ -65,14 +59,7 @@ public class BlindBoxController {
         return MultiResultConvertor.convert(pageResponse);
     }
 
-    /**
-     * 已持有盲盒列表
-     *
-     * @param keyword
-     * @param pageSize
-     * @param currentPage
-     * @return
-     */
+    //已持有盲盒列表
     @GetMapping("/heldBoxList")
     public MultiResult<HeldBlindBoxVO> heldBoxList(String keyword, int pageSize, int currentPage) {
         String userId = (String) StpUtil.getLoginId();
@@ -86,12 +73,7 @@ public class BlindBoxController {
         return MultiResultConvertor.convert(pageResponse);
     }
 
-    /**
-     * 盲盒详情
-     *
-     * @param
-     * @return 结果
-     */
+    //盲盒详情
     @GetMapping("/boxInfo")
     public Result<BlindBoxVO> boxInfo(Long boxId) {
         SingleResponse<BlindBoxVO> singleResponse = blindBoxReadFacadeService.queryById(boxId);

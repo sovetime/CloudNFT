@@ -3,11 +3,8 @@ package cn.hollis.nft.turbo.box.exception;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.ErrorCode;
 
-/**
- * 盲盒异常
- *
- * @author hollis
- */
+
+//盲盒异常
 public class BlindBoxException extends BizException {
 
     public BlindBoxException(ErrorCode errorCode) {

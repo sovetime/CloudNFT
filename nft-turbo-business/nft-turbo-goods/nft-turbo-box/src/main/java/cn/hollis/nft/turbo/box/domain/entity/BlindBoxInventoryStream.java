@@ -15,74 +15,35 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * <p>
- * 藏品库存流水信息
- * </p>
- *
- * @author wswyb001
- * @since 2024-01-19
- */
+//藏品库存流水信息
 @Getter
 @Setter
 @NoArgsConstructor
 public class BlindBoxInventoryStream extends BaseEntity {
-
-    /**
-     * 流水类型
-     */
+    //流水类型
     private GoodsEvent streamType;
-
-    /**
-     * '幂等号'
-     */
+    //幂等号
     private String identifier;
-
-    /**
-     * '变更数量'
-     */
+    //变更数量
     private Integer changedQuantity;
-
-    /**
-     * 盲盒id
-     */
+    // 盲盒id
     private Long blindBoxId;
-
-    /**
-     * '价格'
-     */
+    //价格
     private BigDecimal price;
-
-    /**
-     * '盲盒数量'
-     */
+    //盲盒数量
     private Long quantity;
-
-    /**
-     * '可售库存'
-     */
+    //可售库存
     private Long saleableInventory;
 
-    /**
-     * '已占库存'
-     * @deprecated 这个字段不再使用，详见 CollecitonSerivce.confirmSale
-     */
+    //已占库存，不再使用
     @Deprecated
     private Long occupiedInventory;
 
-    /**
-     * '冻结库存'
-     */
+    //冻结库存
     private Long frozenInventory;
-
-    /**
-     * '状态'
-     */
+    //状态
     private BlindBoxStateEnum state;
-
-    /**
-     * 扩展信息
-     */
+    // 扩展信息
     private String extendInfo;
 
     @SuppressWarnings("deprecation")

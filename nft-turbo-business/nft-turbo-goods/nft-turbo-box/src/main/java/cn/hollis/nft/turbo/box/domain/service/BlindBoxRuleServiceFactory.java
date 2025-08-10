@@ -8,11 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * 盲盒分配规则工厂
- *
- * @author hollis
- */
+
+//盲盒分配规则工厂
 @Service
 public class BlindBoxRuleServiceFactory {
 

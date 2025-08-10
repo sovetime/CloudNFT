@@ -8,11 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * 随机盲盒规则实现
- *
- * @author hollis
- */
+
+//随机盲盒规则实现
 @Service("randomBlindBoxRuleService")
 @Slf4j
 public class RandomBlindBoxRuleServiceImpl implements BlindBoxRuleService {

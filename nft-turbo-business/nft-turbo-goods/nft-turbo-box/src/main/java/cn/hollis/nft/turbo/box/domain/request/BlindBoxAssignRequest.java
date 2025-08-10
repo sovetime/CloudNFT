@@ -3,12 +3,8 @@ package cn.hollis.nft.turbo.box.domain.request;
 import cn.hollis.nft.turbo.base.request.BaseRequest;
 import lombok.*;
 
-/**
- * @author Hollis
- * 盲盒分配入参
- * @date 2025/01/11
- */
 
+//盲盒分配入参
 @Setter
 @Getter
 @ToString
@@ -16,18 +12,12 @@ import lombok.*;
 @NoArgsConstructor
 public class BlindBoxAssignRequest extends BaseRequest {
 
-    /**
-     * '盲盒id'
-     */
+    //盲盒id
     private Long blindBoxId;
 
-    /**
-     * '用户id'
-     */
+    //用户id
     private String userId;
 
-    /**
-     * '订单id'
-     */
+    //订单id
     private String orderId;
 }

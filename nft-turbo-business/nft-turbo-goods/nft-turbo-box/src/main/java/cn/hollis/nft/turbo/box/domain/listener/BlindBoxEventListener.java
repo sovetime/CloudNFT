@@ -20,6 +20,7 @@ import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hutool.core.lang.Assert;
+import jakarta.annotation.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -30,16 +31,14 @@ import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_ITEM_SAVE_FAILED;
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_OPEN_FAILED;
 
-/**
- * @author Hollis
- */
+
 @Component
 public class BlindBoxEventListener {
 
-    @Autowired
+    @Resource
     private UserFacadeService userFacadeService;
 
-    @Autowired
+    @Resource
     private ChainFacadeService chainFacadeService;
 
     @Autowired

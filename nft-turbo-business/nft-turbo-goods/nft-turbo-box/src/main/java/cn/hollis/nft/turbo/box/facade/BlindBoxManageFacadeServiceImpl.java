@@ -10,23 +10,21 @@ import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
+import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 
-/**
- * 盲盒管理服务
- *
- * @author hollis
- */
+
+//盲盒管理服务
 @DubboService(version = "1.0.0")
 public class BlindBoxManageFacadeServiceImpl implements BlindBoxManageFacadeService {
 
     @Autowired
     private BlindBoxService blindBoxService;
 
-    @Autowired
+    @Resource
     private ChainFacadeService chainFacadeService;
 
     @Override

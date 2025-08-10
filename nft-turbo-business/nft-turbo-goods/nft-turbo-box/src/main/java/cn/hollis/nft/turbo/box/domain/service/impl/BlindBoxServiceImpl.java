@@ -39,11 +39,8 @@ import java.util.stream.IntStream;
 
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.*;
 
-/**
- * @author Hollis
- * <p>
- * 通用的盲盒服务
- */
+
+//通用的盲盒服务
 @Service
 public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> implements BlindBoxService {
 

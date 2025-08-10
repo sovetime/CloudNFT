@@ -6,9 +6,7 @@ import cn.hollis.nft.turbo.box.domain.entity.BlindBoxItem;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author Hollis
- */
+
 @Setter
 @Getter
 public class BlindBoxConfirmSaleResponse extends BaseResponse {

@@ -11,56 +11,29 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface BlindBoxItemConvertor {
 
     BlindBoxItemConvertor INSTANCE = Mappers.getMapper(BlindBoxItemConvertor.class);
 
-    /**
-     * 转换为vo
-     *
-     * @param request
-     * @return
-     */
+    //转换为vo
     public BlindBoxItemVO mapToVo(BlindBoxItem request);
 
-
-    /**
-     * 转换为vo
-     *
-     * @param request
-     * @return
-     */
+    //转换为vo
     @Mapping(target = "itemId", source = "request.id")
     @Mapping(target = "id", source = "request.blindBoxId")
     @Mapping(target = "price", source = "request.purchasePrice")
     @Mapping(target = "buyTime", source = "request.assignTime")
     public HeldBlindBoxVO mapToHeldVo(BlindBoxItem request);
 
-    /**
-     * 转换为vo
-     * @param request
-     * @return
-     */
+    //转换为vo
     public List<HeldBlindBoxVO> mapToHeldVo(List<BlindBoxItem> request);
 
 
-    /**
-     * 转换为vo
-     *
-     * @param request
-     * @return
-     */
+    // 转换为vo
     public List<BlindBoxItemVO> mapToVo(List<BlindBoxItem> request);
 
-    /**
-     * 转换为实体
-     *
-     * @param request
-     * @return
-     */
+    //转换为实体
     public BlindBoxItem mapToEntity(BlindBoxItemCreateRequest request);
 }

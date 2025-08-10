@@ -24,11 +24,8 @@ import java.util.List;
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_ITEM_SAVE_FAILED;
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_OPEN_FAILED;
 
-/**
- * 盲盒条目服务实现
- *
- * @author Hollis
- */
+
+//盲盒条目服务实现
 @Service
 public class BlindBoxItemServiceImpl extends ServiceImpl<BlindBoxItemMapper, BlindBoxItem> implements BlindBoxItemService {
     @Autowired

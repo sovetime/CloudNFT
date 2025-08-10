@@ -17,16 +17,14 @@ import cn.hollis.nft.turbo.box.domain.entity.convertor.BlindBoxConvertor;
 import cn.hollis.nft.turbo.box.domain.entity.convertor.BlindBoxItemConvertor;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxItemService;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
+import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * 盲盒服务
- *
- * @author hollis
- */
+
+//盲盒服务
 @DubboService(version = "1.0.0")
 public class BlindBoxReadFacadeServiceImpl implements BlindBoxReadFacadeService {
 
@@ -36,7 +34,7 @@ public class BlindBoxReadFacadeServiceImpl implements BlindBoxReadFacadeService 
     private BlindBoxService blindBoxService;
     @Autowired
     private BlindBoxItemService blindBoxItemService;
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
 

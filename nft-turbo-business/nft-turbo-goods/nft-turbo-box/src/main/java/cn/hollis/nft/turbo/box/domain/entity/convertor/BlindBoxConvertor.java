@@ -15,41 +15,23 @@ import org.mapstruct.factory.Mappers;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface BlindBoxConvertor {
 
     BlindBoxConvertor INSTANCE = Mappers.getMapper(BlindBoxConvertor.class);
 
-    /**
-     * 转换为VO
-     *
-     * @param request
-     * @return
-     */
+    //转换为VO
     @Mapping(target = "inventory", source = "request.saleableInventory")
     @Mapping(target = "state", expression = "java(setState(request.getState(), request.getSaleTime(), request.getSaleableInventory()))")
     public BlindBoxVO mapToVo(BlindBox request);
 
-    /**
-     * 设置状态
-     * @param state
-     * @param saleTime
-     * @param saleableInventory
-     * @return
-     */
+    //设置状态
     public default GoodsState setState(BlindBoxStateEnum state, Date saleTime, Long saleableInventory) {
         return BlindBoxVO.getState(state, saleTime, saleableInventory);
     }
 
-    /**
-     * 转换为实体
-     *
-     * @param request
-     * @return
-     */
+    //转换为实体
     @Mapping(target = "canBook", source = "canBook", qualifiedByName = "mapBooleanToInteger")
     public BlindBox mapToEntity(BlindBoxCreateRequest request);
 
