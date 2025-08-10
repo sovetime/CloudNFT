@@ -19,9 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.function.Consumer;
 
-/**
- * @author Hollis
- */
+
 @Component
 @Slf4j
 public class HeldCollectionMsgListener extends AbstractStreamConsumer {

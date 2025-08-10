@@ -10,36 +10,19 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface TradeOrderConvertor {
 
     TradeOrderConvertor INSTANCE = Mappers.getMapper(TradeOrderConvertor.class);
 
-    /**
-     * 转换实体
-     *
-     * @param request
-     * @return
-     */
+    //转换实体
     public TradeOrder mapToEntity(OrderCreateRequest request);
 
-    /**
-     * 转换vo
-     *
-     * @param request
-     * @return
-     */
+    //转换vo
     @Mapping(target = "timeout", expression = "java(request.isTimeout())")
     public TradeOrderVO mapToVo(TradeOrder request);
 
-    /**
-     * 转换vo
-     *
-     * @param request
-     * @return
-     */
+    //转换vo
     public List<TradeOrderVO> mapToVo(List<TradeOrder> request);
 }

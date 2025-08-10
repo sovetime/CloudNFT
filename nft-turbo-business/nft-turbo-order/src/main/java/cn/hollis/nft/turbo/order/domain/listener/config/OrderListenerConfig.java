@@ -7,15 +7,14 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.concurrent.*;
 
-/**
- * @author Hollis
- */
+
 @Configuration
 @EnableAsync
 public class OrderListenerConfig {
     @Bean("orderListenExecutor")
     public Executor orderListenExecutor() {
 
+        //
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
                 .setNameFormat("orderListener-%d").build();
 

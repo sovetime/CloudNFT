@@ -12,9 +12,7 @@ import java.util.Properties;
 
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 
-/**
- * @author Hollis
- */
+
 public class TurboHintShardingAlgorithm implements HintShardingAlgorithm<String> {
     private Properties props;
 

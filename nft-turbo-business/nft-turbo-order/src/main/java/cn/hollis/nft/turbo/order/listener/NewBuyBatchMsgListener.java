@@ -13,6 +13,7 @@ import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
 import com.alibaba.fastjson2.JSON;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -33,13 +34,10 @@ import java.util.concurrent.*;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
-/**
- * @author
- *
- * 批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
- * 这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，
- * 如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
- */
+
+//批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
+//这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，
+//如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
 @Component
 @Slf4j
 @RocketMQMessageListener(topic = "new-buy-topic", consumerGroup = "trade-group")
@@ -52,7 +50,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Autowired
     private OrderReadService orderReadService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
     private final ExecutorService executor = Executors.newFixedThreadPool(16);

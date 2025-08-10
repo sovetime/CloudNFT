@@ -29,6 +29,7 @@ import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +38,7 @@ import java.util.List;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
-/**
- * @author Hollis
- */
+
 @DubboService(version = "1.0.0")
 public class OrderFacadeServiceImpl implements OrderFacadeService {
 
@@ -49,16 +48,16 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @Autowired
     private OrderReadService orderReadService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
     @Autowired
     private StreamProducer streamProducer;
 
-    @Autowired
+    @Resource
     private UserFacadeService userFacadeService;
 
-    @Autowired
+    @Resource
     private GoodsFacadeService goodsFacadeService;
 
     @Autowired

@@ -17,6 +17,7 @@ import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shardingsphere.infra.hint.HintManager;
@@ -32,9 +33,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * @author Hollis
- */
+
 @Component
 public class OrderJob {
 
@@ -44,7 +43,7 @@ public class OrderJob {
     @Autowired
     private OrderReadService orderReadService;
 
-    @Autowired
+    @Resource
     private PayFacadeService payFacadeService;
 
     private static final int CAPACITY = 2000;
@@ -53,9 +52,7 @@ public class OrderJob {
 
     private final BlockingQueue<TradeOrder> orderTimeoutBlockingQueue = new LinkedBlockingQueue<>(CAPACITY);
 
-    /**
-     * todo 使用动态线程池
-     */
+    //使用动态线程池
     private final ForkJoinPool forkJoinPool = new ForkJoinPool(10);
 
     private static final int PAGE_SIZE = 500;

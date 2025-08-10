@@ -15,6 +15,7 @@ import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
 import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,9 @@ import java.util.function.Consumer;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
-/**
- * @author Hollis
- * <p>
- * 单条消费MQ的newBuy消息，在rocketmq.broker.check=fasle （stream.yml） 的时候会生效
- * 这个Bean和NewBuyBatchMsgListener只启动一个。
- * 本Bean对RocketMQ的Brocker部署不强依赖，即不部署也不到会导致应用无法启动，但是消息会无法发送和消费
- */
+//单条消费MQ的newBuy消息，在rocketmq.broker.check=fasle （stream.yml） 的时候会生效
+//这个Bean和NewBuyBatchMsgListener只启动一个。
+//本Bean对RocketMQ的Brocker部署不强依赖，即不部署也不到会导致应用无法启动，但是消息会无法发送和消费
 @Component
 @Slf4j
 @ConditionalOnProperty(value = "rocketmq.broker.check", havingValue = "false", matchIfMissing = true)
@@ -46,7 +43,7 @@ public class NewBuyMsgListener extends AbstractStreamConsumer {
     @Autowired
     private OrderReadService orderReadService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
     @Bean

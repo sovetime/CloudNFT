@@ -4,9 +4,7 @@ import cn.hollis.nft.turbo.api.order.constant.TradeOrderEvent;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
 import cn.hollis.nft.turbo.base.statemachine.BaseStateMachine;
 
-/**
- * @author Hollis
- */
+
 public class OrderStateMachine extends BaseStateMachine<TradeOrderState, TradeOrderEvent> {
 
     public static final OrderStateMachine INSTANCE = new OrderStateMachine();

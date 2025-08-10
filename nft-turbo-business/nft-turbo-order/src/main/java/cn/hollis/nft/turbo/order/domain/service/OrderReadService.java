@@ -14,21 +14,14 @@ import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Service
 public class OrderReadService extends ServiceImpl<OrderMapper, TradeOrder> {
 
     @Autowired
     private OrderMapper orderMapper;
 
-    /**
-     * 按照订单号查询订单信息
-     *
-     * @param orderId
-     * @return
-     */
+    //按照订单号查询订单信息
     public TradeOrder getOrder(String orderId) {
         return orderMapper.selectByOrderId(orderId);
     }
@@ -52,14 +45,7 @@ public class OrderReadService extends ServiceImpl<OrderMapper, TradeOrder> {
         return this.page(page, wrapper);
     }
 
-    /**
-     * 分页查询已经超时的订单
-     *
-     * @param pageSize
-     * @param buyerIdTailNumber 买家 ID 的尾号
-     * @param minId
-     * @return
-     */
+    //分页查询已经超时的订单
     public List<TradeOrder> pageQueryTimeoutOrders(int pageSize, @Nullable String buyerIdTailNumber, Long minId) {
         QueryWrapper<TradeOrder> wrapper = new QueryWrapper<>();
         wrapper.in("order_state", TradeOrderState.CONFIRM.name(), TradeOrderState.CREATE.name());
@@ -76,14 +62,7 @@ public class OrderReadService extends ServiceImpl<OrderMapper, TradeOrder> {
         return this.list(wrapper);
     }
 
-    /**
-     * 分页查询待Confirm订单
-     *
-     * @param pageSize
-     * @param buyerIdTailNumber
-     * @param minId
-     * @return
-     */
+    //分页查询待Confirm订单
     public List<TradeOrder> pageQueryNeedConfirmOrders(int pageSize, @Nullable String buyerIdTailNumber, Long minId) {
 
         QueryWrapper<TradeOrder> wrapper = new QueryWrapper<>();

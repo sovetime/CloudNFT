@@ -36,11 +36,8 @@ import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.PERMISSION_D
 import static cn.hollis.nft.turbo.base.response.ResponseCode.SYSTEM_ERROR;
 import static java.util.Objects.requireNonNull;
 
-/**
- * 订单服务
- *
- * @author Hollis
- */
+
+// 订单服务
 @Service
 public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
@@ -58,12 +55,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
     @Autowired
     protected ApplicationContext applicationContext;
 
-    /**
-     * 订单创建
-     *
-     * @param request
-     * @return
-     */
+    //订单创建
     @Transactional(rollbackFor = Exception.class)
     public OrderResponse create(OrderCreateRequest request) {
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
@@ -76,12 +68,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
     }
 
-    /**
-     * 订单创建并异步执行确认
-     *
-     * @param request
-     * @return
-     */
+    //订单创建并异步执行确认
     @Transactional(rollbackFor = Exception.class)
     public OrderResponse createAndAsyncConfirm(OrderCreateRequest request) {
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
@@ -107,12 +94,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return tradeOrder;
     }
 
-    /**
-     * 订单创建并确认
-     *
-     * @param request
-     * @return
-     */
+    //订单创建并确认
     @Transactional(rollbackFor = Exception.class)
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
@@ -137,75 +119,39 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
     }
 
-    /**
-     * 订单支付
-     *
-     * @param request
-     * @return
-     */
+    // 订单支付
     @Transactional(rollbackFor = Exception.class)
     @ShardingSphereTransactionType(TransactionType.BASE)
     public OrderResponse paySuccess(OrderPayRequest request) {
         return doExecuteWithOutTrans(request, tradeOrder -> tradeOrder.paySuccess(request));
     }
 
-    /**
-     * 订单确认
-     *
-     * @param request
-     * @return
-     */
+    //订单确认
     public OrderResponse confirm(OrderConfirmRequest request) {
         return doExecute(request, tradeOrder -> tradeOrder.confirm(request));
     }
 
-    /**
-     * 订单取消
-     *
-     * @param request
-     * @return
-     */
+    //订单取消
     public OrderResponse cancel(OrderCancelRequest request) {
         return doExecute(request, tradeOrder -> tradeOrder.close(request));
     }
 
-    /**
-     * 订单取消
-     *
-     * @param request
-     * @return
-     */
+    //订单取消
     public OrderResponse discard(OrderDiscardRequest request) {
         return doExecute(request, tradeOrder -> tradeOrder.discard(request));
     }
 
-    /**
-     * 订单超时
-     *
-     * @param request
-     * @return
-     */
+    //订单超时
     public OrderResponse timeout(OrderTimeoutRequest request) {
         return doExecute(request, tradeOrder -> tradeOrder.close(request));
     }
 
-    /**
-     * 订单完结
-     *
-     * @param request
-     * @return
-     */
+    //订单完结
     public OrderResponse finish(OrderFinishRequest request) {
         return doExecute(request, tradeOrder -> tradeOrder.finish(request));
     }
 
-    /**
-     * 通用订单更新逻辑
-     *
-     * @param orderRequest
-     * @param consumer
-     * @return
-     */
+    //通用订单更新逻辑
     protected OrderResponse doExecute(BaseOrderUpdateRequest orderRequest, Consumer<TradeOrder> consumer) {
         OrderResponse response = new OrderResponse();
         return handle(orderRequest, response, "doExecute", request -> {
@@ -242,13 +188,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         });
     }
 
-    /**
-     * 通用订单更新逻辑(不带事务，需要调用方自己保证事务)
-     *
-     * @param orderRequest
-     * @param consumer
-     * @return
-     */
+    //通用订单更新逻辑(不带事务，需要调用方自己保证事务)
     protected OrderResponse doExecuteWithOutTrans(BaseOrderUpdateRequest orderRequest, Consumer<TradeOrder> consumer) {
         OrderResponse response = new OrderResponse();
         return handle(orderRequest, response, "doExecute", request -> {
