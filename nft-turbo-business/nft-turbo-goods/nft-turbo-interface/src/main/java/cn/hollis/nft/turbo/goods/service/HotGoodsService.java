@@ -16,11 +16,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-/**
- * 热点商品服务
- *
- * @author Hollis
- */
+
+//热点商品服务
 @Service
 public class HotGoodsService {
 

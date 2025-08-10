@@ -20,6 +20,7 @@ import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,11 +35,8 @@ import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_INVE
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_QUERY_FAIL;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_QUERY_FAIL;
 
-/**
- * 链操作结果监听器
- *
- * @author hollis
- */
+
+//链操作结果监听器
 @Slf4j
 @Component
 public class ChainOperateResultListener extends AbstractStreamConsumer {
@@ -52,7 +50,7 @@ public class ChainOperateResultListener extends AbstractStreamConsumer {
     @Autowired
     private HeldCollectionService heldCollectionService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
     @Bean

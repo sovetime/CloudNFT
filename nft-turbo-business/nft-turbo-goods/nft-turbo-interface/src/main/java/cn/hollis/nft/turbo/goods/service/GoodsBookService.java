@@ -21,11 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static cn.hollis.nft.turbo.goods.service.HotGoodsService.HOT_GOODS_BOOK_COUNT;
 
-/**
- * 预约服务
- *
- * @author Hollis
- */
+
+//预约服务
 @Service
 @Slf4j
 public class GoodsBookService extends ServiceImpl<GoodsBookMapper, GoodsBook> {
@@ -41,13 +38,8 @@ public class GoodsBookService extends ServiceImpl<GoodsBookMapper, GoodsBook> {
 
     private static final String BOOK_KEY = "goods:book:";
 
-    /**
-     * 商品预约
-     * 先更新缓存，再更新数据库。优先保证缓存，如果出现不一致，以缓存为主
-     *
-     * @param request
-     * @return
-     */
+
+    //商品预约,先更新缓存，再更新数据库。优先保证缓存，如果出现不一致，以缓存为主
     @Transactional(rollbackFor = Exception.class)
     public GoodsBookResponse book(GoodsBookRequest request) {
         // 因为用户id都是不重复的，并且可以转换成integer，所以这里可以使用BitSet来存储预约信息，减少存储量

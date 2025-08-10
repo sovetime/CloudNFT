@@ -1,40 +1,22 @@
 package cn.hollis.nft.turbo.goods.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
-/**
- * @author Hollis
- */
+@Getter
+@Setter
 public class HotGoods implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 商品id
-     */
+    //商品id
     private String goodsId;
 
-    /**
-     * 商品类型
-     */
+    //商品类型
     private String goodsType;
-
-    public String getGoodsId() {
-        return goodsId;
-    }
-
-    public void setGoodsId(String goodsId) {
-        this.goodsId = goodsId;
-    }
-
-    public String getGoodsType() {
-        return goodsType;
-    }
-
-    public void setGoodsType(String goodsType) {
-        this.goodsType = goodsType;
-    }
 
     @Override
     public boolean equals(Object o) {

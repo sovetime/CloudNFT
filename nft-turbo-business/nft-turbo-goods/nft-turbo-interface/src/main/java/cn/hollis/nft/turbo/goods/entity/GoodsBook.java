@@ -10,46 +10,29 @@ import lombok.Setter;
 
 import java.util.Date;
 
-/**
- * @author Hollis
- */
+
 @Setter
 @Getter
 public class GoodsBook extends BaseEntity {
-
-    /**
-     * 主键id
-     */
+    //主键id
     private Long id;
 
-    /**
-     * 商品Id
-     */
+    //商品Id
     private String goodsId;
 
-    /**
-     * 商品类型
-     */
+    //商品类型
     private GoodsType goodsType;
 
-    /**
-     * 买家id
-     */
+    //买家id
     private String buyerId;
 
-    /**
-     * 买家id类型
-     */
+    //买家id类型
     private UserType buyerType;
 
-    /**
-     * 幂等号
-     */
+    // 幂等号
     private String identifier;
 
-    /**
-     * 预约成功时间
-     */
+    //预约成功时间
     private Date bookSucceedTime;
 
     public static GoodsBook createBook(GoodsBookRequest request) {

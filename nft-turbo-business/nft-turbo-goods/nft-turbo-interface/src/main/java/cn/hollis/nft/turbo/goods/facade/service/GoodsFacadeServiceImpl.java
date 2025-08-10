@@ -35,11 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-/**
- * 商品聚合服务
- *
- * @author Hollis
- */
+
+//商品聚合服务
 @DubboService(version = "1.0.0")
 public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 

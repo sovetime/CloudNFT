@@ -7,27 +7,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
 
-/**
- * @author Hollis
- */
+
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface GoodsBookConvertor {
 
     GoodsBookConvertor INSTANCE = Mappers.getMapper(GoodsBookConvertor.class);
 
-    /**
-     * 转换实体
-     *
-     * @param request
-     * @return
-     */
+    //转换实体
     public GoodsBook mapToEntity(GoodsBookRequest request);
 
-    /**
-     * 转换为vo
-     *
-     * @param request
-     * @return
-     */
+    //转换为vo
     public GoodsBookVO mapToVo(GoodsBook request);
 }

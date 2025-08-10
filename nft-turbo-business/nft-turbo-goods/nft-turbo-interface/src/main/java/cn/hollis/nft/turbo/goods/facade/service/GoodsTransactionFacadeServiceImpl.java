@@ -21,9 +21,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author Hollis
- */
+
 @DubboService(version = "1.0.0")
 public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacadeService {
 
