@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 //藏品服务-数据库
 @Service
+//检查application.yml配置文件属性，根据对应属性值走数据库/es
+//matchIfMissing = true 配置文件中没有这个属性的时候默认匹配数据
 @ConditionalOnProperty(name = "spring.elasticsearch.enable", havingValue = "false", matchIfMissing = true)
 public class CollectionDbService extends BaseCollectionService {
 

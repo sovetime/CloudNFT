@@ -24,16 +24,23 @@ import org.springframework.stereotype.Service;
 
 //藏品服务--Elasticsearch实现
 @Service
+//检查application.yml配置文件属性，根据对应属性值走数据库/es
 @ConditionalOnProperty(name = "spring.elasticsearch.enable", havingValue = "true")
 public class CollectionEsService extends BaseCollectionService {
 
+    //Spring Data Elasticsearch提供的核心操作接口，用于执行各种Elasticsearch操作，如索引、搜索、删除等
+    //新版本的ElasticsearchRepository是对其的封装，提供类似crud操作
+    //但是没有办法解决复杂查询（深度分页等）
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
+
     @Resource
     private CollectionEsMapper collectionEsMapper;
 
+    //分页查询，根据名称和状态条件进行分页查询
     @Override
     public PageResponse<Collection> pageQueryByState(String name, String state, int currentPage, int pageSize) {
+        //Criteria 是spring data elasticsearch 提供用于构建查询条件的类，可以构建复杂查询
         Criteria criteria = null;
         if (StringUtils.isNotBlank(name)) {
             criteria = new Criteria("name").is(name).and(new Criteria("state").is(state), new Criteria("deleted").is("0"));
@@ -42,13 +49,20 @@ public class CollectionEsService extends BaseCollectionService {
         } else {
             criteria = new Criteria("deleted").is("0");
         }
+
+        // 构建分页请求和查询对象，按创建时间降序排列
         PageRequest pageRequest = PageRequest.of(currentPage - 1, pageSize);
-        Query query = new CriteriaQuery(criteria).setPageable(pageRequest).addSort(Sort.by(Sort.Order.desc("create_time")));
+        Query query = new CriteriaQuery(criteria).setPageable(pageRequest)
+                .addSort(Sort.by(Sort.Order.desc("create_time")));
+        // 执行查询并获取查询结果
         SearchHits<Collection> searchHits = elasticsearchOperations.search(query, Collection.class);
 
+        // 将查询结果转换为分页响应对象并返回
         return PageResponse.of(searchHits.getSearchHits().stream().map(SearchHit::getContent).toList(), (int) searchHits.getTotalHits(), pageSize, currentPage);
     }
 
+
+    //深度分页查询
     public SAPageInfo<Collection> deepPageQueryByState(String name, String state, int pageSize, Long lastId) {
         LambdaEsQueryWrapper<Collection> queryWrapper = new LambdaEsQueryWrapper<>();
         queryWrapper.match(Collection::getName, name)

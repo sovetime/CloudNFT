@@ -24,7 +24,7 @@
     </properties>
 
     <modules>
-        <module>nft-turbo-interface</module>
+        <module>nft-turbo-goods-interface</module>
         <module>nft-turbo-collection</module>
         <module>nft-turbo-box</module>
     </modules>

@@ -61,7 +61,7 @@ public class CollectionController {
     @Autowired
     private HeldCollectionService heldCollectionService;
 
-    //藏品列表
+    //藏品列表（通过数据库/ES查询)
     @GetMapping("/collectionList")
     public MultiResult<CollectionVO> collectionList(@NotBlank String state, String keyword, int pageSize, int currentPage) {
         CollectionPageQueryRequest collectionPageQueryRequest = new CollectionPageQueryRequest();

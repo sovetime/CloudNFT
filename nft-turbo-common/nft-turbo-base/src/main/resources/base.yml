@@ -12,7 +12,7 @@ nft:
       port: 6379
       password: 123456
     elasticsearch:
-      enable: false #要启用改成true
+      enable: true # 通过nft.turbo.elasticsearch.enable可以控制走数据库还是es
       url: localhost:9200
       username: elastic
       password: 123456
@@ -26,7 +26,7 @@ nft:
       nacos:
         data-id: nfturbo-gateway-sentinel
     rocketmq:
-      url: 139.129.32.11:9876
+      url: localhost:9876
     dubbo:
       nacos:
         namespace: aa1c1c78-52b1-4ea7-b8fb-c50075b2f26d
