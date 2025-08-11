@@ -7,11 +7,8 @@ import cn.hollis.nft.turbo.order.OrderException;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.GOODS_NOT_BOOKED;
 
-/**
- * 商品预约校验器
- *
- * @author hollis
- */
+
+//商品预约校验器
 public class GoodsBookValidator extends BaseOrderCreateValidator {
 
     private GoodsFacadeService goodsFacadeService;

@@ -69,17 +69,20 @@ public class CollectionController {
         collectionPageQueryRequest.setKeyword(keyword);
         collectionPageQueryRequest.setCurrentPage(currentPage);
         collectionPageQueryRequest.setPageSize(pageSize);
+        //藏品分页查询
         PageResponse<CollectionVO> pageResponse = collectionReadFacadeService.pageQuery(collectionPageQueryRequest);
         return MultiResultConvertor.convert(pageResponse);
     }
 
-    //藏品详情
+    //藏品详情（引入缓存，在订单）
     @GetMapping("/collectionInfo")
     public Result<CollectionVO> collectionInfo(@NotBlank String collectionId) {
+        //获取商品，引入缓存
         CollectionVO collectionVO = (CollectionVO) goodsFacadeService.getGoods(collectionId, GoodsType.COLLECTION);
         if (collectionVO.canBook()) {
             try {
                 String userId = (String) StpUtil.getLoginId();
+                //查询是否预约过
                 Boolean hasBooked = goodsFacadeService.isGoodsBooked(collectionId, GoodsType.COLLECTION, userId);
                 collectionVO.setHasBooked(hasBooked);
             } catch (Exception e) {
@@ -100,6 +103,7 @@ public class CollectionController {
         heldCollectionPageQueryRequest.setCurrentPage(currentPage);
         heldCollectionPageQueryRequest.setPageSize(pageSize);
         heldCollectionPageQueryRequest.setKeyword(keyword);
+        //持有藏品分页查询
         PageResponse<HeldCollectionVO> pageResponse = collectionReadFacadeService.pageQueryHeldCollection(heldCollectionPageQueryRequest);
         return MultiResultConvertor.convert(pageResponse);
     }
@@ -108,7 +112,7 @@ public class CollectionController {
     @GetMapping("/heldCollectionCount")
     public Result<Long> heldCollectionCount() {
         String userId = (String) StpUtil.getLoginId();
-
+        //持有藏品数量查询
         SingleResponse<Long> response = collectionReadFacadeService.queryHeldCollectionCount(userId);
         return Result.success(response.getData());
     }
@@ -116,10 +120,12 @@ public class CollectionController {
     //用户持有藏品详情
     @GetMapping("/heldCollectionInfo")
     public Result<HeldCollectionVO> heldCollectionInfo(@NotBlank String heldCollectionId) {
+        //根据id查询持有藏品
         SingleResponse<HeldCollectionVO> singleResponse = collectionReadFacadeService.queryHeldCollectionById(Long.valueOf(heldCollectionId));
         return Result.success(singleResponse.getData());
     }
 
+    //藏品销毁（未完善）
     @PostMapping("/destroy")
     public Result<Boolean> destroy(@Valid @RequestBody DestroyParam param) {
         String userId = (String) StpUtil.getLoginId();
@@ -145,7 +151,7 @@ public class CollectionController {
         return Result.success(false);
     }
 
-
+    //藏品转让（未完善）
     @PostMapping("/transfer")
     public Result<Boolean> transfer(@Valid @RequestBody TransferParam param) {
         String userId = (String) StpUtil.getLoginId();

@@ -8,11 +8,8 @@ import cn.hollis.nft.turbo.base.utils.BeanNameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * 链服务工厂
- *
- * @author hollis
- */
+
+//链服务工厂
 @Service
 public class ChainServiceFactory {
 
@@ -28,8 +25,7 @@ public class ChainServiceFactory {
         if (service != null) {
             return service;
         } else {
-            throw new UnsupportedOperationException(
-                    "No ChainService Found With chainType : " + chainType);
+            throw new UnsupportedOperationException("No ChainService Found With chainType : " + chainType);
         }
     }
 }

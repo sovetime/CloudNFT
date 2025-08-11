@@ -34,6 +34,7 @@ public class CollectionEsService extends BaseCollectionService {
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
+    //Easy-es封装接口
     @Resource
     private CollectionEsMapper collectionEsMapper;
 
@@ -43,7 +44,9 @@ public class CollectionEsService extends BaseCollectionService {
         //Criteria 是spring data elasticsearch 提供用于构建查询条件的类，可以构建复杂查询
         Criteria criteria = null;
         if (StringUtils.isNotBlank(name)) {
-            criteria = new Criteria("name").is(name).and(new Criteria("state").is(state), new Criteria("deleted").is("0"));
+            criteria = new Criteria("name").is(name).and(
+                        new Criteria("state").is(state),
+                        new Criteria("deleted").is("0"));
         } else if ((StringUtils.isNotBlank(state))) {
             criteria = new Criteria("state").is(state).and(new Criteria("deleted").is("0"));
         } else {
