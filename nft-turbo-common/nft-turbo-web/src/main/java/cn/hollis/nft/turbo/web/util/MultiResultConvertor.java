@@ -5,9 +5,7 @@ import cn.hollis.nft.turbo.web.vo.MultiResult;
 
 import static cn.hollis.nft.turbo.base.response.ResponseCode.SUCCESS;
 
-/**
- * @author Hollis
- */
+
 public class MultiResultConvertor {
 
     public static <T> MultiResult<T> convert(PageResponse<T> pageResponse) {

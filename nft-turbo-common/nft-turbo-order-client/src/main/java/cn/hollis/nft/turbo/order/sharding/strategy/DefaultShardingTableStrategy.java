@@ -7,7 +7,8 @@ public class DefaultShardingTableStrategy implements ShardingTableStrategy {
     public DefaultShardingTableStrategy() {
     }
 
-    // 获取分表名
+    //判断userid应该分到哪一张表
+    //将userid 转变为hashcode在%tableCount
     @Override
     public int getTable(String externalId,int tableCount) {
         int hashCode = externalId.hashCode();

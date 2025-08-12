@@ -21,12 +21,7 @@ import static cn.hollis.nft.turbo.base.response.ResponseCode.SYSTEM_ERROR;
 @Slf4j
 public class GlobalWebExceptionHandler {
 
-    /**
-     * 自定义方法参数校验异常处理器
-     *
-     * @param ex
-     * @return
-     */
+    //自定义方法参数校验异常处理器
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -41,12 +36,7 @@ public class GlobalWebExceptionHandler {
         return errors;
     }
 
-    /**
-     * 自定义业务异常处理器
-     *
-     * @param bizException
-     * @return
-     */
+    //自定义业务异常处理器
     @ExceptionHandler(BizException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -63,12 +53,7 @@ public class GlobalWebExceptionHandler {
         return result;
     }
 
-    /**
-     * 自定义系统异常处理器
-     *
-     * @param systemException
-     * @return
-     */
+    //自定义系统异常处理器
     @ExceptionHandler(SystemException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -85,12 +70,7 @@ public class GlobalWebExceptionHandler {
         return result;
     }
 
-    /**
-     * 自定义系统异常处理器
-     *
-     * @param throwable
-     * @return
-     */
+    //自定义系统异常处理器
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody

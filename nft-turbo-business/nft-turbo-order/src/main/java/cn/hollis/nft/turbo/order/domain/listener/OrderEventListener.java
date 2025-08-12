@@ -12,9 +12,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Date;
 
-/**
- * @author Hollis
- */
+
 @Component
 public class OrderEventListener {
 

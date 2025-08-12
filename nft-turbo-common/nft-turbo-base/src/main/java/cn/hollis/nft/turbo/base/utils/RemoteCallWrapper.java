@@ -21,13 +21,11 @@ public class RemoteCallWrapper {
 
     private static Logger logger = LoggerFactory.getLogger(RemoteCallWrapper.class);
 
-    private static ImmutableSet<String> SUCCESS_CHECK_METHOD = ImmutableSet.of("isSuccess", "isSucceeded",
-            "getSuccess");
+    private static ImmutableSet<String> SUCCESS_CHECK_METHOD = ImmutableSet.of("isSuccess", "isSucceeded", "getSuccess");
 
     private static ImmutableSet<String> SUCCESS_CODE_METHOD = ImmutableSet.of("getResponseCode");
 
-    private static ImmutableSet<String> SUCCESS_CODE = ImmutableSet.of("SUCCESS", "DUPLICATE",
-            "DUPLICATED_REQUEST");
+    private static ImmutableSet<String> SUCCESS_CODE = ImmutableSet.of("SUCCESS", "DUPLICATE", "DUPLICATED_REQUEST");
 
     public static <T, R> R call(Function<T, R> function, T request, boolean checkResponse) {
         return call(function, request, request.getClass().getSimpleName(), checkResponse, false);

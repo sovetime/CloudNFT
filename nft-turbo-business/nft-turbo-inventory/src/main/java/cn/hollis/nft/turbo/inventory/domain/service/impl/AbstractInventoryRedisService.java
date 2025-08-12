@@ -20,11 +20,8 @@ import java.util.List;
 import static cn.hollis.nft.turbo.base.response.ResponseCode.BIZ_ERROR;
 import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
 
-/**
- * 库存服务通用实现-基于Redis
- *
- * @author Hollis
- */
+
+//库存服务通用实现-基于Redis
 public abstract class AbstractInventoryRedisService implements InventoryService {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractInventoryRedisService.class);

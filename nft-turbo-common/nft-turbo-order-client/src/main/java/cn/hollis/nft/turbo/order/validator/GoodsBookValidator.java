@@ -15,8 +15,10 @@ public class GoodsBookValidator extends BaseOrderCreateValidator {
 
     @Override
     protected void doValidate(OrderCreateRequest request) throws OrderException {
+        //获取商品信息
         BaseGoodsVO baseGoodsVO = goodsFacadeService.getGoods(request.getGoodsId(), request.getGoodsType());
         if(baseGoodsVO.canBook()){
+            //判断当前用户是否预约过
             Boolean hasBooked = goodsFacadeService.isGoodsBooked(request.getGoodsId(), request.getGoodsType(), request.getBuyerId());
 
             if (!hasBooked) {

@@ -8,5 +8,5 @@ rocketmq:
   name-server: ${nft.turbo.rocketmq.url}
   broker:
     check: true
-    # 项目中有两种方式使用了RocketMQ，其中通过SpringCloud Stream方式对MQ不强依赖，
-    # 即使没部署RocketMQ应用也能正常启动，但是另外一种通过MQ Client的方式则强依赖RocketMQ的部署，所以这里是用来控制避免对RocketMQ强依赖的。
+    #false 单条消费MQ的newBuy消息，但是消息会无法发送和消费
+    #true  批量消费MQ的newBuy消息

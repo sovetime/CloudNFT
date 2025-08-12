@@ -4,24 +4,24 @@ import cn.hollis.nft.turbo.web.util.TokenUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.RedisException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
-
+// token 过滤器
+@Slf4j
 public class TokenFilter implements Filter {
-
-    private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
 
     public static final ThreadLocal<String> TOKEN_THREAD_LOCAL = new ThreadLocal<>();
 
+    // 模拟高并发
     public static final ThreadLocal<Boolean> STRESS_THREAD_LOCAL = new ThreadLocal<>();
 
     private static final String HEADER_VALUE_NULL = "null";
@@ -29,6 +29,8 @@ public class TokenFilter implements Filter {
     private static final String HEADER_VALUE_UNDEFINED = "undefined";
 
     private RedissonClient redissonClient;
+
+    private RedisTemplate redisTemplate;
 
     public TokenFilter(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
@@ -39,6 +41,8 @@ public class TokenFilter implements Filter {
         // 过滤器初始化，可选实现
     }
 
+    // 过滤器执行逻辑
+    // 判断请求是否携带token,携带则通过redis 校验token是否有效，有效删除token，并放行请求
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
@@ -47,22 +51,22 @@ public class TokenFilter implements Filter {
 
             // 从请求头中获取Token
             String token = httpRequest.getHeader("Authorization");
+            // 判断是否是压测请求
             Boolean isStress = BooleanUtils.toBoolean(httpRequest.getHeader("isStress"));
 
             if (token == null || HEADER_VALUE_NULL.equals(token) || HEADER_VALUE_UNDEFINED.equals(token)) {
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 httpResponse.getWriter().write("No Token Found ...");
-                logger.error("no token found in header , pls check!");
+                log.error("no token found in header , pls check!");
                 return;
             }
 
             // 校验Token的有效性
             boolean isValid = checkTokenValidity(token, isStress);
-
             if (!isValid) {
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 httpResponse.getWriter().write("Invalid or expired token");
-                logger.error("token validate failed , pls check!");
+                log.error("token validate failed , pls check!");
                 return;
             }
 
@@ -74,26 +78,16 @@ public class TokenFilter implements Filter {
         }
     }
 
-    /**
-     * <p>
-     * 1、把加密后的token解密
-     * 2、把加密后的token的value转成key
-     * 3、去redis按照key查询并且判断value是否一致
-     * 4、如果不一致，抛异常
-     * 5、如果一致，则删除这个key
-     * </p>
-     *
-     * @param token
-     * @param isStress
-     * @return
-     */
+    //校验token是否有效
     private boolean checkTokenValidity(String token, Boolean isStress) {
         String result;
+
         if (isStress) {
             //如果是压测，则生成一个随机数，模拟 token
             result = UUID.randomUUID().toString();
             STRESS_THREAD_LOCAL.set(isStress);
         }else{
+            //获取tokenKey
             String tokenKey = TokenUtil.getTokenKeyByValue(token);
 
             String luaScript = """
@@ -107,14 +101,16 @@ public class TokenFilter implements Filter {
                 return value""";
 
             try {
-                /// 6.2.3以上可以直接使用GETDEL命令
-                /// String value = (String) redisTemplate.opsForValue().getAndDelete(token);
-                result = (String) redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
-                        luaScript,
-                        RScript.ReturnType.STATUS,
-                        Arrays.asList(tokenKey), token);
+                // 6.2.3以上可以直接使用GETDEL命令
+                //String value = (String) redisTemplate.opsForValue().getAndDelete(token);
+                result = (String) redissonClient.getScript().eval(
+                        RScript.Mode.READ_WRITE,         // 执行模式：允许读写 Redis
+                        luaScript,                       // 要执行的 Lua 脚本
+                        RScript.ReturnType.STATUS,       // 返回值类型：按状态字符串返回
+                        Arrays.asList(tokenKey),         // 传给 Lua 的 KEYS[1]
+                        token);                          // 传给 Lua 的 ARGV[1]
             } catch (RedisException e) {
-                logger.error("check token failed", e);
+                log.error("check token failed", e);
                 return false;
             }
         }

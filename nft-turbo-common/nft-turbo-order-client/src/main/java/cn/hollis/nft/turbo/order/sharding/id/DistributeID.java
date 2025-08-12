@@ -21,17 +21,18 @@ public class DistributeID {
     public DistributeID() {
     }
 
-    //利用雪花算法生成一个唯一ID
+    //生成唯一ID
+    //businessCode->业务码，workerId->分布式的ID，externalId->userid
     public static String generateWithSnowflake(BusinessCode businessCode, long workerId, String externalId) {
-        //
+        //利用雪花算法生成一个唯一ID
         long id = IdUtil.getSnowflake(workerId).nextId();
+        //生成一个唯一ID：业务吗（10)+序列号+表下标（0001）
         return generate(businessCode, externalId, id);
     }
 
-    //生成一个唯一ID：10（业务码） 1769649671860822016（sequence) 1023(分表）
-    public static String generate(BusinessCode businessCode,
-                                  String externalId, Long sequenceNumber) {
-        //
+    //生成一个唯一ID：业务吗+序列号+表下标
+    //sequenceNumber-> 分布式唯一workerId
+    public static String generate(BusinessCode businessCode, String externalId, Long sequenceNumber) {
         DistributeID distributeId = create(businessCode, externalId, sequenceNumber);
         return distributeId.businessCode + distributeId.seq + distributeId.table;
     }
@@ -42,17 +43,15 @@ public class DistributeID {
     }
 
     //创建分布式ID对象
-    // businessCode 业务代码，用于确定业务类型和表数量
-    //externalId 外部ID，用于分表策略计算
-    //sequenceNumber 序列号，用于生成唯一标识
+    // businessCode->业务代码，externalId->userid，用于分表策略计算，sequenceNumber->分布式id
     public static DistributeID create(BusinessCode businessCode, String externalId, Long sequenceNumber) {
 
         DistributeID distributeId = new DistributeID();
         distributeId.businessCode = businessCode.getCodeString();
 
-        // 根据分表策略计算表名
+        //判断userid应该分到哪一张表
         String table = String.valueOf(shardingTableStrategy.getTable(externalId, businessCode.tableCount()));
-        // 格式化为4位数字字符串
+        // 生成table字符换，根据table转变为0001，0002，0003...
         distributeId.table = StringUtils.leftPad(table, 4, "0");
         // 设置序列号
         distributeId.seq = String.valueOf(sequenceNumber);

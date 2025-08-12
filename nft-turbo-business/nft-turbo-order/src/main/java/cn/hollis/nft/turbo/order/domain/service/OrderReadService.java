@@ -30,6 +30,7 @@ public class OrderReadService extends ServiceImpl<OrderMapper, TradeOrder> {
         return orderMapper.selectByOrderIdAndBuyer(orderId, buyerId);
     }
 
+    //分页查询不同状态的订单
     public Page<TradeOrder> pageQueryByState(String buyerId, String state, int currentPage, int pageSize) {
         Page<TradeOrder> page = new Page<>(currentPage, pageSize);
         QueryWrapper<TradeOrder> wrapper = new QueryWrapper<>();

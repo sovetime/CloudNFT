@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit;
 import static cn.hollis.nft.turbo.cache.constant.CacheConstant.CACHE_KEY_SEPARATOR;
 import static cn.hollis.nft.turbo.web.util.TokenUtil.TOKEN_PREFIX;
 
-
+//获取token
+//创建订单的时候需要携带token，防止订单被重复创建
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -29,15 +30,19 @@ public class TokenController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    //获取token
     @GetMapping("/get")
     public Result<String> get(@NotBlank String scene, @NotBlank String key) {
         if (StpUtil.isLogin()) {
+            //获取用户id
             String userId = (String) StpUtil.getLoginId();
-            //token:buy:29:10085
+
+            //key：(token:+场景+userid:+key ) -> token:buy:29:10085
             String tokenKey = TOKEN_PREFIX + scene + CACHE_KEY_SEPARATOR + userId + CACHE_KEY_SEPARATOR + key;
+            //通过tokenkey生成value值
             String tokenValue = TokenUtil.getTokenValueByKey(tokenKey);
-            //key：token:buy:29:10085
-            //value：YZdkYfQ8fy7biSTsS5oZrbsB8eN7dHPgtCV0dw/36AHSfDQzWOj+ULNEcMluHvep/txjP+BqVRH3JlprS8tWrQ==
+
+            //缓存在Redis中
             stringRedisTemplate.opsForValue().set(tokenKey, tokenValue, 30, TimeUnit.MINUTES);
             return Result.success(tokenValue);
         }

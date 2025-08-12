@@ -8,11 +8,8 @@ import cn.hollis.nft.turbo.order.OrderException;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.INVENTORY_NOT_ENOUGH;
 
-/**
- * 库存校验器
- *
- * @author hollis
- */
+
+//库存校验器
 public class StockValidator extends BaseOrderCreateValidator {
 
     private InventoryFacadeService inventoryFacadeService;

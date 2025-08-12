@@ -24,11 +24,8 @@ import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstractInventoryRedisService.ERROR_CODE_INVENTORY_IS_ZERO;
 import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstractInventoryRedisService.ERROR_CODE_INVENTORY_NOT_ENOUGH;
 
-/**
- * 库存门面服务
- *
- * @author Hollis
- */
+
+//库存门面服务
 @DubboService(version = "1.0.0")
 @Slf4j
 public class InventoryFacadeServiceImpl implements InventoryFacadeService {

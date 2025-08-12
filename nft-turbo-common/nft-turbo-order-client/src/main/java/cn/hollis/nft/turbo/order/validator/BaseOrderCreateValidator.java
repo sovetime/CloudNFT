@@ -3,11 +3,8 @@ package cn.hollis.nft.turbo.order.validator;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.order.OrderException;
 
-/**
- * 订单校验
- *
- * @author Hollis
- */
+
+//订单校验
 public abstract class BaseOrderCreateValidator implements OrderCreateValidator {
 
     protected OrderCreateValidator nextValidator;
@@ -22,12 +19,7 @@ public abstract class BaseOrderCreateValidator implements OrderCreateValidator {
         return nextValidator;
     }
 
-    /**
-     * 校验
-     *
-     * @param request
-     * @throws Exception
-     */
+    //校验
     @Override
     public void validate(OrderCreateRequest request) throws OrderException {
         doValidate(request);
@@ -37,11 +29,5 @@ public abstract class BaseOrderCreateValidator implements OrderCreateValidator {
         }
     }
 
-    /**
-     * 校验方法的具体实现
-     *
-     * @param request
-     * @throws OrderException
-     */
     protected abstract void doValidate(OrderCreateRequest request) throws OrderException;
 }

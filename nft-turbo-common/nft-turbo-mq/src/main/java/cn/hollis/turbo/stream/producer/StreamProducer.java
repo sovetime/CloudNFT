@@ -26,14 +26,19 @@ public class StreamProducer {
 
     public static final String ROCKET_MQ_TOPIC = "ROCKET_MQ_TOPIC";
 
+    //SpringCloud Stream 的核心类，用于向消息中间件（如RocketMQ、Kafka等）发送消息
     @Autowired
     private StreamBridge streamBridge;
 
+    // 发送消息
+    //bingingName 绑定的
+    //msg 创建的订单对象
     public boolean send(String bingingName, String tag, String msg) {
         // 构建消息对象
         MessageBody message = new MessageBody()
                 .setIdentifier(UUID.randomUUID().toString())
                 .setBody(msg);
+
         logger.info("send message : {} , {} , {}", bingingName, tag, JSON.toJSONString(message));
         boolean result = streamBridge.send(bingingName, MessageBuilder.withPayload(message).setHeader("TAGS", tag)
                 .build());

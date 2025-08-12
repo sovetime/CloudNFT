@@ -61,6 +61,7 @@ public class AuthController {
         return Result.success(noticeResponse.getSuccess());
     }
 
+    // 注册
     @PostMapping("/register")
     public Result<Boolean> register(@Valid @RequestBody RegisterParam registerParam) {
 
@@ -82,6 +83,7 @@ public class AuthController {
         return Result.error(registerResult.getResponseCode(), registerResult.getResponseMessage());
     }
 
+    //登录
     @PostMapping("/login")
     public Result<LoginVO> login(@Valid @RequestBody LoginParam loginParam) {
         //fixme 为了方便，暂时直接跳过
@@ -129,6 +131,7 @@ public class AuthController {
         }
     }
 
+    //退出登录
     @PostMapping("/logout")
     public Result<Boolean> logout() {
         StpUtil.logout();

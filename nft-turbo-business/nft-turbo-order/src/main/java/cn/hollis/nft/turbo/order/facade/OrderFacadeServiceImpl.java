@@ -134,6 +134,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         return orderService.createAndConfirm(request);
     }
 
+    //发送事务消息关单
     @NotNull
     private OrderResponse sendTransactionMsgForClose(BaseOrderUpdateRequest request) {
         //因为RocketMQ 的事务消息中，如果本地事务发生了异常，这里返回也会是个 true，所以就需要做一下反查进行二次判断，才能知道关单操作是否成功
@@ -183,9 +184,13 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @Override
     @Facade
     public PageResponse<TradeOrderVO> pageQuery(OrderPageQueryRequest request) {
+        //分页查询不同状态的订单
         Page<TradeOrder> tradeOrderPage = orderReadService.pageQueryByState(request.getBuyerId(), request.getState(), request.getCurrentPage(), request.getPageSize());
+        //转换为VO
         List<TradeOrderVO> tradeOrderVos = TradeOrderConvertor.INSTANCE.mapToVo(tradeOrderPage.getRecords());
+        //设置卖家名称
         tradeOrderVos.forEach(tradeOrderVO -> tradeOrderVO.setSellerName(getSellerName(tradeOrderVO)));
+
         return PageResponse.of(tradeOrderVos, (int) tradeOrderPage.getTotal(), request.getPageSize(), request.getCurrentPage());
     }
 

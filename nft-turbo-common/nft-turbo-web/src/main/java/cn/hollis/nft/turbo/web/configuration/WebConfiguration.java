@@ -27,6 +27,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         FilterRegistrationBean<TokenFilter> registrationBean = new FilterRegistrationBean<>();
 
         registrationBean.setFilter(new TokenFilter(redissonClient));
+        //需要校验路径
         registrationBean.addUrlPatterns("/trade/buy","/trade/newBuy","/trade/normalBuy");
         registrationBean.setOrder(10);
 

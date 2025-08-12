@@ -6,9 +6,7 @@ import cn.hutool.core.util.IdUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author Hollis
- */
+
 public class DistributeIDTest {
 
     @Test

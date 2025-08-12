@@ -12,9 +12,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @author Hollis
- */
+
 @Configuration
 public class OrderClientConfiguration {
 

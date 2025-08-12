@@ -7,23 +7,15 @@ import java.util.List;
 
 import static cn.hollis.nft.turbo.base.response.ResponseCode.SUCCESS;
 
-/**
- * @author Hollis
- */
+
 @Getter
 @Setter
 public class MultiResult<T> extends Result<List<T>> {
-    /**
-     * 总记录数
-     */
+
     private long total;
-    /**
-     * 当前页码
-     */
+
     private int page;
-    /**
-     * 每页记录数
-     */
+
     private int size;
 
     public MultiResult() {

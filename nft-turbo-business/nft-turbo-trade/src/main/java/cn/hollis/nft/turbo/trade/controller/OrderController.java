@@ -49,19 +49,23 @@ public class OrderController {
         orderPageQueryRequest.setState(state);
         orderPageQueryRequest.setCurrentPage(currentPage);
         orderPageQueryRequest.setPageSize(pageSize);
+        //订单分页查询
         PageResponse<TradeOrderVO> pageResponse = orderFacadeService.pageQuery(orderPageQueryRequest);
         return MultiResultConvertor.convert(pageResponse);
     }
 
+    // 订单详情
     @GetMapping("/orderDetail")
     public Result<TradeOrderVO> orderDetail(@NotNull String orderId) {
         String userId = (String) StpUtil.getLoginId();
+        //订单详情
         SingleResponse<TradeOrderVO> singleResponse = orderFacadeService.getTradeOrder(orderId, userId);
         if (singleResponse.getSuccess()) {
             TradeOrderVO tradeOrderVO = singleResponse.getData();
             if(tradeOrderVO == null){
                 return Result.error("ORDER_NOT_EXIST", "订单不存在");
             }
+
             if (tradeOrderVO.getTimeout() && tradeOrderVO.getOrderState() == TradeOrderState.CONFIRM) {
                 //如果订单已经超时，并且尚未关闭，则执行一次关单后再返回数据
                 OrderTimeoutRequest timeoutRequest = new OrderTimeoutRequest();
@@ -70,7 +74,10 @@ public class OrderController {
                 timeoutRequest.setOrderId(tradeOrderVO.getOrderId());
                 timeoutRequest.setOperateTime(new Date());
                 timeoutRequest.setIdentifier(UUID.randomUUID().toString());
+
+                //超时关单处理
                 orderFacadeService.timeout(timeoutRequest);
+                //订单详情
                 singleResponse = orderFacadeService.getTradeOrder(orderId, userId);
             }
             return Result.success(singleResponse.getData());
@@ -83,6 +90,7 @@ public class OrderController {
     @GetMapping("/getPayStatus")
     public Result<PayOrderVO> getPayStatus(@NotNull String payOrderId) {
         String userId = (String) StpUtil.getLoginId();
+        //查询支付订单
         SingleResponse<PayOrderVO> singleResponse = payFacadeService.queryPayOrder(payOrderId, userId);
         return new Result(singleResponse);
     }

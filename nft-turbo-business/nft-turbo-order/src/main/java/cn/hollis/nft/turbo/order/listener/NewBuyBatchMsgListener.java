@@ -62,9 +62,13 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
 
     @Override
     public void prepareStart(DefaultMQPushConsumer consumer) {
+        // 设置拉取间隔
         consumer.setPullInterval(1000);
+        // 设置批量拉取数量
         consumer.setConsumeMessageBatchMaxSize(128);
+        // 设置批量消费数量
         consumer.setPullBatchSize(64);
+        // 设置消费模式
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             log.info("NewBuyBatchMsgListener receive message size: {}", msgs.size());
 
@@ -105,6 +109,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
         });
     }
 
+    //
     public boolean doNewBuyExecute(OrderCreateRequest orderCreateRequest) {
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         BeanUtils.copyProperties(orderCreateRequest, orderCreateAndConfirmRequest);

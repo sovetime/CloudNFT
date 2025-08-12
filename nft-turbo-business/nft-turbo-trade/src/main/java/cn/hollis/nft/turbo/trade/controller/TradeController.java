@@ -74,6 +74,7 @@ import static cn.hollis.nft.turbo.web.filter.TokenFilter.TOKEN_THREAD_LOCAL;
 @RequestMapping("trade")
 public class TradeController {
 
+    //
     private static ThreadFactory inventoryBypassVerifyThreadFactory = new ThreadFactoryBuilder()
             .setNameFormat("inventory-bypass-verify-pool-%d").build();
 
@@ -103,14 +104,16 @@ public class TradeController {
     @Resource
     private InventoryCheckFacadeService inventoryCheckFacadeService;
 
-    //预定
+    //预约
     @PostMapping("/book")
     public Result<Long> book(@Valid @RequestBody BookParam bookParam) {
+        //获取userId
         String userId = (String) StpUtil.getLoginId();
 
         GoodsBookRequest goodsBookRequest = new GoodsBookRequest();
         goodsBookRequest.setGoodsId(bookParam.getGoodsId());
         goodsBookRequest.setGoodsType(GoodsType.valueOf(bookParam.getGoodsType()));
+
         //数藏比较特殊，一个商品只能预定一次，所以这里直接用userId+goodsType+goodsId作为标识了，如果支持多次预定的话，需要在再有个活动的概念，基于活动做预约
         goodsBookRequest.setIdentifier(userId + SEPARATOR + bookParam.getGoodsType() + SEPARATOR + bookParam.getGoodsId());
         goodsBookRequest.setBuyerId(userId);
@@ -125,7 +128,7 @@ public class TradeController {
     //秒杀下单，热点商品
     @PostMapping("/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
-        //
+        //创建并确认订单
         OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
 
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
@@ -145,7 +148,9 @@ public class TradeController {
         OrderCreateRequest orderCreateRequest = null;
 
         try {
+            //创建订单
             orderCreateRequest = getOrderCreateRequest(buyParam);
+            //订单校验
             orderPreValidatorChain.validate(orderCreateRequest);
 
             //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
@@ -160,6 +165,7 @@ public class TradeController {
             InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
             SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
 
+            //
             if (response.getSuccess() && response.getData() != null) {
                 inventoryBypassVerify(inventoryRequest);
                 return Result.success(orderCreateRequest.getOrderId());
@@ -222,7 +228,7 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
     }
 
-    //创建并确认订单
+    //创建订单
     @NotNull
     private OrderCreateRequest getOrderCreateRequest(BuyParam buyParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -236,10 +242,13 @@ public class TradeController {
         orderCreateRequest.setGoodsId(buyParam.getGoodsId());
         orderCreateRequest.setGoodsType(GoodsType.valueOf(buyParam.getGoodsType()));
         orderCreateRequest.setItemCount(buyParam.getItemCount());
+
+        //获取商品
         BaseGoodsVO goodsVO = goodsFacadeService.getGoods(buyParam.getGoodsId(), GoodsType.valueOf(buyParam.getGoodsType()));
         if (goodsVO == null || !goodsVO.available()) {
             throw new TradeException(TradeErrorCode.GOODS_NOT_FOR_SALE);
         }
+
         orderCreateRequest.setItemPrice(goodsVO.getPrice());
         orderCreateRequest.setSellerId(goodsVO.getSellerId());
         orderCreateRequest.setGoodsName(goodsVO.getGoodsName());

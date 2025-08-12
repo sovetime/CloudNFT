@@ -24,11 +24,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 为了解决在Seata+ShardingJDBC场景下，事务失效的问题
- *
- * @author Hollis
- */
+
+//为了解决在Seata+ShardingJDBC场景下，事务失效的问题
 @SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 public class SeataATShardingSphereTransactionManager implements ShardingSphereTransactionManager {
     private final Map<String, DataSource> dataSourceMap = new HashMap<>();
