@@ -38,6 +38,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     @Autowired
     private BlindBoxInventoryRedisService blindBoxInventoryRedisService;
 
+    //商品缓存
     private Cache<String, Boolean> soldOutGoodsLocalCache;
 
     @PostConstruct
@@ -49,12 +50,17 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     }
 
 
+    //库存初始化
     @Override
     public SingleResponse<Boolean> init(InventoryRequest inventoryRequest) {
+        //获取商品类型
         GoodsType goodsType = inventoryRequest.getGoodsType();
+
         InventoryResponse inventoryResponse = switch (goodsType) {
+            //藏品
             case COLLECTION -> collectionInventoryRedisService.init(inventoryRequest);
 
+            //盲盒
             case BLIND_BOX -> blindBoxInventoryRedisService.init(inventoryRequest);
 
             default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
@@ -67,17 +73,23 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         return SingleResponse.fail(inventoryResponse.getResponseCode(), inventoryResponse.getResponseMessage());
     }
 
+    //库存扣减
     @Override
     public SingleResponse<Boolean> decrease(InventoryRequest inventoryRequest) {
+        //获取商品类型
         GoodsType goodsType = inventoryRequest.getGoodsType();
 
+        //根据 商品类型_商品ID -> goodstype_goodsId 从缓存中获取库存
         if (soldOutGoodsLocalCache.getIfPresent(goodsType + SEPARATOR + inventoryRequest.getGoodsId()) != null) {
             return SingleResponse.fail(ERROR_CODE_INVENTORY_NOT_ENOUGH, "库存不足");
         }
 
+        //返回响应信息
         InventoryResponse inventoryResponse = switch (goodsType) {
+            //藏品
             case COLLECTION -> collectionInventoryRedisService.decrease(inventoryRequest);
 
+            //盲盒
             case BLIND_BOX -> blindBoxInventoryRedisService.decrease(inventoryRequest);
 
             default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
@@ -96,6 +108,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         return SingleResponse.of(true);
     }
 
+    // 判断是否售罄
     private static boolean isSoldOut(InventoryResponse inventoryResponse) {
         if(inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0){
             //这部分代码没有实际功能作用，仅用于日志埋点，方便压测时判断延时，详见压测相关视频
@@ -150,8 +163,10 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     public SingleResponse<String> getInventoryDecreaseLog(InventoryRequest inventoryRequest) {
         GoodsType goodsType = inventoryRequest.getGoodsType();
         String inventoryResponse = switch (goodsType) {
+            //藏品
             case COLLECTION -> collectionInventoryRedisService.getInventoryDecreaseLog(inventoryRequest);
 
+            //盲盒
             case BLIND_BOX -> blindBoxInventoryRedisService.getInventoryDecreaseLog(inventoryRequest);
 
             default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);

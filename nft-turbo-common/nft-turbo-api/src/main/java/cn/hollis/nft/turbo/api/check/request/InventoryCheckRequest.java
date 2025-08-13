@@ -10,6 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+// 商品库存检查请求
 public class InventoryCheckRequest extends BaseRequest {
 
     @NotNull(message = "商品ID不能为空")

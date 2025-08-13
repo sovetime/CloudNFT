@@ -11,11 +11,13 @@ public class CollectionInventoryRedisService extends AbstractInventoryRedisServi
 
     private static final String INVENTORY_STREAM_KEY = "clc:inventory:stream:";
 
+    //获取库存缓存的key
     @Override
     protected String getCacheKey(InventoryRequest request) {
         return INVENTORY_KEY + request.getGoodsId();
     }
 
+    //获取库存流水缓存的key
     @Override
     protected String getCacheStreamKey(InventoryRequest request) {
         return INVENTORY_STREAM_KEY + request.getGoodsId();

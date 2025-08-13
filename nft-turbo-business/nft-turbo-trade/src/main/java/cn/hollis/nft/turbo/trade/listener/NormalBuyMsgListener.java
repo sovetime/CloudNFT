@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 
 @Component
 @Slf4j
+//普通下单listener
 public class NormalBuyMsgListener extends AbstractStreamConsumer {
 
     @Resource

@@ -9,10 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 
-/**
- * @author Hollis
- * 库存旁路验证
- */
+
+//库存旁路验证
 @Slf4j
 @DubboService(version = "1.0.0")
 public class InventoryCheckFacadeServiceImpl implements InventoryCheckFacadeService {
@@ -20,6 +18,7 @@ public class InventoryCheckFacadeServiceImpl implements InventoryCheckFacadeServ
     @DubboReference(version = "1.0.0")
     private GoodsFacadeService goodsFacadeService;
 
+    //库存核对
     @Override
     public InventoryCheckResponse check(InventoryCheckRequest request) {
         InventoryCheckResponse response = new InventoryCheckResponse();
@@ -30,8 +29,15 @@ public class InventoryCheckFacadeServiceImpl implements InventoryCheckFacadeServ
         return response;
     }
 
+    //做库存检查，检查库存变更数量
     private boolean doInventoryCheck(InventoryCheckRequest inventoryCheckRequest) {
-        GoodsStreamVO goodsStreamVO = goodsFacadeService.getGoodsInventoryStream(inventoryCheckRequest.getGoodsId(), inventoryCheckRequest.getGoodsType(), inventoryCheckRequest.getGoodsEvent(), inventoryCheckRequest.getIdentifier());
+        //获取商品流水
+        GoodsStreamVO goodsStreamVO = goodsFacadeService.getGoodsInventoryStream(
+                                                inventoryCheckRequest.getGoodsId(),
+                                                inventoryCheckRequest.getGoodsType(),
+                                                inventoryCheckRequest.getGoodsEvent(),
+                                                inventoryCheckRequest.getIdentifier());
+
         if (goodsStreamVO == null) {
             return false;
         }

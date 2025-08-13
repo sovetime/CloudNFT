@@ -91,12 +91,13 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         };
     }
 
+    //获取商品流水
     @Override
     public GoodsStreamVO getGoodsInventoryStream(String goodsId, GoodsType goodsType, GoodsEvent goodsEvent, String identifier) {
         return switch (goodsType) {
             case COLLECTION -> {
                 CollectionInventoryStream collectionInventoryStream = collectionInventoryStreamMapper.selectByIdentifier(identifier, goodsEvent.name(), Long.valueOf(goodsId));
-
+                // yield 可以返回值
                 yield GoodsStreamConvertor.INSTANCE.mapToVo(collectionInventoryStream);
             }
 

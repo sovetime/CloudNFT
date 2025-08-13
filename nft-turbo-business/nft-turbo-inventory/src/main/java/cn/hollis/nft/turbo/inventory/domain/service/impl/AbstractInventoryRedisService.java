@@ -34,14 +34,18 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
     public static final String ERROR_CODE_KEY_NOT_FOUND = "KEY_NOT_FOUND";
     public static final String ERROR_CODE_OPERATION_ALREADY_EXECUTED = "OPERATION_ALREADY_EXECUTED";
 
+    //库存初始化
     @Override
     public InventoryResponse init(InventoryRequest request) {
         InventoryResponse inventoryResponse = new InventoryResponse();
+
+        //库存存在
         if (redissonClient.getBucket(getCacheKey(request)).isExists()) {
             inventoryResponse.setSuccess(true);
             inventoryResponse.setResponseCode(DUPLICATED.name());
             return inventoryResponse;
         }
+
         redissonClient.getBucket(getCacheKey(request)).set(request.getInventory());
         inventoryResponse.setSuccess(true);
         inventoryResponse.setGoodsId(request.getGoodsId());
@@ -57,15 +61,25 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         return stock;
     }
 
+    //库存扣减
     @Override
     public InventoryResponse decrease(InventoryRequest request) {
         InventoryResponse inventoryResponse = new InventoryResponse();
+
+        //KEYS[1]= 库存key -> clc:inventory:10000
+        //KEYS[2] = 流水的 key -> clc:inventory:stream:10000
+        //ARGV[1] = 本次要扣减的库存数 -> 1
+        //AGRV[2] = 本次扣减的唯一编号 -> id_11232132132131
         String luaScript = """
+                -- 检查操作是否已经执行过，通过检查哈希表(KEYS[2])中是否存在标识(ARGV[2])
                 if redis.call('hexists', KEYS[2], ARGV[2]) == 1 then
                     return redis.error_reply('OPERATION_ALREADY_EXECUTED')
                 end
-                                
+                
+                -- 获取当前库存值
                 local current = redis.call('get', KEYS[1])
+                
+                -- 库存键不存在，值不是数字，值为0，库存小于请求扣减数量，返回对应的报错信息
                 if current == false then
                     return redis.error_reply('KEY_NOT_FOUND')
                 end
@@ -78,16 +92,17 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
                 if tonumber(current) < tonumber(ARGV[1]) then
                     return redis.error_reply('INVENTORY_NOT_ENOUGH')
                 end
-                                
+                
+                -- 计算新的库存值 当前值-需要扣减的数量
                 local new = tonumber(current) - tonumber(ARGV[1])
+                -- 设置新的库存值
                 redis.call('set', KEYS[1], tostring(new))
-                                
                 -- 获取Redis服务器的当前时间（秒和微秒）
                 local time = redis.call("time")
                 -- 转换为毫秒级时间戳
                 local currentTimeMillis = (time[1] * 1000) + math.floor(time[2] / 1000)
-                                
-                -- 使用哈希结构存储日志
+                
+                -- 使用哈希结构存储操作日志
                 redis.call('hset', KEYS[2], ARGV[2], cjson.encode({
                     action = "decrease",
                     from = current,
@@ -96,16 +111,20 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
                     by = ARGV[2],
                     timestamp = currentTimeMillis
                 }))
-                                
+               
                 return new
                 """;
 
         try {
-            Integer result = ((Long) redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
-                    luaScript,
-                    RScript.ReturnType.INTEGER,
-                    Arrays.asList(getCacheKey(request), getCacheStreamKey(request)),
-                    request.getInventory(), "DECREASE_" + request.getIdentifier())).intValue();
+            Integer result = ((Long) redissonClient.getScript().eval(
+                    RScript.Mode.READ_WRITE,            //读写模式
+                    luaScript,                          //执行的lua脚本
+                    RScript.ReturnType.INTEGER,         //返回类型
+                    Arrays.asList(getCacheKey(request), //KEYS[1]
+                    getCacheStreamKey(request)),        //KEYS[2]
+                    request.getInventory(),     //ARGV[1]
+                    "DECREASE_" + request.getIdentifier()//ARGV[2]
+            )).intValue();
 
             inventoryResponse.setSuccess(true);
             inventoryResponse.setGoodsId(request.getGoodsId());
@@ -138,6 +157,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         }
     }
 
+    //
     @Override
     public String getInventoryDecreaseLog(InventoryRequest request) {
         String luaScript = """
@@ -264,17 +284,9 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         }
     }
 
-    /**
-     * 获取库存缓存的key
-     * @param request
-     * @return
-     */
+    //获取库存缓存的key
     protected abstract String getCacheKey(InventoryRequest request);
 
-    /**
-     * 获取库存流水缓存的key
-     * @param request
-     * @return
-     */
+    //获取库存流水缓存的key
     protected abstract String getCacheStreamKey(InventoryRequest request);
 }

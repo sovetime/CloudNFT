@@ -42,6 +42,7 @@ public class StreamProducer {
         logger.info("send message : {} , {} , {}", bingingName, tag, JSON.toJSONString(message));
         boolean result = streamBridge.send(bingingName, MessageBuilder.withPayload(message).setHeader("TAGS", tag)
                 .build());
+
         logger.info("send result : {} , {} , {}", bingingName, tag, result);
         return result;
     }

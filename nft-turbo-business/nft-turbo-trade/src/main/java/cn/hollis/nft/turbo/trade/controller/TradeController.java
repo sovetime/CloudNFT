@@ -124,17 +124,17 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.GOODS_BOOK_FAILED);
     }
 
-    //下单
-    //秒杀下单，热点商品
+    //秒杀下单，(基于inventory hint的实现),热点商品
     @PostMapping("/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
-        //创建并确认订单
+        //创建订单(从ThreadLocal中获取token)
         OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
 
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
 
         if (orderResponse.getSuccess()) {
             InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+            //库存扣减旁路验证
             inventoryBypassVerify(inventoryRequest);
             return Result.success(orderCreateRequest.getOrderId());
         }
@@ -148,25 +148,26 @@ public class TradeController {
         OrderCreateRequest orderCreateRequest = null;
 
         try {
-            //创建订单
+            //创建订单(从ThreadLocal中获取token)
             orderCreateRequest = getOrderCreateRequest(buyParam);
             //订单校验
             orderPreValidatorChain.validate(orderCreateRequest);
 
             //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
+            //消息发送给broker之后同步不会立即推送给消费者，而是执行本地事务InventoryDecreaseTransactionListener进行库存预扣减
             boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
-
+            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
             if (!result) {
                 throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
             }
 
-            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
-            //因为上面是用了MQ的事务消息，Redis的库存扣减是在事务消息的本地事务中同步执行的（InventoryDecreaseTransactionListener#executeLocalTransaction），所以只要成功了，这里一定能查到
+            //redis库存预扣减是在本地事务中和发送消息给mq同步执行的，消息发送成功后，库存扣减操作流水会写入redis，这里就可以查询操作流水
             InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+            //查询库存操作流水
             SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
 
-            //
             if (response.getSuccess() && response.getData() != null) {
+                //库存扣减旁路验证
                 inventoryBypassVerify(inventoryRequest);
                 return Result.success(orderCreateRequest.getOrderId());
             }
@@ -191,6 +192,8 @@ public class TradeController {
                 inventoryCheckRequest.setGoodsId(inventoryRequest.getGoodsId());
                 inventoryCheckRequest.setGoodsEvent(GoodsEvent.TRY_SALE);
                 inventoryCheckRequest.setChangedQuantity(inventoryRequest.getInventory());
+
+                //库存核对
                 InventoryCheckResponse checkResponse = inventoryCheckFacadeService.check(inventoryCheckRequest);
                 //核验成功,数据一致
                 if (checkResponse.getSuccess() && checkResponse.getCheckResult()) {
@@ -209,14 +212,18 @@ public class TradeController {
     //普通下单，非热点商品
     @PostMapping("/normalBuy")
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
+        //创建订单
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
-
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
+        //普通交易
+        OrderResponse orderResponse = RemoteCallWrapper.call(
+                req -> tradeApplicationService.normalBuy(req),
+                orderCreateAndConfirmRequest, "createOrder");
 
         if (orderResponse.getSuccess()) {
             //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
             try {
                 InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
+                //库存扣减
                 inventoryFacadeService.decrease(inventoryRequest);
             } catch (Exception e) {
                 log.error("decrease inventory from redis failed", e);
@@ -228,15 +235,17 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
     }
 
-    //创建订单
+    //创建订单(从ThreadLocal中获取token)
     @NotNull
     private OrderCreateRequest getOrderCreateRequest(BuyParam buyParam) {
+        //获取用户id
         String userId = (String) StpUtil.getLoginId();
         //使用雪花算法生成唯一的订单id
         String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
         //创建订单
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
         orderCreateRequest.setOrderId(orderId);
+        //获取token
         orderCreateRequest.setIdentifier(TOKEN_THREAD_LOCAL.get());
         orderCreateRequest.setBuyerId(userId);
         orderCreateRequest.setGoodsId(buyParam.getGoodsId());
@@ -259,22 +268,29 @@ public class TradeController {
         return orderCreateRequest;
     }
 
+    //创建订单(从ThreadLocal中获取token)
     @NotNull
     private OrderCreateAndConfirmRequest getOrderCreateAndConfirmRequest(BuyParam buyParam) {
+        //获取用户id
         String userId = (String) StpUtil.getLoginId();
+        //使用雪花算法生成唯一的订单id
         String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
         //创建订单
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         orderCreateAndConfirmRequest.setOrderId(orderId);
+        //获取token
         orderCreateAndConfirmRequest.setIdentifier(TOKEN_THREAD_LOCAL.get());
         orderCreateAndConfirmRequest.setBuyerId(userId);
         orderCreateAndConfirmRequest.setGoodsId(buyParam.getGoodsId());
         orderCreateAndConfirmRequest.setGoodsType(GoodsType.valueOf(buyParam.getGoodsType()));
         orderCreateAndConfirmRequest.setItemCount(buyParam.getItemCount());
+
+        //获取商品
         BaseGoodsVO goodsVO = goodsFacadeService.getGoods(buyParam.getGoodsId(), GoodsType.valueOf(buyParam.getGoodsType()));
         if (goodsVO == null || !goodsVO.available()) {
             throw new TradeException(TradeErrorCode.GOODS_NOT_FOR_SALE);
         }
+
         orderCreateAndConfirmRequest.setItemPrice(goodsVO.getPrice());
         orderCreateAndConfirmRequest.setSellerId(goodsVO.getSellerId());
         orderCreateAndConfirmRequest.setGoodsName(goodsVO.getGoodsName());
@@ -284,6 +300,7 @@ public class TradeController {
         orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
         orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
         orderCreateAndConfirmRequest.setOperateTime(new Date());
+
         return orderCreateAndConfirmRequest;
     }
 
@@ -352,6 +369,7 @@ public class TradeController {
     //取消订单
     @PostMapping("/cancel")
     public Result<Boolean> cancel(@Valid @RequestBody CancelParam cancelParam) {
+        //获取用户id
         String userId = (String) StpUtil.getLoginId();
 
         OrderCancelRequest orderCancelRequest = new OrderCancelRequest();
@@ -361,6 +379,7 @@ public class TradeController {
         orderCancelRequest.setOperator(userId);
         orderCancelRequest.setOperatorType(UserType.CUSTOMER);
 
+        //取消订单
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.cancel(req), orderCancelRequest, "cancelOrder");
 
         if (orderResponse.getSuccess()) {

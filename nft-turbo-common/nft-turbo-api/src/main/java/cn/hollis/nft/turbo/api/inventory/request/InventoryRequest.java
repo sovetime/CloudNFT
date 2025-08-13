@@ -19,13 +19,13 @@ public class InventoryRequest extends BaseRequest {
     @NotNull(message = "商品ID不能为null")
     private String goodsId;
 
-    @NotNull(message = "商品ID不能为null")
+    @NotNull(message = "商品类型不能为null")
     private GoodsType goodsType;
 
     //唯一标识
     private String identifier;
 
-    //库存数量
+    //需要扣减的库存数量
     private Integer inventory;
 
     public InventoryRequest(OrderCreateRequest orderCreateRequest) {

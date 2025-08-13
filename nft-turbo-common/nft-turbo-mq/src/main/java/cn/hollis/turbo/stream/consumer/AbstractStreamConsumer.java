@@ -7,21 +7,12 @@ import org.springframework.messaging.Message;
 
 import static cn.hollis.turbo.stream.producer.StreamProducer.*;
 
-/**
- * MQ消费基类
- * author: Hollis
- */
+
+// MQ消费基类
 @Slf4j
 public class AbstractStreamConsumer {
 
-    /**
-     * 从msg中解析出消息对象
-     *
-     * @param msg
-     * @param type
-     * @param <T>
-     * @return
-     */
+    //从msg中解析出消息对象
     public static <T> T getMessage(Message<MessageBody> msg, Class<T> type) {
         String messageId = msg.getHeaders().get(ROCKET_MQ_MESSAGE_ID, String.class);
         String tag = msg.getHeaders().get(ROCKET_TAGS, String.class);
