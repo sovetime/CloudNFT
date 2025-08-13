@@ -41,11 +41,12 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     //商品缓存
     private Cache<String, Boolean> soldOutGoodsLocalCache;
 
+    //初始化本地缓存
     @PostConstruct
     public void init() {
         soldOutGoodsLocalCache = Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.MINUTES)
-                .maximumSize(3000)
+                .expireAfterWrite(1, TimeUnit.MINUTES)//写入缓存后1分钟过期
+                .maximumSize(3000) //最多缓存数据量
                 .build();
     }
 
@@ -79,7 +80,8 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         //获取商品类型
         GoodsType goodsType = inventoryRequest.getGoodsType();
 
-        //根据 商品类型_商品ID -> goodstype_goodsId 从缓存中获取库存
+        //优化方案，引入本地缓存进行过滤
+        //根据 商品类型_商品ID -> goodstype_goodsId 从本地缓存中获取库存
         if (soldOutGoodsLocalCache.getIfPresent(goodsType + SEPARATOR + inventoryRequest.getGoodsId()) != null) {
             return SingleResponse.fail(ERROR_CODE_INVENTORY_NOT_ENOUGH, "库存不足");
         }
@@ -118,6 +120,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
                 || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_IS_ZERO);
     }
 
+    //库存增加
     @Override
     public SingleResponse<Boolean> increase(InventoryRequest inventoryRequest) {
         GoodsType goodsType = inventoryRequest.getGoodsType();
@@ -190,6 +193,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     }
 
 
+    //移除流水
     @Override
     public SingleResponse<Long> removeInventoryDecreaseLog(InventoryRequest inventoryRequest) {
         GoodsType goodsType = inventoryRequest.getGoodsType();

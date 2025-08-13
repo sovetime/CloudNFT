@@ -119,6 +119,7 @@ public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> i
         return true;
     }
 
+    //盲盒售卖
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean saleWithoutHint(GoodsTrySaleRequest request) {

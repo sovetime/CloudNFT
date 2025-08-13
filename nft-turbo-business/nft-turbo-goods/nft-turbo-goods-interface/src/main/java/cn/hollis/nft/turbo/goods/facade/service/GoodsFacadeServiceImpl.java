@@ -125,15 +125,20 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         return response;
     }
 
+    // 藏品出售的try阶段，做库存预占用-无hint
     @Override
     public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request) {
         GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
-
+        // 获取商品类型
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 
         Boolean trySaleResult = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
+            //藏品
             case COLLECTION -> collectionService.saleWithoutHint(collectionTrySaleRequest);
+
+            //盲盒
+            case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
+
             default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 

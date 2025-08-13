@@ -66,12 +66,12 @@ public class CollectionEsService extends BaseCollectionService {
 
 
     //深度分页查询
-    public SAPageInfo<Collection> deepPageQueryByState(String name, String state, int pageSize, Long lastId) {
+        public SAPageInfo<Collection> deepPageQueryByState(String name, String state, int pageSize, Long lastId) {
         LambdaEsQueryWrapper<Collection> queryWrapper = new LambdaEsQueryWrapper<>();
-        queryWrapper.match(Collection::getName, name)
+        queryWrapper.match(Collection::getName, name)//名称
                 .and(wrapper -> wrapper
-                        .match(collection -> collection.getState().name(), state)
-                        .match(Collection::getDeleted, "0"))
+                        .match(collection -> collection.getState().name(), state)//状态
+                        .match(Collection::getDeleted, "0"))//未删除
                 .orderByAsc("create_time");
 
         SAPageInfo<Collection> saPageInfo;

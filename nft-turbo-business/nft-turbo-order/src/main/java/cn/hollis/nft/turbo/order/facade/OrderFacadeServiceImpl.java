@@ -115,17 +115,20 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(response.getResponseCode(), response.getResponseMessage());
     }
 
+    //确认订单
     @Override
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
     @Facade
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
         try {
+            //订单校验
             orderConfirmValidatorChain.validate(request);
         } catch (OrderException e) {
             return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
         GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
 
+        // 藏品出售的try阶段，做库存预占用-无hint
         GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
 
         if (!response.getSuccess()) {

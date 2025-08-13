@@ -193,6 +193,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         return true;
     }
 
+    //商品售卖
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean saleWithoutHint(GoodsTrySaleRequest request) {
@@ -202,7 +203,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
             return true;
         }
 
-        //查询出最新的值
+        //查询藏品
         Collection collection = this.getById(request.goodsId());
 
         //新增collection流水

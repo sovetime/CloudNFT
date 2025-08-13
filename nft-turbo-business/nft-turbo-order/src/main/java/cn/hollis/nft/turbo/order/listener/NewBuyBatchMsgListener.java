@@ -53,6 +53,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Resource
     private InventoryFacadeService inventoryFacadeService;
 
+    //创建线程池
     private final ExecutorService executor = Executors.newFixedThreadPool(16);
 
     @Override
@@ -69,17 +70,21 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
         // 设置批量消费数量
         consumer.setPullBatchSize(64);
         // 设置消费模式
+        // MessageListenerConcurrently 并发消费
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             log.info("NewBuyBatchMsgListener receive message size: {}", msgs.size());
 
+            // 使用 CompletionService 管理并发任务，方便获取执行结果
             CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executor);
             List<Future<Boolean>> futures = new ArrayList<>();
 
-            // 1. 提交所有任务
+            // 遍历每条消息，封装任务并提交
             msgs.forEach(messageExt -> {
                 Callable<Boolean> task = () -> {
                     try {
+                        //解析消息
                         OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(messageExt.getBody()).getString("body"), OrderCreateRequest.class);
+                        //执行任务
                         return doNewBuyExecute(orderCreateRequest);
                     } catch (Exception e) {
                         log.error("Task failed", e);
@@ -89,12 +94,12 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
                 futures.add(completionService.submit(task));
             });
 
-            // 2. 检查结果
+            //检查结果
             boolean allSuccess = true;
             try {
                 for (int i = 0; i < msgs.size(); i++) {
                     Future<Boolean> future = completionService.take();
-                    if (!future.get()) { // 3.发现一个失败立即终止
+                    if (!future.get()) {
                         allSuccess = false;
                         break;
                     }
@@ -103,24 +108,26 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
                 allSuccess = false;
             }
 
-            // 3. 根据结果返回消费状态
-            return allSuccess ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS
-                    : ConsumeConcurrentlyStatus.RECONSUME_LATER;
+            //根据结果返回消费状态
+            return allSuccess ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS : ConsumeConcurrentlyStatus.RECONSUME_LATER;
         });
     }
 
-    //
+    //执行实际的下单逻辑
     public boolean doNewBuyExecute(OrderCreateRequest orderCreateRequest) {
+        //确认订单请求
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         BeanUtils.copyProperties(orderCreateRequest, orderCreateAndConfirmRequest);
         orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
         orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
         orderCreateAndConfirmRequest.setOperateTime(new Date());
 
+        //确认订单
         OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateAndConfirmRequest);
         //订单因为校验前置校验不通过而下单失败，回滚库存
         if (!orderResponse.getSuccess() && ORDER_CREATE_VALID_FAILED.getCode().equals(orderResponse.getResponseCode())) {
             String orderId = orderResponse.getOrderId();
+            //按照订单号查询订单信息
             TradeOrder tradeOrder = orderReadService.getOrder(orderId);
             //再重新查一次，避免出现并发情况
             if (tradeOrder == null) {
@@ -129,6 +136,8 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
                 collectionInventoryRequest.setInventory(orderCreateRequest.getItemCount());
                 collectionInventoryRequest.setIdentifier(orderCreateRequest.getOrderId());
                 collectionInventoryRequest.setGoodsType(orderCreateRequest.getGoodsType());
+
+                // 增加库存（调用库存服务执行回滚）
                 SingleResponse<Boolean> decreaseResponse = inventoryFacadeService.increase(collectionInventoryRequest);
                 if (decreaseResponse.getSuccess()) {
                     log.info("increase success,collectionInventoryRequest:{}", collectionInventoryRequest);
