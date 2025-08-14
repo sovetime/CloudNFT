@@ -17,13 +17,13 @@ public interface OrderFacadeService {
     //取消订单
     public OrderResponse cancel(OrderCancelRequest request);
 
-    //订单超时
+    //订单超时关单
     public OrderResponse timeout(OrderTimeoutRequest request);
 
     //订单确认
     public OrderResponse confirm(OrderConfirmRequest request);
 
-    //确认订单
+    //创建并确认订单
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request);
 
     //订单支付成功

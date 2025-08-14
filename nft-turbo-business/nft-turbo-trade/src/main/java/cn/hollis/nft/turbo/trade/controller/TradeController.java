@@ -74,7 +74,7 @@ import static cn.hollis.nft.turbo.web.filter.TokenFilter.TOKEN_THREAD_LOCAL;
 @RequestMapping("trade")
 public class TradeController {
 
-    //
+    //创建线程工厂
     private static ThreadFactory inventoryBypassVerifyThreadFactory = new ThreadFactoryBuilder()
             .setNameFormat("inventory-bypass-verify-pool-%d").build();
 
@@ -307,24 +307,31 @@ public class TradeController {
     //支付
     @PostMapping("/pay")
     public Result<PayOrderVO> pay(@Valid @RequestBody PayParam payParam) {
+        //获取用户id
         String userId = (String) StpUtil.getLoginId();
+        //获取订单详情
         SingleResponse<TradeOrderVO> singleResponse = orderFacadeService.getTradeOrder(payParam.getOrderId(), userId);
 
         TradeOrderVO tradeOrderVO = singleResponse.getData();
 
+        //商品不存在
         if (tradeOrderVO == null) {
             throw new TradeException(TradeErrorCode.GOODS_NOT_EXIST);
         }
 
+        //订单不可支付
         if (tradeOrderVO.getOrderState() != TradeOrderState.CONFIRM) {
             throw new TradeException(TradeErrorCode.ORDER_IS_CANNOT_PAY);
         }
 
+        //订单不可支付
         if (tradeOrderVO.getTimeout()) {
+            //异步处理超时订单
             doAsyncTimeoutOrder(tradeOrderVO);
             throw new TradeException(TradeErrorCode.ORDER_IS_CANNOT_PAY);
         }
 
+        //无支付权限
         if (!tradeOrderVO.getBuyerId().equals(userId)) {
             throw new TradeException(TradeErrorCode.PAY_PERMISSION_DENIED);
         }
@@ -352,6 +359,7 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.PAY_CREATE_FAILED);
     }
 
+    //异步关闭订单
     private void doAsyncTimeoutOrder(TradeOrderVO tradeOrderVO) {
         if (tradeOrderVO.getOrderState() != TradeOrderState.CLOSED) {
             Thread.ofVirtual().start(() -> {
@@ -361,12 +369,14 @@ public class TradeController {
                 cancelRequest.setOrderId(tradeOrderVO.getOrderId());
                 cancelRequest.setOperateTime(new Date());
                 cancelRequest.setIdentifier(UUID.randomUUID().toString());
+
+                //超时关单
                 orderFacadeService.timeout(cancelRequest);
             });
         }
     }
 
-    //取消订单
+    //取消订单（hit版）
     @PostMapping("/cancel")
     public Result<Boolean> cancel(@Valid @RequestBody CancelParam cancelParam) {
         //获取用户id

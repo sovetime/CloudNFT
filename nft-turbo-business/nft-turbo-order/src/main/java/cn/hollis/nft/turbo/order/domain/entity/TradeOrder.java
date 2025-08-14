@@ -111,6 +111,7 @@ public class TradeOrder extends BaseEntity {
         return tradeOrder;
     }
 
+    //订单确认
     public TradeOrder confirm(OrderConfirmRequest request) {
         this.setOrderConfirmedTime(request.getOperateTime());
         TradeOrderState orderState = OrderStateMachine.INSTANCE.transition(this.getOrderState(), request.getOrderEvent());

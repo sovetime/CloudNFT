@@ -94,24 +94,29 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return tradeOrder;
     }
 
-    //订单创建并确认
+    //创建并确认订单，返回订单号
     @Transactional(rollbackFor = Exception.class)
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
+        //根据幂等号查询订单
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
+        //如果已经存在，就直接返回已有订单的 orderId，不再重复创建
         if (existOrder != null) {
             return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
         }
 
+        //创建订单
         TradeOrder tradeOrder = TradeOrder.createOrder(request);
         OrderConfirmRequest confirmRequest = new OrderConfirmRequest();
         BeanUtils.copyProperties(request, confirmRequest);
         confirmRequest.setOrderId(tradeOrder.getOrderId());
 
+        //确认订单
         tradeOrder.confirm(confirmRequest);
-
-        boolean result = save(tradeOrder);
+        //订单落库
+        boolean result = this.save(tradeOrder);
         Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
 
+        //订单流水
         TradeOrderStream orderStream = new TradeOrderStream(tradeOrder, request.getOrderEvent(), request.getIdentifier());
         result = orderStreamMapper.insert(orderStream) == 1;
         Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));

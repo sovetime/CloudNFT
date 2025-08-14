@@ -9,6 +9,7 @@ import static cn.hollis.turbo.stream.producer.StreamProducer.*;
 
 
 // MQ消费基类
+//
 @Slf4j
 public class AbstractStreamConsumer {
 

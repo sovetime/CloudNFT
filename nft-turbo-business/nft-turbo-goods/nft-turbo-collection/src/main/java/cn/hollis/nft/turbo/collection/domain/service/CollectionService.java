@@ -41,7 +41,7 @@ public interface CollectionService extends IService<Collection> {
     //售卖-无hint版
     public Boolean saleWithoutHint(GoodsTrySaleRequest request);
 
-    // 取消
+    //取消售卖，库存扣减回退
     public Boolean cancel(GoodsCancelSaleRequest request);
 
     //确认，废弃，这个方法之前是依赖数据库做的藏品的序号的生成，但是这里存在并发问题。

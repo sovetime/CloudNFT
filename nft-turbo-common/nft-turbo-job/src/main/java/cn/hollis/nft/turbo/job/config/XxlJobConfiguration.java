@@ -1,8 +1,7 @@
 package cn.hollis.nft.turbo.job.config;
 
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -10,14 +9,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @author Hollis
- */
+
 @Configuration
 @EnableConfigurationProperties(XxlJobProperties.class)
+@Slf4j
 public class XxlJobConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(XxlJobConfiguration.class);
 
     @Autowired
     private XxlJobProperties properties;
@@ -26,7 +23,7 @@ public class XxlJobConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = XxlJobProperties.PREFIX, value = "enabled", havingValue = "true")
     public XxlJobSpringExecutor xxlJobExecutor() {
-        logger.info(">>>>>>>>>>> xxl-job config init.");
+        log.info(">>>>>>>>>>> xxl-job config init.");
         XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
         xxlJobSpringExecutor.setAdminAddresses(properties.getAdminAddresses());
         xxlJobSpringExecutor.setAppname(properties.getAppName());
@@ -35,6 +32,7 @@ public class XxlJobConfiguration {
         xxlJobSpringExecutor.setAccessToken(properties.getAccessToken());
         xxlJobSpringExecutor.setLogPath(properties.getLogPath());
         xxlJobSpringExecutor.setLogRetentionDays(properties.getLogRetentionDays());
+
         return xxlJobSpringExecutor;
     }
 }

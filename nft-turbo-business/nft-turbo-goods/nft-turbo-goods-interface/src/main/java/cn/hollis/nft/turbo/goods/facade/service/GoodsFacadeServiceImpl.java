@@ -193,6 +193,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         };
     }
 
+    //藏品出售的cancel阶段，做库存退还
     @Override
     public GoodsSaleResponse cancelSale(GoodsSaleRequest request) {
         GoodsCancelSaleRequest goodsCancelSaleRequest = new GoodsCancelSaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
@@ -200,8 +201,10 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 
         Boolean result = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.cancel(goodsCancelSaleRequest);
             case COLLECTION -> collectionService.cancel(goodsCancelSaleRequest);
+
+            case BLIND_BOX -> blindBoxService.cancel(goodsCancelSaleRequest);
+
             default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 

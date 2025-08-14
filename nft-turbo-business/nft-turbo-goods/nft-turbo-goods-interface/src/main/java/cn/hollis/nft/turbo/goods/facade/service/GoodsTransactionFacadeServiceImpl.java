@@ -53,7 +53,9 @@ public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacade
         if (transactionTryResponse.getTransTrySuccessType() == TransTrySuccessType.TRY_SUCCESS) {
             Boolean freezeResult = switch (goodsType) {
                 case BLIND_BOX -> blindBoxService.freezeInventory(goodsTrySaleRequest);
+
                 case COLLECTION -> collectionService.freezeInventory(goodsTrySaleRequest);
+
                 default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
             };
             Assert.isTrue(freezeResult, "freeze inventory failed");

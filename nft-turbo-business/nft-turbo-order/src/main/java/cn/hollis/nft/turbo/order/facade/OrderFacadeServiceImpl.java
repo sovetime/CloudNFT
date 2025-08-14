@@ -85,12 +85,14 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         throw new OrderException(OrderErrorCode.INVENTORY_DECREASE_FAILED);
     }
 
+    //取消订单
     @Override
     @Facade
     public OrderResponse cancel(OrderCancelRequest request) {
         return sendTransactionMsgForClose(request);
     }
 
+    //超时关单
     @Override
     @Facade
     public OrderResponse timeout(OrderTimeoutRequest request) {
@@ -115,7 +117,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(response.getResponseCode(), response.getResponseMessage());
     }
 
-    //确认订单
+    //创建并确认订单
     @Override
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
     @Facade
@@ -134,6 +136,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         if (!response.getSuccess()) {
             return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
         }
+        //创建并确认订单，返回订单号
         return orderService.createAndConfirm(request);
     }
 
@@ -143,6 +146,8 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         //因为RocketMQ 的事务消息中，如果本地事务发生了异常，这里返回也会是个 true，所以就需要做一下反查进行二次判断，才能知道关单操作是否成功
         //消息监听：TradeOrderListener
         streamProducer.send("orderClose-out-0", null, JSON.toJSONString(request), "CLOSE_TYPE", request.getOrderEvent().name());
+
+        //获取订单信息
         TradeOrder tradeOrder = orderReadService.getOrder(request.getOrderId());
         OrderResponse orderResponse = new OrderResponse();
         if (tradeOrder.isClosed()) {

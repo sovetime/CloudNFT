@@ -16,7 +16,7 @@ public class PayQueryRequest extends BaseRequest {
 
     private PayOrderState payOrderState;
 
-    @NotNull(message = "payerId is null")
+    @NotNull(message = "支付人id is null")
     private String payerId;
 
 }

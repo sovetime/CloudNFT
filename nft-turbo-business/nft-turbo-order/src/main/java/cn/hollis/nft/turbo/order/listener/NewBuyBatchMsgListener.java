@@ -84,13 +84,14 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
                     try {
                         //解析消息
                         OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(messageExt.getBody()).getString("body"), OrderCreateRequest.class);
-                        //执行任务
+                        //异步执行任务
                         return doNewBuyExecute(orderCreateRequest);
                     } catch (Exception e) {
                         log.error("Task failed", e);
                         return false; // 标记失败
                     }
                 };
+                //将任务提交到线程池中
                 futures.add(completionService.submit(task));
             });
 
@@ -98,6 +99,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
             boolean allSuccess = true;
             try {
                 for (int i = 0; i < msgs.size(); i++) {
+                    //从线程池中获取执行结果
                     Future<Boolean> future = completionService.take();
                     if (!future.get()) {
                         allSuccess = false;
@@ -122,7 +124,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
         orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
         orderCreateAndConfirmRequest.setOperateTime(new Date());
 
-        //确认订单
+        //创建并确认订单
         OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateAndConfirmRequest);
         //订单因为校验前置校验不通过而下单失败，回滚库存
         if (!orderResponse.getSuccess() && ORDER_CREATE_VALID_FAILED.getCode().equals(orderResponse.getResponseCode())) {

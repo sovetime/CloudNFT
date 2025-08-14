@@ -43,24 +43,31 @@ public class TradeOrderListener extends AbstractStreamConsumer {
     @Resource
     private OrderFacadeService orderFacadeService;
 
+    //关闭订单
     @Bean
     Consumer<Message<MessageBody>> orderClose() {
         return msg -> {
+            //获取关闭类型
             String closeType = msg.getHeaders().get("CLOSE_TYPE", String.class);
+
             BaseOrderUpdateRequest orderUpdateRequest;
             if (TradeOrderEvent.CANCEL.name().equals(closeType)) {
+                //获取消息
                 orderUpdateRequest = getMessage(msg, OrderCancelRequest.class);
             } else if (TradeOrderEvent.TIME_OUT.name().equals(closeType)) {
+                //获取消息
                 orderUpdateRequest = getMessage(msg, OrderTimeoutRequest.class);
             } else {
                 throw new UnsupportedOperationException("unsupported closeType " + closeType);
             }
 
+            //获取订单详情
             SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderUpdateRequest.getOrderId());
             if (!response.getSuccess()) {
                 log.error("getTradeOrder failed,orderCloseRequest:{} , orderQueryResponse : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(response));
                 throw new TradeException(INVENTORY_ROLLBACK_FAILED);
             }
+
             TradeOrderVO tradeOrderVO = response.getData();
             if (response.getData().getOrderState() != TradeOrderState.CLOSED) {
                 log.error("trade order state is illegal ,orderCloseRequest:{} , tradeOrderVO : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(tradeOrderVO));
@@ -68,13 +75,16 @@ public class TradeOrderListener extends AbstractStreamConsumer {
             }
 
             GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(tradeOrderVO);
+            //藏品出售的cancel阶段，做库存退还
             GoodsSaleResponse cancelSaleResult = goodsFacadeService.cancelSale(goodsSaleRequest);
+
             if (!cancelSaleResult.getSuccess()) {
                 log.error("cancelSale failed,orderCloseRequest:{} , collectionSaleResponse : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(cancelSaleResult));
                 throw new TradeException(INVENTORY_ROLLBACK_FAILED);
             }
 
             InventoryRequest collectionInventoryRequest = new InventoryRequest(tradeOrderVO);
+            //库存增加
             SingleResponse<Boolean> decreaseResponse = inventoryFacadeService.increase(collectionInventoryRequest);
             if (decreaseResponse.getSuccess()) {
                 log.info("increase success,collectionInventoryRequest:{}", collectionInventoryRequest);
