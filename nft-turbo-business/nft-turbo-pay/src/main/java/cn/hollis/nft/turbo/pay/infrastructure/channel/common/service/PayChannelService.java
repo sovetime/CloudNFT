@@ -8,67 +8,28 @@ import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.RefundChan
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * 支付渠道服务
- *
- * @author Hollis
- */
+
+//支付渠道服务
 public interface PayChannelService {
-    /**
-     * 支付
-     *
-     * @param payChannelRequest
-     * @return
-     */
+
+    //支付
     PayChannelResponse pay(PayChannelRequest payChannelRequest);
 
-    /**
-     * 支付结果回调
-     *
-     * @param request
-     * @param response
-     * @return 通知结果
-     */
+    //支付结果回调
     boolean notify(HttpServletRequest request, HttpServletResponse response);
 
-    /**
-     * 退款
-     *
-     * @param refundChannelRequest
-     * @return
-     */
+    // 退款
     RefundChannelResponse refund(RefundChannelRequest refundChannelRequest);
 
-    /**
-     * 退款结果回调
-     *
-     * @param request
-     * @param response
-     * @return
-     */
+    //退款结果回调
     boolean refundNotify(HttpServletRequest request, HttpServletResponse response);
 
-    /**
-     * 交易账单
-     *
-     * @param billChannelRequest
-     * @return
-     */
+    //交易账单
     BillChannelResponse tradeBill(TradeBillChannelRequest billChannelRequest);
 
-    /**
-     * 资金账单
-     *
-     * @param billChannelRequest
-     * @return
-     */
+    //资金账单
     BillChannelResponse fundBill(FundBillChannelRequest billChannelRequest);
 
-    /**
-     * 下载账单
-     *
-     * @param request
-     * @return
-     */
+    //下载账单
     BillDownloadChannelResponse downloadBill(DownloadBillChannelRequest request);
 }

@@ -18,11 +18,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * 退款重试任务
- *
- * @author Hollis
- */
+
+//退款重试任务
 @Component
 public class RefundOrderRetryJob {
 

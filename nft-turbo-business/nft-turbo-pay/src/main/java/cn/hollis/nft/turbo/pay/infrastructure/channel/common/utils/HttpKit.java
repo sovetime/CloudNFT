@@ -10,11 +10,8 @@ import com.google.common.collect.Maps;
 import com.ijpay.core.http.AbstractHttpDelegate;
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- * Http 工具类
- *
- * @author Hollis
- */
+
+//Http 工具类
 public class HttpKit {
 
     private static AbstractHttpDelegate delegate = new DefaultHttpKit();

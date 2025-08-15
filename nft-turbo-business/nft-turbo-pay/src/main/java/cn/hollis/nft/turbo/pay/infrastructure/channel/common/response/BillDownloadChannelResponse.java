@@ -6,15 +6,12 @@ import lombok.Setter;
 
 import java.io.InputStream;
 
-/**
- * @author Hollis
- */
+
 @Setter
 @Getter
 public class BillDownloadChannelResponse extends BaseResponse {
-    /**
-     * 账单
-     */
+
+    //账单
     protected InputStream file;
 
 

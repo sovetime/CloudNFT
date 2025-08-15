@@ -56,9 +56,7 @@ import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.HTTP_SUCCES
 import static cn.hollis.nft.turbo.base.response.ResponseCode.SUCCESS;
 import static cn.hollis.nft.turbo.pay.infrastructure.channel.wechat.constant.WxTradeState.PAYERROR;
 
-/**
- * @author hollis
- */
+
 @Service("wechatPayChannelService")
 @Slf4j
 public class WxPayChannelServiceImpl implements PayChannelService {

@@ -26,7 +26,7 @@ nft:
       nacos:
         data-id: nfturbo-gateway-sentinel
     rocketmq:
-      url: localhost:9876
+      url: 139.129.32.11:9876
     dubbo:
       nacos:
         namespace: aa1c1c78-52b1-4ea7-b8fb-c50075b2f26d

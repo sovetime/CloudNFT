@@ -11,11 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static cn.hollis.nft.turbo.base.constant.ProfileConstant.PROFILE_DEV;
 
-/**
- * 支付渠道服务工厂
- *
- * @author hollis
- */
+
+//支付渠道服务工厂
 @Service
 public class PayChannelServiceFactory {
 

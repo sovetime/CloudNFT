@@ -9,9 +9,7 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Getter
 @Setter
 @AllArgsConstructor

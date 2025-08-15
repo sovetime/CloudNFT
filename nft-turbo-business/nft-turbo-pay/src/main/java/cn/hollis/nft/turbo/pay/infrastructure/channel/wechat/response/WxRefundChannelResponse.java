@@ -4,9 +4,7 @@ import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.RefundChan
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author wswyb001
- */
+
 @Setter
 @Getter
 public class WxRefundChannelResponse extends RefundChannelResponse {

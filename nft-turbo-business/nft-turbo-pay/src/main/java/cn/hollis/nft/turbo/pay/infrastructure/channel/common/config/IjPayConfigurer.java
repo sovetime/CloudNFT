@@ -16,9 +16,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Configuration
 public class IjPayConfigurer extends WebMvcConfigurationSupport {
     @Override

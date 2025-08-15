@@ -12,9 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Component
 public class PayOrderTimeOutJob {
 

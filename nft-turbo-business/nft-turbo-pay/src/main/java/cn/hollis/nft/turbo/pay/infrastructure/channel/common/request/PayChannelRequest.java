@@ -9,12 +9,8 @@ import lombok.ToString;
 
 import java.util.Date;
 
-/**
- * 支付参数
- * @author wswyb001
- * @date 2024/02/14
- */
 
+//支付参数
 @Setter
 @Getter
 @ToString
@@ -22,27 +18,18 @@ import java.util.Date;
 @NoArgsConstructor
 public class PayChannelRequest extends BaseRequest {
 
-    /**
-     * 支付单号
-     */
+    //支付单号
     private String orderId;
-    /**
-     * 金额
-     * 单位：分
-     */
+
+    //金额，单位:分
     private Long amount;
-    /**
-     * 订单描述
-     */
+
+    //订单描述
     private String description;
 
-    /**
-     * 附加信息
-     */
+    //附加信息
     private String attach;
 
-    /**
-     * 超时时间
-     */
+    //超时时间
     private Date expireTime;
 }
