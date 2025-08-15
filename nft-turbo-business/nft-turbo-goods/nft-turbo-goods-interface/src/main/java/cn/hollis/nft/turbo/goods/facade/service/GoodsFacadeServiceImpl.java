@@ -18,13 +18,11 @@ import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxInventoryStreamMapper;
 import cn.hollis.nft.turbo.collection.domain.entity.CollectionInventoryStream;
-import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionInventoryStreamMapper;
-import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionStreamMapper;
 import cn.hollis.nft.turbo.goods.entity.convertor.GoodsStreamConvertor;
 import cn.hollis.nft.turbo.goods.service.GoodsBookService;
 import cn.hollis.nft.turbo.goods.service.HotGoodsService;
@@ -110,7 +108,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
     }
 
     @Override
-    public GoodsSaleResponse trySale(GoodsSaleRequest request) {
+    public GoodsSaleResponse sale(GoodsSaleRequest request) {
         GoodsTrySaleRequest goodsTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 

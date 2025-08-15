@@ -123,6 +123,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
         orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
         orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
         orderCreateAndConfirmRequest.setOperateTime(new Date());
+        orderCreateAndConfirmRequest.setSyncDecreaseInventory(true);
 
         //创建并确认订单
         OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateAndConfirmRequest);

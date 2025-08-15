@@ -19,6 +19,7 @@ import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,19 +34,19 @@ import java.util.function.Consumer;
 @Slf4j
 public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
 
-    @Autowired
+    @Resource
     private OrderFacadeService orderFacadeService;
 
-    @Autowired
+    @Resource
     private OrderTransactionFacadeService orderTransactionFacadeService;
 
-    @Autowired
+    @Resource
     private InventoryTransactionFacadeService inventoryTransactionFacadeService;
 
-    @Autowired
+    @Resource
     private GoodsFacadeService goodsFacadeService;
 
-    @Autowired
+    @Resource
     private InventoryFacadeService inventoryFacadeService;
 
     @Bean
@@ -81,10 +82,7 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
         };
     }
 
-    /**
-     * @param orderCreateAndConfirmRequest
-     * @deprecated TCC场景下的cancel
-     */
+    //TCC场景下的cancel
     @Deprecated
     private void doCancel(OrderCreateAndConfirmRequest orderCreateAndConfirmRequest) {
         InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);

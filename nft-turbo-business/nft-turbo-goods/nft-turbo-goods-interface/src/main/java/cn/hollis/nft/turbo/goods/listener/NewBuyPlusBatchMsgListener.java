@@ -43,6 +43,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
     @Resource
     private ThreadPoolExecutor newBuyPlusConsumePool;
 
+
     @Override
     public void onMessage(List<Object> strings) {
         log.info("NewBuyPlusBatchMsgListener receive message: {}", strings);

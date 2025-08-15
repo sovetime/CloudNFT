@@ -11,14 +11,14 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import java.util.UUID;
 
-/**
- * @author hollis
- */
+
 public class StreamProducer {
 
     private static Logger logger = LoggerFactory.getLogger(StreamProducer.class);
 
     public static final int DELAY_LEVEL_1_M = 5;
+
+    public static final int DELAY_LEVEL_30_S = 4;
 
     public static final String ROCKET_MQ_MESSAGE_ID = "ROCKET_MQ_MESSAGE_ID";
 

@@ -98,8 +98,8 @@ public class TradeController {
     @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    @Autowired
-    private OrderCreateValidator orderPreValidatorChain;
+    @Resource
+    private OrderCreateValidator orderValidatorChain;
 
     @Resource
     private InventoryCheckFacadeService inventoryCheckFacadeService;
@@ -127,16 +127,21 @@ public class TradeController {
     //秒杀下单，(基于inventory hint的实现),热点商品
     @PostMapping("/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
-        //创建订单(从ThreadLocal中获取token)
-        OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
+        try {
+            //创建订单(从ThreadLocal中获取token)
+            OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
 
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
+            OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
 
-        if (orderResponse.getSuccess()) {
-            InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
-            //库存扣减旁路验证
-            inventoryBypassVerify(inventoryRequest);
-            return Result.success(orderCreateRequest.getOrderId());
+            if (orderResponse.getSuccess()) {
+                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+                inventoryBypassVerify(inventoryRequest);
+                return Result.success(orderCreateRequest.getOrderId());
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
@@ -151,7 +156,7 @@ public class TradeController {
             //创建订单(从ThreadLocal中获取token)
             orderCreateRequest = getOrderCreateRequest(buyParam);
             //订单校验
-            orderPreValidatorChain.validate(orderCreateRequest);
+            orderValidatorChain.validate(orderCreateRequest);
 
             //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
             //消息发送给broker之后同步不会立即推送给消费者，而是执行本地事务InventoryDecreaseTransactionListener进行库存预扣减
@@ -183,9 +188,11 @@ public class TradeController {
     //秒杀下单（不基于inventory hint的实现），热点商品，同步创建订单
     @PostMapping("/newBuyPlus")
     public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
-        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
-
         try {
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+            //订单校验
+            orderValidatorChain.validate(orderCreateAndConfirmRequest);
+
             //本地事务执行器：OrderCreateTransactionListener  消息监听：NewBuyMsgListener or NewBuyBatchMsgListener ,
             boolean result = streamProducer.send("newBuyPlus-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateAndConfirmRequest));
 
@@ -243,28 +250,31 @@ public class TradeController {
     //普通下单，非热点商品
     @PostMapping("/normalBuy")
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
-        //创建订单
-        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
-        //普通交易
-        OrderResponse orderResponse = RemoteCallWrapper.call(
-                req -> tradeApplicationService.normalBuy(req),
-                orderCreateAndConfirmRequest, "createOrder");
+        try {
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+            orderValidatorChain.validate(orderCreateAndConfirmRequest);
+            OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
 
-        if (orderResponse.getSuccess()) {
-            //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
-            try {
-                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
-                //库存扣减
-                inventoryFacadeService.decrease(inventoryRequest);
-            } catch (Exception e) {
-                log.error("decrease inventory from redis failed", e);
+            if (orderResponse.getSuccess()) {
+                //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
+                try {
+                    InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
+                    inventoryFacadeService.decrease(inventoryRequest);
+                } catch (Exception e) {
+                    log.error("decrease inventory from redis failed", e);
+                }
+
+                return Result.success(orderCreateAndConfirmRequest.getOrderId());
             }
-
-            return Result.success(orderCreateAndConfirmRequest.getOrderId());
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
     }
+
 
     //创建订单(从ThreadLocal中获取token)
     @NotNull

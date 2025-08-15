@@ -13,6 +13,6 @@ public interface OrderCreateValidator {
     //返回下一个校验器
     public OrderCreateValidator getNext();
 
-    //校验
+    //订单校验
     public void validate(OrderCreateRequest request) throws OrderException;
 }

@@ -136,7 +136,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             //如果库存大于0，则清除本地缓存中的商品售罄标记
             //但是因为是本地缓存，所以无法保证一致性，极端情况下，会存在一分钟的数据不一致的延迟。但是在高并发秒杀场景下，一般是不允许修改库存，所以这种不一致业务上可接受
-            if (inventoryResponse.getInventory() > 0) {
+            if (inventoryResponse.getInventory() != null && inventoryResponse.getInventory() > 0) {
                 soldOutGoodsLocalCache.invalidate(goodsType + SEPARATOR + inventoryRequest.getGoodsId());
             }
 

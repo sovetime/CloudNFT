@@ -6,7 +6,7 @@ spring:
   cloud:
     function:
       # 定义可用的函数列表，包括新购买、普通购买取消、普通购买预取消
-      definition: newBuy;newBuyPLus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
+      definition: newBuy;newBuyPlus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
     stream:
       rocketmq:
         bindings:

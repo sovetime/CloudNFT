@@ -119,7 +119,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         goodsSaleRequest.setQuantity(request.getItemCount());
 
         //藏品出售的try阶段，做库存预占用
-        BaseResponse response = goodsFacadeService.trySale(goodsSaleRequest);
+        BaseResponse response = goodsFacadeService.sale(goodsSaleRequest);
 
         //订单确认
         if (response.getSuccess()) {
@@ -140,14 +140,15 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         } catch (OrderException e) {
             return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
-        GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
 
-        // 藏品出售的try阶段，做库存预占用-无hint
-        GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
-
-        if (!response.getSuccess()) {
-            return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+        if (request.isSyncDecreaseInventory()) {
+            GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
+            GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
+            if (!response.getSuccess()) {
+                return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+            }
         }
+
         //创建并确认订单，返回订单号
         return orderService.createAndConfirm(request);
     }

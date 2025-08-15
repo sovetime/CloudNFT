@@ -21,6 +21,9 @@ public class OrderCreateAndConfirmRequest extends OrderCreateRequest {
     @NotNull(message = "操作人类型不能为空")
     private UserType operatorType;
 
+    //是否同步扣减库存
+    private boolean syncDecreaseInventory = false;
+
     @Override
     public TradeOrderEvent getOrderEvent() {
         return TradeOrderEvent.CREATE_AND_CONFIRM;

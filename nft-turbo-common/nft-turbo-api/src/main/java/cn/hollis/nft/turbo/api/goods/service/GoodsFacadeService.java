@@ -20,9 +20,8 @@ public interface GoodsFacadeService {
     //获取商品流水
     public GoodsStreamVO getGoodsInventoryStream(String goodsId, GoodsType goodsType, GoodsEvent goodsEvent, String identifier);
 
-    //藏品出售的try阶段，做库存预占用
-    public GoodsSaleResponse trySale(GoodsSaleRequest request);
-
+    //藏品出售的try阶段，做库存占用
+    public GoodsSaleResponse sale(GoodsSaleRequest request);
 
     // 藏品出售的try阶段，做库存占用-无hint
     public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request);

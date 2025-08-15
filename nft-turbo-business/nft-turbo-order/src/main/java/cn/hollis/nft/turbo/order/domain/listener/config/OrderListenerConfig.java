@@ -1,27 +1,30 @@
 package cn.hollis.nft.turbo.order.domain.listener.config;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 @Configuration
 @EnableAsync
 public class OrderListenerConfig {
+
     @Bean("orderListenExecutor")
-    public Executor orderListenExecutor() {
+    public Executor orderListenExecutor(MeterRegistry registry) {
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                16,
+                32,
+                60, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>());
 
-        //
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-                .setNameFormat("orderListener-%d").build();
-
-        ExecutorService executorService = new ThreadPoolExecutor(10, 20,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-
-        return executorService;
+        ExecutorServiceMetrics.monitor(registry, executor, "orderListenExecutor");
+        return executor;
     }
 }
