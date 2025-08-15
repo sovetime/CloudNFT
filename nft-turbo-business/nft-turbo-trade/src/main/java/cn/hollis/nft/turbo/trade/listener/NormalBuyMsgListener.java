@@ -70,7 +70,8 @@ public class NormalBuyMsgListener extends AbstractStreamConsumer {
         orderDiscardRequest.setOperatorType(UserType.PLATFORM);
         orderDiscardRequest.setOperator(UserType.PLATFORM.name());
         BeanUtils.copyProperties(orderCreateAndConfirmRequest, orderDiscardRequest);
-        OrderResponse orderResponse = orderTransactionFacadeService.cancelOrder(orderDiscardRequest);
+
+        OrderResponse orderResponse = orderTransactionFacadeService.cancelOrder(orderDiscardRequest,"normalBuy");
         Assert.isTrue(orderResponse.getSuccess(), orderResponse.getResponseCode());
     }
 }

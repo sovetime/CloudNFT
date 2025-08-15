@@ -31,13 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @DubboService(version = "1.0.0")
 public class PayFacadeServiceImpl implements PayFacadeService {
-
-    private static final Logger logger = LoggerFactory.getLogger(PayFacadeServiceImpl.class);
 
     @Autowired
     private PayOrderService payOrderService;

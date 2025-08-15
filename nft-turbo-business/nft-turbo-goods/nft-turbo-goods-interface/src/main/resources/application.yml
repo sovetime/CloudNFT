@@ -5,7 +5,7 @@ spring:
     import: classpath:base.yml,classpath:datasource.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml
   cloud:
     function:
-      definition: chain;heldCollection
+      definition: chain;heldCollection;newBuyPlus
     stream:
       rocketmq:
         bindings:
@@ -23,6 +23,11 @@ spring:
           content-type: application/json
           destination: held-collection-result-topic
           group: held-collection-group
+          binder: rocketmq
+        newBuyPlus-in-0:
+          content-type: application/json
+          destination: new-buy-plus-topic
+          group: new-buy-plus-group
           binder: rocketmq
 server:
   port: 8099

@@ -53,8 +53,8 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    //创建线程池
-    private final ExecutorService executor = Executors.newFixedThreadPool(16);
+    @Resource
+    private ThreadPoolExecutor newBuyConsumePool;
 
     @Override
     public void onMessage(List<Object> strings) {
@@ -64,18 +64,18 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Override
     public void prepareStart(DefaultMQPushConsumer consumer) {
         // 设置拉取间隔
-        consumer.setPullInterval(1000);
+        consumer.setPullInterval(500);
         // 设置批量拉取数量
-        consumer.setConsumeMessageBatchMaxSize(128);
+        consumer.setConsumeMessageBatchMaxSize(64);
         // 设置批量消费数量
         consumer.setPullBatchSize(64);
         // 设置消费模式
         // MessageListenerConcurrently 并发消费
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
-            log.info("NewBuyBatchMsgListener receive message size: {}", msgs.size());
+            log.warn("NewBuyBatchMsgListener receive message size: {}", msgs.size());
 
             // 使用 CompletionService 管理并发任务，方便获取执行结果
-            CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executor);
+            CompletionService<Boolean> completionService = new ExecutorCompletionService<>(newBuyConsumePool);
             List<Future<Boolean>> futures = new ArrayList<>();
 
             // 遍历每条消息，封装任务并提交

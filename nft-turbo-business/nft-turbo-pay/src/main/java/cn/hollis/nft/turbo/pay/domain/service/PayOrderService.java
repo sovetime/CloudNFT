@@ -21,9 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Service
 public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     private static final Logger logger = LoggerFactory.getLogger(PayOrderService.class);

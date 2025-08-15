@@ -57,14 +57,16 @@ public class OrderJob {
     //使用动态线程池
     private final ForkJoinPool forkJoinPool = new ForkJoinPool(10);
 
+    //page最大数量
     private static final int PAGE_SIZE = 500;
 
     //结果表示对象
     private static final TradeOrder POISON = new TradeOrder();
 
+    //订单编号最大尾数
     private static int MAX_TAIL_NUMBER = 99;
 
-    //订单超时处理
+    //订单超时处理，(分片粒度：buyerId)
     @XxlJob("orderTimeOutExecute")
     public ReturnT<String> orderTimeOutExecute() {
         try {
@@ -76,6 +78,12 @@ public class OrderJob {
             log.info("orderTimeOutExecute start to execute , shardIndex is {} , shardTotal is {}", shardIndex, shardTotal);
 
             //计算当前分片负责的buyerId 尾号存放到链表中
+            //用 i % shardTotal == shardIndex 来做分配，根据不同分片处理不同尾号的buyerid
+            //主要是为了防止全表扫描带来的性能问题，下面是示例
+            //分片 0 处理尾号：00, 04, 08, 12, …, 96
+            //分片 1 处理尾号：01, 05, 09, 13, …, 97
+            //分片 2 处理尾号：02, 06, 10, 14, …, 98
+            //分片 3 处理尾号：03, 07, 11, 15, …, 99
             List<String> buyerIdTailNumberList = new ArrayList<>();
             for (int i = 0; i <= MAX_TAIL_NUMBER; i++) {
                 if (i % shardTotal == shardIndex) {
@@ -99,6 +107,7 @@ public class OrderJob {
                         long maxId = tradeOrders.stream().mapToLong(TradeOrder::getId).max().orElse(Long.MAX_VALUE);
                         //分页查询已经超时的订单
                         tradeOrders = orderReadService.pageQueryTimeoutOrders(PAGE_SIZE, buyerIdTailNumber, maxId + 1);
+                        //添加到阻塞队列中
                         orderTimeoutBlockingQueue.addAll(tradeOrders);
                     }
                 } finally {
@@ -115,7 +124,7 @@ public class OrderJob {
         }
     }
 
-    // 订单确认
+    // 订单确认，(分片粒度：buyerId)
     @XxlJob("orderConfirmExecute")
     public ReturnT<String> orderConfirmExecute() {
 
@@ -134,12 +143,15 @@ public class OrderJob {
 
         buyerIdTailNumberList.forEach(buyerIdTailNumber -> {
             try {
+                //分页查询待Confirm订单
                 List<TradeOrder> tradeOrders = orderReadService.pageQueryNeedConfirmOrders(PAGE_SIZE, buyerIdTailNumber, null);
                 orderConfirmBlockingQueue.addAll(tradeOrders);
                 forkJoinPool.execute(this::executeConfirm);
 
                 while (CollectionUtils.isNotEmpty(tradeOrders)) {
+                    //获取当前页最大订单id
                     long maxId = tradeOrders.stream().mapToLong(TradeOrder::getId).max().orElse(Long.MAX_VALUE);
+                    //分页查询已经超时的订单
                     tradeOrders = orderReadService.pageQueryNeedConfirmOrders(PAGE_SIZE, buyerIdTailNumber, maxId + 1);
                     orderConfirmBlockingQueue.addAll(tradeOrders);
                 }
@@ -152,7 +164,7 @@ public class OrderJob {
         return ReturnT.SUCCESS;
     }
 
-    //执行
+    //执行确认逻辑
     private void executeConfirm() {
         TradeOrder tradeOrder = null;
         try {
@@ -162,6 +174,8 @@ public class OrderJob {
                     log.debug("POISON toked from blocking queue");
                     break;
                 }
+
+                //执行确认逻辑
                 executeConfirmSingle(tradeOrder);
             }
         } catch (InterruptedException e) {
@@ -192,7 +206,7 @@ public class OrderJob {
         log.debug("executeTimeout finish");
     }
 
-    // 订单超时处理 -- hint
+    // 订单超时处理 -- hint(分片粒度：物理表索引）
     @XxlJob("orderTimeOutExecuteWithHint")
     @Deprecated
     public ReturnT<String> orderTimeOutExecuteWithHint() {
@@ -238,7 +252,7 @@ public class OrderJob {
         }
     }
 
-    //订单确认 -- hint
+    //订单确认 -- hint(分片粒度：物理表索引）
     @XxlJob("orderConfirmExecuteWithHint")
     @Deprecated
     public ReturnT<String> orderConfirmExecuteWithHint() {

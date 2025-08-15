@@ -6,7 +6,7 @@ spring:
   cloud:
     function:
       # 定义可用的函数列表，包括新购买、普通购买取消、普通购买预取消
-      definition: newBuy;normalBuyCancel;normalBuyPreCancel
+      definition: newBuy;newBuyPLus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
     stream:
       rocketmq:
         bindings:
@@ -18,6 +18,10 @@ spring:
               producerType: Trans
               # 事务监听器为库存减少事务监听器
               transactionListener: inventoryDecreaseTransactionListener
+          newBuyPlus-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: orderCreateTransactionListener
       # 消息绑定配置
       bindings:
         # 新购买消息输出通道配置
@@ -29,6 +33,11 @@ spring:
           # 消费者组为交易组
           group: trade-group
           # 使用的绑定器为RocketMQ
+          binder: rocketmq
+        newBuyPlus-out-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: new-buy-plus-group
           binder: rocketmq
         # 订单关闭消息输入通道配置
         orderClose-in-0:
@@ -48,6 +57,16 @@ spring:
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
           binder: rocketmq
+        newBuyPlusCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
+          binder: rocketmq
         # 普通购买取消消息输入通道配置
         normalBuyCancel-in-0:
           content-type: application/json
@@ -60,7 +79,16 @@ spring:
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
           binder: rocketmq
-
+        newBuyPlusCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
+          binder: rocketmq
 
 server:
   port: 8084

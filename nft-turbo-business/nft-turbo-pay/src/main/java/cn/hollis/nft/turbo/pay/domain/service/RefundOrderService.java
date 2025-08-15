@@ -22,9 +22,7 @@ import java.util.List;
 import static cn.hollis.nft.turbo.api.pay.constant.PayRefundOrderState.REFUNDING;
 import static cn.hollis.nft.turbo.api.pay.constant.PayRefundOrderState.TO_REFUND;
 
-/**
- * @author Hollis
- */
+
 @Service
 public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrder> {
     private static final Logger logger = LoggerFactory.getLogger(PayOrderService.class);

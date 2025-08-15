@@ -9,7 +9,7 @@ spring:
     import: classpath:base.yml,classpath:datasource-sharding.yml,classpath:rpc.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml,classpath:prometheus.yml   #这里爆红可以直接忽略，没有任何影响
   cloud:
     function:
-      definition: chain;orderClose;heldCollection;newBuy;normalBuyCancel;normalBuyPreCancel
+      definition: chain;orderClose;heldCollection;newBuy;newBuyPlus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
     stream:
       rocketmq:
         bindings:
@@ -70,6 +70,16 @@ spring:
           destination: new-buy-topic
           group: trade-group
           binder: rocketmq
+        newBuyPlus-out-0:
+          content-type: application/json
+          destination: new-buy-plus-topic
+          group: new-buy-plus-group
+          binder: rocketmq
+        newBuyPlus-in-0:
+          content-type: application/json
+          destination: new-buy-plus-topic
+          group: new-buy-plus-group
+          binder: rocketmq
         normalBuyCancel-out-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
@@ -80,6 +90,16 @@ spring:
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
           binder: rocketmq
+        newBuyPlusCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
+          binder: rocketmq
         normalBuyCancel-in-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
@@ -89,6 +109,16 @@ spring:
           content-type: application/json
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
+          binder: rocketmq
+        newBuyPlusCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
           binder: rocketmq
   shardingsphere:
     rules:

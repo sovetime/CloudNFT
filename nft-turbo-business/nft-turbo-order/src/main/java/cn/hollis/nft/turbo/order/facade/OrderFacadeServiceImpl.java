@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
@@ -65,6 +66,14 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
 
     @Autowired
     private OrderCreateValidator orderConfirmValidatorChain;
+
+    @Resource
+    private ThreadPoolExecutor newBuyConsumePool;
+
+    public void setPool(int core, int max) {
+        newBuyConsumePool.setMaximumPoolSize(max);
+        newBuyConsumePool.setCorePoolSize(core);
+    }
 
     @Override
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
@@ -108,8 +117,11 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         goodsSaleRequest.setGoodsType(request.getGoodsType().name());
         goodsSaleRequest.setIdentifier(request.getOrderId());
         goodsSaleRequest.setQuantity(request.getItemCount());
+
+        //藏品出售的try阶段，做库存预占用
         BaseResponse response = goodsFacadeService.trySale(goodsSaleRequest);
 
+        //订单确认
         if (response.getSuccess()) {
             return orderService.confirm(request);
         }
