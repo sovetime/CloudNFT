@@ -11,7 +11,7 @@ import cn.hollis.nft.turbo.base.response.SingleResponse;
 
 public interface PayFacadeService {
 
-    //生成支付链接
+    //生成支付链接并进行支付
     public PayCreateResponse generatePayUrl(PayCreateRequest payCreateRequest);
 
     //查询支付订单

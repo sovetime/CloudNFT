@@ -171,20 +171,32 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         return orderResponse;
     }
 
+    //订单支付
     @Override
     @Facade
     public OrderResponse paySuccess(OrderPayRequest request) {
+        // 订单支付
         OrderResponse response = orderService.paySuccess(request);
+        //订单支付失败
         if (!response.getSuccess()) {
+            //按照订单号查询订单信息
             TradeOrder existOrder = orderReadService.getOrder(request.getOrderId());
+            //订单不存在并且订单已关闭
             if (existOrder != null && existOrder.isClosed()) {
-                return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(OrderErrorCode.ORDER_ALREADY_CLOSED.getCode(), OrderErrorCode.ORDER_ALREADY_CLOSED.getMessage());
+                return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId())
+                        .buildFail(OrderErrorCode.ORDER_ALREADY_CLOSED.getCode(),
+                                   OrderErrorCode.ORDER_ALREADY_CLOSED.getMessage());
             }
+
+            //订单不存在并且订单
             if (existOrder != null && existOrder.isPaid()) {
-                if (existOrder.getPayStreamId().equals(request.getPayStreamId()) && existOrder.getPayChannel() == request.getPayChannel()) {
+                if (existOrder.getPayStreamId().equals(request.getPayStreamId()) &&
+                        existOrder.getPayChannel() == request.getPayChannel()) {
                     return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
                 } else {
-                    return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(OrderErrorCode.ORDER_ALREADY_PAID.getCode(), OrderErrorCode.ORDER_ALREADY_PAID.getMessage());
+                    return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId())
+                                        .buildFail(OrderErrorCode.ORDER_ALREADY_PAID.getCode(),
+                                                   OrderErrorCode.ORDER_ALREADY_PAID.getMessage());
                 }
             }
         }

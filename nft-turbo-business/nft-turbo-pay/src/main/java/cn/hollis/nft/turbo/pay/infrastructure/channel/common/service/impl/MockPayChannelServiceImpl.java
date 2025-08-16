@@ -40,18 +40,28 @@ public class MockPayChannelServiceImpl implements PayChannelService {
     @Autowired
     private PayApplicationService payApplicationService;
 
+    //线程本地变量，用于在异步线程间传递上下文参数
+    //使用TransmittableThreadLocal确保在线程池中也能正确传递
     public static TransmittableThreadLocal<Map> context = new TransmittableThreadLocal<>();
 
+    //创建线程工厂
     private static ThreadFactory chainResultProcessFactory = new ThreadFactoryBuilder()
             .setNameFormat("pay-process-pool-%d").build();
 
-    ScheduledExecutorService scheduler = TtlExecutors.getTtlScheduledExecutorService(new ScheduledThreadPoolExecutor(10, chainResultProcessFactory));
+    //定时线程池执行器，用于延迟执行支付/退款回调
+    //使用TTL包装确保TransmittableThreadLocal正常工作，在支付的时候需要设置context.set(params)
+    //异步线程执行回调需要获取context.get()
+    ScheduledExecutorService scheduler = TtlExecutors.getTtlScheduledExecutorService(
+            new ScheduledThreadPoolExecutor(10, chainResultProcessFactory));
 
+    // 支付
     @Override
     public PayChannelResponse pay(PayChannelRequest payChannelRequest) {
+        //响应构造
         PayChannelResponse payChannelResponse = new PayChannelResponse();
         payChannelResponse.setSuccess(true);
-        payChannelResponse.setPayUrl("http://www.nfturbo.com");
+        payChannelResponse.setPayUrl("https://github.com/sovetime/CloudNFT");
+
         Map<String, Serializable> params = new HashMap<>(12);
         params.put("payOrderId", payChannelRequest.getOrderId());
         params.put("paidAmount", payChannelRequest.getAmount());
@@ -65,16 +75,23 @@ public class MockPayChannelServiceImpl implements PayChannelService {
         return payChannelResponse;
     }
 
+    //结果回调
     @Override
     public boolean notify(HttpServletRequest request, HttpServletResponse response) {
         try {
+            // 构造支付成功事件对象
             PaySuccessEvent paySuccessEvent = new PaySuccessEvent();
+            // 生成唯一的渠道流水号
             paySuccessEvent.setChannelStreamId(UUID.randomUUID().toString());
+            // 从线程本地变量中获取之前存储的参数
             Map<String, Serializable> params = (Map<String, Serializable>) context.get();
+            //参数设置
             paySuccessEvent.setPaidAmount(MoneyUtils.centToYuan((Long) params.get("paidAmount")));
             paySuccessEvent.setPayOrderId((String) params.get("payOrderId"));
             paySuccessEvent.setPaySucceedTime(new Date());
             paySuccessEvent.setPayChannel(PayChannel.MOCK);
+
+            // 调用订单支付逻辑
             boolean paySuccessResult = payApplicationService.paySuccess(paySuccessEvent);
         } catch (Exception e) {
             log.error("nofity error", e);
@@ -83,6 +100,7 @@ public class MockPayChannelServiceImpl implements PayChannelService {
         return true;
     }
 
+    // 退款
     @Override
     public RefundChannelResponse refund(RefundChannelRequest refundChannelRequest) {
         RefundChannelResponse refundChannelResponse = new RefundChannelResponse();
@@ -101,6 +119,7 @@ public class MockPayChannelServiceImpl implements PayChannelService {
         return refundChannelResponse;
     }
 
+    //退款结果回调
     @Override
     public boolean refundNotify(HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -112,6 +131,7 @@ public class MockPayChannelServiceImpl implements PayChannelService {
             refundSuccessEvent.setRefundedTime(new Date());
             refundSuccessEvent.setRefundChannel(PayChannel.MOCK);
             refundSuccessEvent.setRefundedAmount(MoneyUtils.centToYuan((Long) params.get("refundedAmount")));
+
             payApplicationService.refundSuccess(refundSuccessEvent);
         } catch (Exception e) {
             log.error("nofity error", e);
@@ -120,16 +140,19 @@ public class MockPayChannelServiceImpl implements PayChannelService {
         return true;
     }
 
+    //交易账单
     @Override
     public BillChannelResponse tradeBill(TradeBillChannelRequest billChannelRequest) {
         return null;
     }
 
+    //资金账单
     @Override
     public BillChannelResponse fundBill(FundBillChannelRequest billChannelRequest) {
         return null;
     }
 
+    //下载账单
     @Override
     public BillDownloadChannelResponse downloadBill(DownloadBillChannelRequest request) {
         return null;

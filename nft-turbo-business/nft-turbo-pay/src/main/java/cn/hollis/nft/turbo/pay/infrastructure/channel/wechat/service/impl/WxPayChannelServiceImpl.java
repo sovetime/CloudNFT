@@ -60,6 +60,8 @@ import static cn.hollis.nft.turbo.pay.infrastructure.channel.wechat.constant.WxT
 @Service("wechatPayChannelService")
 @Slf4j
 public class WxPayChannelServiceImpl implements PayChannelService {
+
+    //微信支付bean
     @Autowired
     WxPayBean wxPayBean;
 
@@ -71,6 +73,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
 
     String serialNo;
 
+    //支付
     @Override
     public PayChannelResponse pay(PayChannelRequest payChannelRequest) {
         WxPayChannelResponse resp = new WxPayChannelResponse();
@@ -117,6 +120,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
         }
     }
 
+    //支付结果回调
     @Override
     public boolean notify(HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> map = new HashMap<>(12);
@@ -186,6 +190,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
         return true;
     }
 
+    // 退款
     @Override
     public WxRefundChannelResponse refund(RefundChannelRequest refundChannelRequest) {
         WxRefundChannelResponse resp = new WxRefundChannelResponse();
@@ -235,9 +240,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
     }
 
 
-    /**
-     * 退款通知
-     */
+    //退款通知
     @Override
     public boolean refundNotify(HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> map = new HashMap<>(12);
@@ -293,6 +296,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
         return true;
     }
 
+    //交易账单
     @Override
     public BillChannelResponse tradeBill(TradeBillChannelRequest billChannelRequest) {
         BillChannelResponse resp = new BillChannelResponse();
@@ -342,6 +346,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
         }
     }
 
+    //资金账单
     @Override
     public BillChannelResponse fundBill(FundBillChannelRequest billChannelRequest) {
         BillChannelResponse resp = new BillChannelResponse();
@@ -381,6 +386,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
         }
     }
 
+    //下载账单
     @Override
     public BillDownloadChannelResponse downloadBill(DownloadBillChannelRequest request) {
         BillDownloadChannelResponse resp = new BillDownloadChannelResponse();

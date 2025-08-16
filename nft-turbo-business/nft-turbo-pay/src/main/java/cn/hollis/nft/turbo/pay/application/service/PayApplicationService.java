@@ -120,41 +120,29 @@ public class PayApplicationService {
         throw new RuntimeException();
     }
 
-    /**
-     *
-     * <pre>
-     *     正常支付成功：
-     *     1、查询订单状态
-     *     2、推进订单状态到支付成功
-     *     3、藏品库存真正扣减
-     *     4、创建持有的藏品
-     *     5、推进支付状态到支付成功
-     *     6、持有的藏品上链
-     *
-     *     支付幂等成功：
-     *      1、查询订单状态
-     *      2、推进支付状态到支付成功
-     *
-     *      重复支付：
-     *      1、查询订单状态
-     *      2、创建退款单
-     *      3、重试退款直到成功
-     * </pre>
-     */
-    //支付成功
+
+    //订单支付逻辑
+    //支付成功流程：查询订单状态 -> 推进订单状态到支付成功 -> 藏品库存真正扣减
+    //区块链操作：创建持有的藏品 ->推进支付状态到支付成功 -> 持有的藏品上链
     @GlobalTransactional(rollbackFor = Exception.class)
     public boolean paySuccess(PaySuccessEvent paySuccessEvent) {
-
+        //查询支付订单
         PayOrder payOrder = payOrderService.queryByOrderId(paySuccessEvent.getPayOrderId());
+        //订单已经支付直接返回，防止重复支付
         if (payOrder.isPaid()) {
             return true;
         }
 
+        // 获取订单详情
         SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(payOrder.getBizNo());
         TradeOrderVO tradeOrderVO = response.getData();
 
+        //订单支付请求
         OrderPayRequest orderPayRequest = getOrderPayRequest(paySuccessEvent, payOrder);
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.paySuccess(req), orderPayRequest, "orderFacadeService.pay", false);
+        //远程调用支付
+        OrderResponse orderResponse = RemoteCallWrapper.call(
+                req -> orderFacadeService.paySuccess(req), orderPayRequest,
+                "orderFacadeService.pay", false);
 
         //如果订单已经被其他支付推进到支付成功，或者已经关单，则启动退款流程
         if (needChargeBack(orderResponse)) {
@@ -177,7 +165,9 @@ public class PayApplicationService {
         ///GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.confirmSale(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
 
         GoodsSaleRequest goodsSaleRequest = getGoodsSaleRequest(tradeOrderVO);
-        GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.paySuccess(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
+        GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(
+                    req -> goodsFacadeService.paySuccess(req),
+                    goodsSaleRequest, "goodsFacadeService.confirmSale");
 
         switch (tradeOrderVO.getGoodsType()) {
             case COLLECTION:
@@ -185,7 +175,6 @@ public class PayApplicationService {
                 TransactionHookManager.registerHook(new PaySuccessTransactionHook(goodsSaleResponse.getHeldCollectionId()));
                 break;
             default:
-                //do nothing
         }
 
         Boolean result = payOrderService.paySuccess(paySuccessEvent);
@@ -194,15 +183,11 @@ public class PayApplicationService {
         return true;
     }
 
-    /**
-     * 支付失败（明确的支付失败，而不是处理中、系统异常等）处理：
-     * 1、订单状态不需要做任何操作
-     * 2、支付单状态关闭
-     * 3、藏品、链不需要任何操作
-     *
-     * @param payOrderId
-     * @return
-     */
+
+    //支付失败（明确的支付失败，而不是处理中、系统异常等）处理：
+    //1、订单状态不需要做任何操作
+    //2、支付单状态关闭
+    //3、藏品、链不需要任何操作
     @GlobalTransactional(rollbackFor = Exception.class)
     public boolean payFailed(String payOrderId) {
         PayOrder payOrder = payOrderService.queryByOrderId(payOrderId);
@@ -217,12 +202,14 @@ public class PayApplicationService {
         return true;
     }
 
+    //
     private static boolean needChargeBack(OrderResponse orderResponse) {
         return orderResponse.getResponseCode() != null
                 && (orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_PAID.getCode())
                 || orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_CLOSED.getCode()));
     }
 
+    //退款成功
     @Transactional(rollbackFor = Exception.class)
     public boolean refundSuccess(RefundSuccessEvent refundSuccessEvent) {
         RefundOrder refundOrder = refundOrderService.queryByOrderId(refundSuccessEvent.getRefundOrderId());
@@ -254,6 +241,7 @@ public class PayApplicationService {
         return goodsSaleRequest;
     }
 
+    //
     private static OrderPayRequest getOrderPayRequest(PaySuccessEvent paySuccessEvent, PayOrder payOrder) {
         OrderPayRequest orderPayRequest = new OrderPayRequest();
         orderPayRequest.setOperateTime(paySuccessEvent.getPaySucceedTime());
@@ -267,6 +255,7 @@ public class PayApplicationService {
         return orderPayRequest;
     }
 
+    //
     private void doChargeBack(PaySuccessEvent paySuccessEvent, TradeOrderVO tradeOrderVO) {
         RefundCreateRequest refundCreateRequest = new RefundCreateRequest();
         refundCreateRequest.setIdentifier(paySuccessEvent.getChannelStreamId());

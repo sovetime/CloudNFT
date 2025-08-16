@@ -161,6 +161,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         };
     }
 
+    //支付成功
     @Override
     public GoodsSaleResponse paySuccess(GoodsSaleRequest request) {
         GoodsSaleResponse response = new GoodsSaleResponse();

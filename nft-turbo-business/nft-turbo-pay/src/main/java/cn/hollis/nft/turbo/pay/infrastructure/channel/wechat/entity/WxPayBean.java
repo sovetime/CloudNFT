@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @PropertySource("classpath:/wxpay.properties")
 @ConfigurationProperties(prefix = "wxpay")
+//解析wxpay.properties文件
 public class WxPayBean {
     private String appId;
     private String keyPath;

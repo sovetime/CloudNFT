@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 public class PayParam {
 
-    @NotNull(message = "orderId is null")
+    @NotNull(message = "订单id不能为null")
     private String orderId;
 
-    @NotNull(message = "payChannel is null")
+    @NotNull(message = "支付渠道不能为null")
     private PayChannel payChannel;
 
 }

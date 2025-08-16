@@ -346,6 +346,7 @@ public class TradeController {
     }
 
     //支付
+    //这里传入订单id以及支付渠道
     @PostMapping("/pay")
     public Result<PayOrderVO> pay(@Valid @RequestBody PayParam payParam) {
         //获取用户id
@@ -388,8 +389,9 @@ public class TradeController {
         payCreateRequest.setPayeeId(tradeOrderVO.getSellerId());
         payCreateRequest.setPayeeType(tradeOrderVO.getSellerType());
 
-        //生成支付链接
-        PayCreateResponse payCreateResponse = RemoteCallWrapper.call(req -> payFacadeService.generatePayUrl(req), payCreateRequest, "generatePayUrl");
+        //生成支付链接并进行支付
+        PayCreateResponse payCreateResponse = RemoteCallWrapper.call(
+                req -> payFacadeService.generatePayUrl(req), payCreateRequest, "generatePayUrl");
 
         if (payCreateResponse.getSuccess()) {
             PayOrderVO payOrderVO = new PayOrderVO();

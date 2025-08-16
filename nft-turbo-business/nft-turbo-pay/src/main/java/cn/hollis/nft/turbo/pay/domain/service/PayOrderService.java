@@ -29,12 +29,13 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     @Autowired
     private PayOrderMapper payOrderMapper;
 
-    //创建支付蛋
+    //创建支付单
     public PayOrder create(PayCreateRequest payCreateRequest) {
         //查询支付订单
         PayOrder existPayOrder = payOrderMapper.selectByBizNoAndPayer(
                 payCreateRequest.getPayerId(), payCreateRequest.getBizNo(),
-                payCreateRequest.getBizType().name(), payCreateRequest.getPayChannel().name());
+                payCreateRequest.getBizType().name(),
+                payCreateRequest.getPayChannel().name());
 
         if (existPayOrder != null) {
             if (existPayOrder.getOrderState() != PayOrderState.EXPIRED) {
@@ -62,7 +63,9 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         return true;
     }
 
+    //
     public Boolean paySuccess(PaySuccessEvent paySuccessEvent) {
+        //查询支付订单
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(paySuccessEvent.getPayOrderId());
         payOrder.paySuccess(paySuccessEvent);
 

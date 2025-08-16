@@ -64,12 +64,13 @@ public class PayFacadeServiceImpl implements PayFacadeService {
             return response;
         }
 
-        //获取支付渠道响应（url）
+        //获取支付渠道响应（url）并进行支付操作
         PayChannelResponse payChannelResponse = doPay(payCreateRequest, payOrder);
 
         if (payChannelResponse.getSuccess()) {
             boolean updateResult = payOrderService.paying(payOrder.getPayOrderId(), payChannelResponse.getPayUrl());
             Assert.isTrue(updateResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
+
             response.setSuccess(true);
             response.setPayOrderId(payOrder.getPayOrderId());
             response.setPayUrl(payChannelResponse.getPayUrl());
@@ -119,8 +120,10 @@ public class PayFacadeServiceImpl implements PayFacadeService {
         payChannelRequest.setAttach(payCreateRequest.getBizNo());
         payChannelRequest.setExpireTime(DateUtils.addMinutes(payOrder.getGmtCreate(), PayOrder.DEFAULT_TIME_OUT_MINUTES));
 
-        //获取支付渠道响应（url）
-        PayChannelResponse payChannelResponse = payChannelServiceFactory.get(payCreateRequest.getPayChannel()).pay(payChannelRequest);
+        //获取支付渠道响应（url）并进行支付
+        PayChannelResponse payChannelResponse = payChannelServiceFactory
+                                                        .get(payCreateRequest.getPayChannel())
+                                                        .pay(payChannelRequest);
         return payChannelResponse;
     }
 }

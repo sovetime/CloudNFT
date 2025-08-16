@@ -28,7 +28,7 @@ public interface OrderFacadeService {
     //创建并确认订单
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request);
 
-    //订单支付成功
+    //订单支付
     public OrderResponse paySuccess(OrderPayRequest request);
 
     // 订单详情
