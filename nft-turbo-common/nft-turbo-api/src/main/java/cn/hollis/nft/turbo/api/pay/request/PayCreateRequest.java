@@ -18,13 +18,13 @@ public class PayCreateRequest extends BaseRequest {
     @NotNull(message = "付款方id不能为null")
     private String payerId;
 
-    @NotNull(message = "付款方id类型不能为null")
+    @NotNull(message = "付款方类型不能为null")
     private UserType payerType;
 
     @NotNull(message = "收款方id不能为null")
     private String payeeId;
 
-    @NotNull(message = "收款方id类型不能为null")
+    @NotNull(message = "收款方类型不能为null")
     private UserType payeeType;
 
     @NotNull(message = "业务单号不能为null")

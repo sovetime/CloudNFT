@@ -13,19 +13,16 @@ import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.base.utils.RemoteCallWrapper;
 import cn.hollis.nft.turbo.base.utils.SpringContextHolder;
 import io.seata.tm.api.transaction.TransactionHook;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * 支付成功事务回调
- *
- * @author Hollis
- */
+
+//支付成功事务回调
 @Slf4j
+@NoArgsConstructor
 public class PaySuccessTransactionHook implements TransactionHook {
 
-    /**
-     * 从 Spring 的上下文中获取到 Bean
-     */
+    //从 Spring 的上下文中获取到 Bean
     CollectionReadFacadeService collectionFacadeService = (CollectionReadFacadeService) SpringContextHolder.getBean("collectionReadFacadeService");
 
     UserFacadeService userFacadeService = (UserFacadeService) SpringContextHolder.getBean("userFacadeService");
@@ -34,26 +31,20 @@ public class PaySuccessTransactionHook implements TransactionHook {
 
     private Long heldCollectionId;
 
-    public PaySuccessTransactionHook() {
-    }
-
     public PaySuccessTransactionHook(Long heldCollectionId) {
         this.heldCollectionId = heldCollectionId;
     }
 
     @Override
     public void beforeBegin() {
-        //do nothing
     }
 
     @Override
     public void afterBegin() {
-        //do nothing
     }
 
     @Override
     public void beforeCommit() {
-        //do nothing
     }
 
     @Override
@@ -83,7 +74,6 @@ public class PaySuccessTransactionHook implements TransactionHook {
 
     @Override
     public void beforeRollback() {
-        //do nothing
     }
 
     @Override
@@ -93,6 +83,5 @@ public class PaySuccessTransactionHook implements TransactionHook {
 
     @Override
     public void afterCompletion() {
-        //do nothing
     }
 }

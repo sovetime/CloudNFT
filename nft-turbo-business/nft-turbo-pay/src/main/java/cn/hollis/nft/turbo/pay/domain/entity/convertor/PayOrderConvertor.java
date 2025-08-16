@@ -9,35 +9,18 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-/**
- * @author Hollis
- */
+
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface PayOrderConvertor {
 
     PayOrderConvertor INSTANCE = Mappers.getMapper(PayOrderConvertor.class);
 
-    /**
-     * 转换实体
-     *
-     * @param request
-     * @return
-     */
+    //转换实体
     public PayOrder mapToEntity(PayCreateRequest request);
 
-    /**
-     * 转换vo
-     *
-     * @param request
-     * @return
-     */
+    //转换vo
     public PayOrderVO mapToVo(PayOrder request);
 
-    /**
-     * 转换vo
-     *
-     * @param request
-     * @return
-     */
+    //转换vo
     public List<PayOrderVO> mapToVo(List<PayOrder> request);
 }

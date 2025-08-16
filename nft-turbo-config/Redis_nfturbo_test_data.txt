@@ -1,7 +1,7 @@
 -- 在 redis 中初始化库存
 
 set "clc:inventory:10000" "99"
-set "clc:inventory:10000" "99"
+set "clc:inventory:10001" "99"
 set "clc:inventory:10002" "100"
 set "clc:inventory:10003" "100"
 set "clc:inventory:10004" "96"

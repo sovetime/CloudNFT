@@ -19,113 +19,70 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * 支付单
- *
- * @author Hollis
- */
+
+//支付单
 @Setter
 @Getter
 public class PayOrder extends BaseEntity {
 
-    /**
-     * 默认超时时间
-     */
+    //默认超时时间
     public static final int DEFAULT_TIME_OUT_MINUTES = 30;
 
-    /**
-     * 支付单号
-     */
+    //支付单号
     private String payOrderId;
 
-    /**
-     * 付款方id
-     */
+    //付款方id
     private String payerId;
 
-    /**
-     * 付款方id类型
-     */
+    // 付款方id类型
     private UserType payerType;
 
-    /**
-     * 收款方id
-     */
+    // 收款方id
     private String payeeId;
 
-    /**
-     * 收款方id类型
-     */
+    // 收款方id类型
     private UserType payeeType;
 
-    /**
-     * 业务单号
-     */
+    // 业务单号
     private String bizNo;
 
-    /**
-     * 业务单号类型
-     */
+    // 业务单号类型
     private BizOrderType bizType;
 
-    /**
-     * 订单金额
-     */
+    // 订单金额
     private BigDecimal orderAmount;
 
-    /**
-     * 已支付金额
-     */
+    // 已支付金额
     private BigDecimal paidAmount;
 
-    /**
-     * 已退款金额
-     */
+    // 已退款金额
     private BigDecimal refundedAmount;
 
-    /**
-     * 外部支付流水号
-     */
+    // 外部支付流水号
     private String channelStreamId;
 
-    /**
-     * 退款渠道流水号
-     */
+    // 退款渠道流水号
     private String refundChannelStreamId;
 
-    /**
-     * 支付链接
-     */
+    // 支付链接
     private String payUrl;
 
-    /**
-     * 支付渠道
-     */
+    // 支付渠道
     private PayChannel payChannel;
 
-    /**
-     * 支付备注
-     */
+    // 支付备注
     private String memo;
 
-    /**
-     * 订单状态
-     */
+    // 订单状态
     private PayOrderState orderState;
 
-    /**
-     * 支付成功时间
-     */
+    // 支付成功时间
     private Date paySucceedTime;
 
-    /**
-     * 支付失败时间
-     */
+    // 支付失败时间
     private Date payFailedTime;
 
-    /**
-     * 支付超时时间
-     */
+    // 支付超时时间
     private Date payExpireTime;
 
     @JSONField(serialize = false)

@@ -388,6 +388,7 @@ public class TradeController {
         payCreateRequest.setPayeeId(tradeOrderVO.getSellerId());
         payCreateRequest.setPayeeType(tradeOrderVO.getSellerType());
 
+        //生成支付链接
         PayCreateResponse payCreateResponse = RemoteCallWrapper.call(req -> payFacadeService.generatePayUrl(req), payCreateRequest, "generatePayUrl");
 
         if (payCreateResponse.getSuccess()) {

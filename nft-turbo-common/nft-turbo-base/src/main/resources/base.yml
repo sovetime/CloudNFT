@@ -12,7 +12,7 @@ nft:
       port: 6379
       password: 123456
     elasticsearch:
-      enable: true # 通过nft.turbo.elasticsearch.enable可以控制走数据库还是es
+      enable: false # 通过nft.turbo.elasticsearch.enable可以控制走数据库还是es
       url: localhost:9200
       username: elastic
       password: 123456

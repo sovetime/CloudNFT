@@ -29,8 +29,12 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     @Autowired
     private PayOrderMapper payOrderMapper;
 
+    //创建支付蛋
     public PayOrder create(PayCreateRequest payCreateRequest) {
-        PayOrder existPayOrder = payOrderMapper.selectByBizNoAndPayer(payCreateRequest.getPayerId(), payCreateRequest.getBizNo(), payCreateRequest.getBizType().name(), payCreateRequest.getPayChannel().name());
+        //查询支付订单
+        PayOrder existPayOrder = payOrderMapper.selectByBizNoAndPayer(
+                payCreateRequest.getPayerId(), payCreateRequest.getBizNo(),
+                payCreateRequest.getBizType().name(), payCreateRequest.getPayChannel().name());
 
         if (existPayOrder != null) {
             if (existPayOrder.getOrderState() != PayOrderState.EXPIRED) {
@@ -38,7 +42,9 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
             }
         }
 
+        //创建支付订单
         PayOrder payOrder = PayOrder.create(payCreateRequest);
+        //保存到数据库中
         boolean saveResult = save(payOrder);
         Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.INSERT_FAILED));
 

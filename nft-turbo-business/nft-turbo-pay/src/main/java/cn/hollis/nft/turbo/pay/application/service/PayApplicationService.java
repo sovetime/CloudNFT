@@ -35,6 +35,7 @@ import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
 import io.seata.spring.annotation.GlobalTransactional;
 import io.seata.tm.api.transaction.TransactionHookManager;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -46,25 +47,23 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * @author Hollis
- */
+
 @Service
 @Slf4j
 public class PayApplicationService {
 
     private static final String REFUND_MEMO_PREFIX = "退款：";
 
-    @Autowired
+    @Resource
     private PayOrderService payOrderService;
 
-    @Autowired
+    @Resource
     private OrderFacadeService orderFacadeService;
 
-    @Autowired
+    @Resource
     private GoodsFacadeService goodsFacadeService;
 
-    @Autowired
+    @Resource
     private CollectionManageFacadeService collectionManageFacadeService;
 
     @Autowired
@@ -77,11 +76,8 @@ public class PayApplicationService {
     @Autowired
     protected TransactionTemplate transactionTemplate;
 
-    /**
-     * 用于测试Seata+ShardingJDBC
-     * <p>
-     * 注意：如果要测试这个方法，需要把orderService.create(request)方法上的 @ShardingSphereTransactionType(TransactionType.BASE) 注解加上，否则无法回滚
-     */
+    //用于测试Seata+ShardingJDBC
+    //如果要测试这个方法，需要把orderService.create(request)方法上的 @ShardingSphereTransactionType(TransactionType.BASE) 注解加上，否则无法回滚
     @GlobalTransactional(rollbackFor = Exception.class)
     public void test() {
         CollectionCreateRequest request = new CollectionCreateRequest();
@@ -125,7 +121,7 @@ public class PayApplicationService {
     }
 
     /**
-     * 支付成功
+     *
      * <pre>
      *     正常支付成功：
      *     1、查询订单状态
@@ -145,6 +141,7 @@ public class PayApplicationService {
      *      3、重试退款直到成功
      * </pre>
      */
+    //支付成功
     @GlobalTransactional(rollbackFor = Exception.class)
     public boolean paySuccess(PaySuccessEvent paySuccessEvent) {
 

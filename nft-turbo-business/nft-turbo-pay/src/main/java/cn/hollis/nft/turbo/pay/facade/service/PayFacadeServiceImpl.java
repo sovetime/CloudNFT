@@ -41,11 +41,13 @@ public class PayFacadeServiceImpl implements PayFacadeService {
     @Autowired
     private PayChannelServiceFactory payChannelServiceFactory;
 
+    // 生成支付链接
     @Facade
     @DistributeLock(keyExpression = "#payCreateRequest.bizNo", scene = "GENERATE_PAY_URL")
     @Override
     public PayCreateResponse generatePayUrl(PayCreateRequest payCreateRequest) {
         PayCreateResponse response = new PayCreateResponse();
+        //创建支付订单
         PayOrder payOrder = payOrderService.create(payCreateRequest);
 
         if (payOrder.getOrderState() == PayOrderState.PAYING) {
@@ -62,6 +64,7 @@ public class PayFacadeServiceImpl implements PayFacadeService {
             return response;
         }
 
+        //获取支付渠道响应（url）
         PayChannelResponse payChannelResponse = doPay(payCreateRequest, payOrder);
 
         if (payChannelResponse.getSuccess()) {
@@ -106,13 +109,17 @@ public class PayFacadeServiceImpl implements PayFacadeService {
         return SingleResponse.of(PayOrderConvertor.INSTANCE.mapToVo(payOrderService.queryByOrderIdAndPayer(payOrderId, payerId)));
     }
 
+    //获取支付渠道响应（url）
     private PayChannelResponse doPay(PayCreateRequest payCreateRequest, PayOrder payOrder) {
+        //创建支付渠道请求
         PayChannelRequest payChannelRequest = new PayChannelRequest();
         payChannelRequest.setAmount(MoneyUtils.yuanToCent(payCreateRequest.getOrderAmount()));
         payChannelRequest.setDescription(payCreateRequest.getMemo());
         payChannelRequest.setOrderId(payOrder.getPayOrderId());
         payChannelRequest.setAttach(payCreateRequest.getBizNo());
         payChannelRequest.setExpireTime(DateUtils.addMinutes(payOrder.getGmtCreate(), PayOrder.DEFAULT_TIME_OUT_MINUTES));
+
+        //获取支付渠道响应（url）
         PayChannelResponse payChannelResponse = payChannelServiceFactory.get(payCreateRequest.getPayChannel()).pay(payChannelRequest);
         return payChannelResponse;
     }

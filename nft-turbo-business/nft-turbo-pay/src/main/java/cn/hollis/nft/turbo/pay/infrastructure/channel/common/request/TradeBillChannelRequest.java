@@ -21,11 +21,6 @@ public class TradeBillChannelRequest extends BaseRequest {
     //REFUND: 返回当日退款订单（不含充值退款订单）
     private String billType;
 
-    /**
-     *
-     *
-     *
-     */
     //压缩类型,不填则以不压缩的方式返回账单文件流,GZIP: 下载账单时返回.gzip格式的压缩文件流
     private String tarType;
 }

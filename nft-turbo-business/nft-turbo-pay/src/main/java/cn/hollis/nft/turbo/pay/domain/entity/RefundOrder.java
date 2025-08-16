@@ -16,93 +16,59 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * 支付退款单
- *
- * @author Hollis
- */
+
+//支付退款单
 @Setter
 @Getter
 public class RefundOrder extends BaseEntity {
 
-    /**
-     * 支付单号
-     */
+    //支付单号
     private String payOrderId;
 
-    /**
-     * 支付的外部流水号，冗余用于退款执行
-     */
+    //支付的外部流水号，冗余用于退款执行
     private String payChannelStreamId;
 
-    /**
-     * 支付的金额，冗余用于退款执行
-     */
+    //支付的金额，冗余用于退款执行
     private BigDecimal paidAmount;
 
-    /**
-     * 退款单号
-     */
+    //退款单号
     private String refundOrderId;
 
-    /**
-     * 退款申请幂等号
-     */
+    // 退款申请幂等号
     private String identifier;
 
-    /**
-     * 付款方id
-     */
+    // 付款方id
     private String payerId;
 
-    /**
-     * 付款方id类型
-     */
+    //付款方id类型
     private UserType payerType;
 
-    /**
-     * 收款方id
-     */
+    // 收款方id
     private String payeeId;
 
-    /**
-     * 收款方id类型
-     */
+    // 收款方id类型
     private UserType payeeType;
 
-    /**
-     * 需要退款的金额
-     */
+    // 需要退款的金额
     private BigDecimal applyRefundAmount;
 
-    /**
-     * 已退款金额
-     */
+    // 已退款金额
     private BigDecimal refundedAmount;
 
-    /**
-     * 退款的外部支付流水号
-     */
+    // 退款的外部支付流水号
     private String refundChannelStreamId;
 
-    /**
-     * 退款渠道
-     */
+    // 退款渠道
     private PayChannel refundChannel;
 
-    /**
-     * 退款备注
-     */
+    // 退款备注
     private String memo;
 
-    /**
-     * 订单状态
-     */
+    // 订单状态
     private PayRefundOrderState refundOrderState;
 
-    /**
-     * 退款成功时间
-     */
+
+    //退款成功时间
     private Date refundSucceedTime;
 
     @JSONField(serialize = false)

@@ -22,6 +22,7 @@ public class PayChannelServiceFactory {
     @Value("${spring.profiles.active}")
     private String profile;
 
+    //根据支付渠道获取对应的支付渠道服务
     public PayChannelService get(PayChannel payChannel) {
 
         if (PROFILE_DEV.equals(profile)) {
@@ -36,8 +37,7 @@ public class PayChannelServiceFactory {
         if (payChannelService != null) {
             return payChannelService;
         } else {
-            throw new UnsupportedOperationException(
-                    "No PayChannelService Found With payChannel : " + payChannel + " , beanName : " + beanName);
+            throw new UnsupportedOperationException("No PayChannelService Found With payChannel : " + payChannel + " , beanName : " + beanName);
         }
     }
 }
