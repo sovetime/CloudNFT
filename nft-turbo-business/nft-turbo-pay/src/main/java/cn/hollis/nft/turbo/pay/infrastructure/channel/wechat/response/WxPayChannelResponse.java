@@ -9,6 +9,4 @@ import lombok.Setter;
 @Getter
 public class WxPayChannelResponse extends PayChannelResponse {
 
-
-
 }

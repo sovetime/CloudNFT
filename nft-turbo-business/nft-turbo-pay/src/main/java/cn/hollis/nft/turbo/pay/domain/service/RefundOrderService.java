@@ -43,22 +43,26 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
         return this.getOne(queryWrapper);
     }
 
+    // 创建退款单
     public RefundOrder create(RefundCreateRequest refundCreateRequest) {
+        // 判断是否存在
         RefundOrder existRefundOrder = refundOrderMapper.selectByIdentifier(refundCreateRequest.getPayOrderId(), refundCreateRequest.getIdentifier(), refundCreateRequest.getRefundChannel().name());
-
         if (existRefundOrder != null) {
             return existRefundOrder;
         }
 
+        // 查询支付单
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(refundCreateRequest.getPayOrderId());
-
+        // 创建退款单
         RefundOrder refundOrder = RefundOrder.create(refundCreateRequest, payOrder);
+        // 数据落库
         boolean saveResult = save(refundOrder);
         Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.INSERT_FAILED));
 
         return refundOrder;
     }
 
+    //腿狂状态更新
     public boolean refunding(String refundOrderId) {
         RefundOrder refundOrder = refundOrderMapper.selectByRefundOrderId(refundOrderId);
         Assert.isTrue(refundOrder.getRefundOrderState() == TO_REFUND);

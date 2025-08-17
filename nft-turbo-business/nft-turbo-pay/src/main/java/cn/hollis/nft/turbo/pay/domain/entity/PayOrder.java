@@ -106,6 +106,7 @@ public class PayOrder extends BaseEntity {
         return payOrder;
     }
 
+    //修改订单状态为支付中
     public PayOrder paying(String payUrl) {
         Assert.equals(this.getOrderState(), PayOrderState.TO_PAY);
         this.setOrderState(PayOrderState.PAYING);
@@ -113,6 +114,7 @@ public class PayOrder extends BaseEntity {
         return this;
     }
 
+    //修改订单状态为支付成功
     public PayOrder paySuccess(PaySuccessEvent paySuccessEvent) {
         Assert.equals(this.getOrderState(), PayOrderState.PAYING);
         this.setOrderState(PayOrderState.PAID);

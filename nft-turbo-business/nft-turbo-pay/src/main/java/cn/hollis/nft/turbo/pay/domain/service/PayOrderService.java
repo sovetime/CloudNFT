@@ -52,9 +52,11 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         return payOrder;
     }
 
-
+    //修改订单状态
     public Boolean paying(String payOrderId, String payUrl) {
+        //查询支付订单
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(payOrderId);
+        //更新支付状态
         payOrder.paying(payUrl);
 
         boolean saveResult = saveOrUpdate(payOrder);
@@ -63,10 +65,11 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         return true;
     }
 
-    //
+    //更新支付状态
     public Boolean paySuccess(PaySuccessEvent paySuccessEvent) {
         //查询支付订单
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(paySuccessEvent.getPayOrderId());
+        //更新支付状态为成功
         payOrder.paySuccess(paySuccessEvent);
 
         boolean saveResult = saveOrUpdate(payOrder);

@@ -126,6 +126,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
     // 订单支付
     @Transactional(rollbackFor = Exception.class)
+    //ShardingSphere的分布式事务注解，TransactionType.BASE表示使用Seata的AT模式（自动事务模式）
     @ShardingSphereTransactionType(TransactionType.BASE)
     public OrderResponse paySuccess(OrderPayRequest request) {
         return doExecuteWithOutTrans(request, tradeOrder -> tradeOrder.paySuccess(request));
@@ -159,8 +160,10 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
     //通用订单更新逻辑
     protected OrderResponse doExecute(BaseOrderUpdateRequest orderRequest, Consumer<TradeOrder> consumer) {
         OrderResponse response = new OrderResponse();
+        //调用统一处理方法
         return handle(orderRequest, response, "doExecute", request -> {
 
+            //根据订单号查询订单
             TradeOrder existOrder = orderMapper.selectByOrderId(request.getOrderId());
             if (existOrder == null) {
                 throw new OrderException(ORDER_NOT_EXIST);
@@ -170,15 +173,17 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
                 throw new OrderException(PERMISSION_DENIED);
             }
 
+            //根据幂等号查询流水
             TradeOrderStream existStream = orderStreamMapper.selectByIdentifier(orderRequest.getIdentifier(), orderRequest.getOrderEvent().name(), orderRequest.getOrderId());
             if (existStream != null) {
                 return new OrderResponse.OrderResponseBuilder().orderId(existStream.getOrderId()).streamId(existStream.getId().toString()).buildDuplicated();
             }
 
-            //核心逻辑执行
+            //调用传入的 Consumer<TradeOrder> 函数式接口，执行具体的订单操作
+            //根据传入的方法执行不同逻辑，示例：tradeOrder -> tradeOrder.paySuccess(request)
             consumer.accept(existOrder);
 
-            //开启事务
+            //开启事务执行对应代码
             return transactionTemplate.execute(transactionStatus -> {
 
                 boolean result = orderMapper.updateByOrderId(existOrder) == 1;
@@ -193,11 +198,13 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         });
     }
 
-    //通用订单更新逻辑(不带事务，需要调用方自己保证事务)
+    //通用订单支付逻辑（不使用事务模板），依赖外部事务调用
     protected OrderResponse doExecuteWithOutTrans(BaseOrderUpdateRequest orderRequest, Consumer<TradeOrder> consumer) {
         OrderResponse response = new OrderResponse();
+        //调用统一处理方法
         return handle(orderRequest, response, "doExecute", request -> {
 
+            //根据订单号查询订单
             TradeOrder existOrder = orderMapper.selectByOrderId(request.getOrderId());
             if (existOrder == null) {
                 throw new OrderException(ORDER_NOT_EXIST);
@@ -207,26 +214,37 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
                 throw new OrderException(PERMISSION_DENIED);
             }
 
+            //根据幂等号查询订单流水
             TradeOrderStream existStream = orderStreamMapper.selectByIdentifier(orderRequest.getIdentifier(), orderRequest.getOrderEvent().name(), orderRequest.getOrderId());
             if (existStream != null) {
-                return new OrderResponse.OrderResponseBuilder().orderId(existStream.getOrderId()).streamId(existStream.getId().toString()).buildDuplicated();
+                return new OrderResponse.OrderResponseBuilder()
+                        .orderId(existStream.getOrderId())
+                        .streamId(existStream.getId().toString())
+                        .buildDuplicated();
             }
 
-            //核心逻辑执行
+            //调用传入的 Consumer<TradeOrder> 函数式接口，执行具体的订单操作
+            //根据传入的方法执行不同逻辑，示例：tradeOrder -> tradeOrder.paySuccess(request)
             consumer.accept(existOrder);
 
+            //订单落库
             boolean result = orderMapper.updateByOrderId(existOrder) == 1;
             Assert.isTrue(result, () -> new OrderException(OrderErrorCode.UPDATE_ORDER_FAILED));
 
+            //订单流水
             TradeOrderStream orderStream = new TradeOrderStream(existOrder, orderRequest.getOrderEvent(), orderRequest.getIdentifier());
             result = orderStreamMapper.insert(orderStream) == 1;
             Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
 
-            return new OrderResponse.OrderResponseBuilder().orderId(orderStream.getOrderId()).streamId(String.valueOf(orderStream.getId())).buildSuccess();
+            return new OrderResponse.OrderResponseBuilder()
+                    .orderId(orderStream.getOrderId())
+                    .streamId(String.valueOf(orderStream.getId()))
+                    .buildSuccess();
 
         });
     }
 
+    //判断权限
     private boolean hasPermission(TradeOrder existOrder, TradeOrderEvent orderEvent, String operator, UserType operatorType) {
         switch (orderEvent) {
             case PAY:
@@ -243,11 +261,16 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         }
     }
 
+    //统一订单处理方法
+    //参数校验，日志记录，异常处理
     public static <T, R extends OrderResponse> OrderResponse handle(T request, R response, String method, Function<T, R> function) {
         logger.info("before execute method={}, request={}", method, JSON.toJSONString(request));
         try {
+            //参数校验
             requireNonNull(request);
             BeanValidator.validateObject(request);
+
+            //
             response = function.apply(request);
         } catch (OrderException e) {
             logger.error(e.toString(), e);

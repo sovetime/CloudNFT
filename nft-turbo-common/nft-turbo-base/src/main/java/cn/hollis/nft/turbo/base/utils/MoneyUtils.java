@@ -3,28 +3,16 @@ package cn.hollis.nft.turbo.base.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * @author Hollis
- */
+
 public class MoneyUtils {
 
-    /**
-     * 元转分
-     *
-     * @param number
-     * @return
-     */
+    //元转分
     public static Long yuanToCent(BigDecimal number) {
         //这里需要注意，并不是所有币种的元转分都是乘100的，比如日元就不是，所以，在考虑多币种情况下，需要使用一个单独的Money类来屏蔽掉这些币种的差异。
         return number.multiply(new BigDecimal("100")).longValue();
     }
 
-    /**
-     * 分转元
-     *
-     * @param number
-     * @return
-     */
+    //分转元
     public static BigDecimal centToYuan(Long number) {
         if (number == null) {
             return null;

@@ -67,7 +67,10 @@ public class PayFacadeServiceImpl implements PayFacadeService {
         //获取支付渠道响应（url）并进行支付操作
         PayChannelResponse payChannelResponse = doPay(payCreateRequest, payOrder);
 
+        //修改支付状态
         if (payChannelResponse.getSuccess()) {
+            //更新支付订单为支付中
+            //系统需要等待支付渠道的回调通知才能确认支付是否成功
             boolean updateResult = payOrderService.paying(payOrder.getPayOrderId(), payChannelResponse.getPayUrl());
             Assert.isTrue(updateResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 

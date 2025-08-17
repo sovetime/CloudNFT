@@ -144,12 +144,16 @@ public class PayApplicationService {
                 req -> orderFacadeService.paySuccess(req), orderPayRequest,
                 "orderFacadeService.pay", false);
 
+        //启用退款操作校验
         //如果订单已经被其他支付推进到支付成功，或者已经关单，则启动退款流程
         if (needChargeBack(orderResponse)) {
             log.info("order already paid ,do chargeback ," + payOrder.getBizNo());
 
+            //更新支付状态
             Boolean result = payOrderService.paySuccess(paySuccessEvent);
             Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
+
+            //启动退款
             doChargeBack(paySuccessEvent, tradeOrderVO);
 
             return true;
@@ -202,7 +206,8 @@ public class PayApplicationService {
         return true;
     }
 
-    //
+    //启用退款操作校验
+    //当远程调用结束，订单已经支付成功或者已经关闭时，则启动退款流程
     private static boolean needChargeBack(OrderResponse orderResponse) {
         return orderResponse.getResponseCode() != null
                 && (orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_PAID.getCode())
@@ -255,14 +260,17 @@ public class PayApplicationService {
         return orderPayRequest;
     }
 
-    //
+    //退款流程
     private void doChargeBack(PaySuccessEvent paySuccessEvent, TradeOrderVO tradeOrderVO) {
+        //创建退款请求
         RefundCreateRequest refundCreateRequest = new RefundCreateRequest();
         refundCreateRequest.setIdentifier(paySuccessEvent.getChannelStreamId());
         refundCreateRequest.setMemo(REFUND_MEMO_PREFIX + tradeOrderVO.getOrderId());
         refundCreateRequest.setPayOrderId(paySuccessEvent.getPayOrderId());
         refundCreateRequest.setRefundAmount(paySuccessEvent.getPaidAmount());
         refundCreateRequest.setRefundChannel(paySuccessEvent.getPayChannel());
+
+        //创建退款单
         RefundOrder refundOrder = refundOrderService.create(refundCreateRequest);
         Assert.notNull(refundOrder, () -> new BizException(PayErrorCode.REFUND_CREATE_FAILED));
 
@@ -278,6 +286,7 @@ public class PayApplicationService {
 
             RefundChannelResponse refundChannelResponse = payChannelServiceFactory.get(paySuccessEvent.getPayChannel()).refund(refundChannelRequest);
 
+            //退款单状态更新
             if (refundChannelResponse.getSuccess()) {
                 refundOrderService.refunding(refundOrder.getRefundOrderId());
             }
