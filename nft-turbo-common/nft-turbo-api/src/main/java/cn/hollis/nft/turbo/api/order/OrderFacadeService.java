@@ -8,7 +8,7 @@ import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 
-
+//订单服务
 public interface OrderFacadeService {
 
     public void setPool(int core,int max);

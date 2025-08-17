@@ -181,6 +181,7 @@ public class PayApplicationService {
             default:
         }
 
+        //更新支付单状态
         Boolean result = payOrderService.paySuccess(paySuccessEvent);
         Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
 
@@ -230,6 +231,7 @@ public class PayApplicationService {
         return true;
     }
 
+    //获取商品销售请求
     private static GoodsSaleRequest getGoodsSaleRequest(TradeOrderVO tradeOrderVO) {
         GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest();
         goodsSaleRequest.setGoodsId(Long.valueOf(tradeOrderVO.getGoodsId()));

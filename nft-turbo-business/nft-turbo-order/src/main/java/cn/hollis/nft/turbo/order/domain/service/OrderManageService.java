@@ -227,7 +227,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
             //根据传入的方法执行不同逻辑，示例：tradeOrder -> tradeOrder.paySuccess(request)
             consumer.accept(existOrder);
 
-            //订单落库
+            //状态更改落库
             boolean result = orderMapper.updateByOrderId(existOrder) == 1;
             Assert.isTrue(result, () -> new OrderException(OrderErrorCode.UPDATE_ORDER_FAILED));
 

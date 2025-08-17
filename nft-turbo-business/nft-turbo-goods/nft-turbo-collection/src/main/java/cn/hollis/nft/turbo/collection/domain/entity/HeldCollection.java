@@ -55,7 +55,7 @@ public class HeldCollection extends BaseEntity {
     private String bizNo;
 
     public HeldCollection init(HeldCollectionCreateRequest request,String serialNo) {
-        //ShardingJDBC 不支持批量插入时获取并返回主键 ID，详见：https://github.com/bigcoder84/study-notes/blob/master/%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/%E9%A1%B9%E7%9B%AE%E8%B8%A9%E5%9D%91/subfile/_6MyBatisPlus+ShardingJDBC%E6%89%B9%E9%87%8F%E6%8F%92%E5%85%A5%E4%B8%8D%E8%BF%94%E5%9B%9EID.md
+        //ShardingJDBC 不支持批量插入时获取并返回主键 ID
         //为了解决批量生成持有藏品的场景（空投）中，batchCreate 之后无法立刻拿到主键 ID的问你题，这里单独使用雪花算法生成id
         super.setId(IdUtil.getSnowflake(BusinessCode.HELD_COLLECTION.code()).nextId());
         this.collectionId = request.getGoodsId();

@@ -46,6 +46,7 @@ public class WxPayController {
         return "test";
     }
 
+    // 微信支付
     @RequestMapping("/nativePay")
     @ResponseBody
     public String nativePay() {
@@ -59,6 +60,7 @@ public class WxPayController {
         return response.getPayUrl();
     }
 
+    // 微信支付回调
     @RequestMapping(value = "/payNotify", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
     public void payNotify(HttpServletRequest request, HttpServletResponse response) {
@@ -69,6 +71,7 @@ public class WxPayController {
         }
     }
 
+    // 模拟支付回调
     @RequestMapping(value = "/payNotifyMock", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
     public void payNotifyMock(String payOrderId, String paidAmount) {
@@ -84,6 +87,7 @@ public class WxPayController {
         Assert.isTrue(result, "支付通知失败");
     }
 
+    // 微信退款回调
     @RequestMapping(value = "/refundNotify", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
     public void refundNotify(HttpServletRequest request, HttpServletResponse response) {

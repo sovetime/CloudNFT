@@ -173,6 +173,8 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
                 blindBoxAssignRequest.setBlindBoxId(request.getGoodsId());
                 blindBoxAssignRequest.setUserId(request.getUserId());
                 blindBoxAssignRequest.setOrderId(request.getBizNo());
+
+                //盲盒分配
                 blindBoxService.assign(blindBoxAssignRequest);
                 response.setSuccess(true);
                 yield response;
@@ -183,6 +185,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
                 heldCollectionCreateRequest.setReferencePrice(request.getPurchasePrice());
                 heldCollectionCreateRequest.setSerialNoBaseId(request.getGoodsId().toString());
 
+                //
                 HeldCollection heldCollection = heldCollectionService.create(heldCollectionCreateRequest);
                 response.setSuccess(true);
                 response.setHeldCollectionId(heldCollection.getId());

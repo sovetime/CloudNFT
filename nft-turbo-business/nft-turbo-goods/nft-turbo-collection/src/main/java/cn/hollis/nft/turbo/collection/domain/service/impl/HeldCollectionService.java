@@ -86,8 +86,10 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return heldCollections;
     }
 
+    //
     @Transactional(rollbackFor = Exception.class)
     public HeldCollection create(HeldCollectionCreateRequest request) {
+        //根据藏品id、业务单号获取对应的藏品
         HeldCollection existHeldCollection = queryByCollectionIdAndBizNo(request.getGoodsId(), request.getBizNo());
         if (existHeldCollection != null) {
             return existHeldCollection;
@@ -95,7 +97,9 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
 
         //HC:SALES:COLLECTION:1234 or HC:SALES:BIND_BOX:1234
         HeldCollection heldCollection = new HeldCollection();
-        Long serialNo = redissonClient.getAtomicLong(HELD_COLLECTION_BIND_BOX_PREFIX + request.getGoodsType() + CacheConstant.CACHE_KEY_SEPARATOR + request.getSerialNoBaseId()).incrementAndGet();
+        Long serialNo = redissonClient.getAtomicLong(HELD_COLLECTION_BIND_BOX_PREFIX + request.getGoodsType() +
+                                    CacheConstant.CACHE_KEY_SEPARATOR + request.getSerialNoBaseId()
+        ).incrementAndGet();
 
         try {
             heldCollection.init(request, serialNo.toString());
@@ -105,6 +109,7 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
             }
 
             HeldCollectionStream heldCollectionStream = new HeldCollectionStream().generateForCreate(heldCollection.getId(), request.getIdentifier());
+            //
             saveResult = heldCollectionStreamService.save(heldCollectionStream);
             Assert.isTrue(saveResult, () -> new CollectionException(HELD_COLLECTION_STREAM_SAVE_FAILED));
 
@@ -113,7 +118,9 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
             //如果抛了异常，并且数据库未更新成功过，则回滚销量
             heldCollection = queryByCollectionIdAndBizNo(request.getGoodsId(), request.getBizNo());
             if (heldCollection == null) {
-                redissonClient.getAtomicLong(HELD_COLLECTION_BIND_BOX_PREFIX + request.getGoodsType() + CacheConstant.CACHE_KEY_SEPARATOR + request.getSerialNoBaseId()).decrementAndGet();
+                redissonClient.getAtomicLong(HELD_COLLECTION_BIND_BOX_PREFIX + request.getGoodsType() +
+                                                CacheConstant.CACHE_KEY_SEPARATOR + request.getSerialNoBaseId()
+                ).decrementAndGet();
                 return null;
             }
             return heldCollection;
@@ -221,6 +228,7 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return getById(heldCollectionId);
     }
 
+    //根据藏品id、业务单号获取对应的藏品
     public HeldCollection queryByCollectionIdAndBizNo(Long collectionId, String bizNo) {
         QueryWrapper<HeldCollection> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("collection_id", collectionId);

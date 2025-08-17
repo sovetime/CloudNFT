@@ -16,7 +16,6 @@ public class BeanValidator {
     private static Validator validator = Validation.byProvider(HibernateValidator.class).configure().failFast(true)
             .buildValidatorFactory().getValidator();
 
-    //
     public static void validateObject(Object object, Class<?>... groups) throws ValidationException {
         Set<ConstraintViolation<Object>> constraintViolations = validator.validate(object, groups);
         if (constraintViolations.stream().findFirst().isPresent()) {

@@ -92,6 +92,7 @@ public class TradeOrder extends BaseEntity {
     }
 
     @JSONField(serialize = false)
+    //标识字段不需要序列化
     public Boolean isClosed() {
         return orderState == TradeOrderState.CLOSED;
     }
@@ -101,6 +102,7 @@ public class TradeOrder extends BaseEntity {
         return DateUtils.addMinutes(this.getGmtCreate(), TradeOrder.DEFAULT_TIME_OUT_MINUTES);
     }
 
+    //创建订单
     public static TradeOrder createOrder(OrderCreateRequest request) {
         TradeOrder tradeOrder = TradeOrderConvertor.INSTANCE.mapToEntity(request);
         tradeOrder.setReverseBuyerId(StringUtils.reverse(request.getBuyerId()));
@@ -119,32 +121,40 @@ public class TradeOrder extends BaseEntity {
         return this;
     }
 
+    //订单支付，状态转换
     public TradeOrder paySuccess(OrderPayRequest request) {
         this.setPayStreamId(request.getPayStreamId());
         this.setPaySucceedTime(request.getOperateTime());
         this.setPayChannel(request.getPayChannel());
         this.setPaidAmount(request.getAmount());
+
+        //执行状态转换，传入当前状态和事件，返回目标状态
         TradeOrderState orderState = OrderStateMachine.INSTANCE.transition(this.getOrderState(), request.getOrderEvent());
         this.setOrderState(orderState);
         return this;
     }
 
+    //订单关闭，状态转换
     public TradeOrder close(BaseOrderUpdateRequest request) {
         this.setOrderClosedTime(request.getOperateTime());
+
         TradeOrderState orderState = OrderStateMachine.INSTANCE.transition(this.getOrderState(), request.getOrderEvent());
         this.setOrderState(orderState);
         this.setCloseType(request.getOrderEvent().name());
         return this;
     }
 
+    //订单废弃，状态转换
     public TradeOrder discard(BaseOrderUpdateRequest request) {
         this.setOrderClosedTime(request.getOperateTime());
+
         TradeOrderState orderState = OrderStateMachine.INSTANCE.transition(this.getOrderState(), request.getOrderEvent());
         this.setOrderState(orderState);
         this.setCloseType(request.getOrderEvent().name());
         return this;
     }
 
+    //订单完成，状态转换
     public TradeOrder finish(OrderFinishRequest request) {
         this.setOrderFinishedTime(request.getOperateTime());
         TradeOrderState orderState = OrderStateMachine.INSTANCE.transition(this.getOrderState(), request.getOrderEvent());

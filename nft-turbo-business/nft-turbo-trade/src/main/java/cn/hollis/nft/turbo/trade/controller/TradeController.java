@@ -189,6 +189,7 @@ public class TradeController {
     @PostMapping("/newBuyPlus")
     public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
         try {
+            //创建订单(从ThreadLocal中获取token)
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
             //订单校验
             orderValidatorChain.validate(orderCreateAndConfirmRequest);
