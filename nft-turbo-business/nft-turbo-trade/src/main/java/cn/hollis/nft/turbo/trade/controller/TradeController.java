@@ -194,7 +194,7 @@ public class TradeController {
             //订单校验
             orderValidatorChain.validate(orderCreateAndConfirmRequest);
 
-            //本地事务执行器：OrderCreateTransactionListener  消息监听：NewBuyMsgListener or NewBuyBatchMsgListener ,
+            //本地事务执行器：OrderCreateTransactionListener  消息监听：NewBuyPlusMsgListener or NewBuyPlusBatchMsgListener ,
             boolean result = streamProducer.send("newBuyPlus-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateAndConfirmRequest));
 
             if (!result) {

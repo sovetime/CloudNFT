@@ -42,6 +42,7 @@ public class OrderCreateTransactionListener implements TransactionListener {
             //     return LocalTransactionState.COMMIT_MESSAGE;
             //}
 
+            //秒杀第三套方案，不基于TCC
             OrderResponse orderResponse = tradeApplicationService.newBuyPlus(orderCreateAndConfirmRequest);
             return orderResponse.getSuccess() ? LocalTransactionState.COMMIT_MESSAGE : LocalTransactionState.ROLLBACK_MESSAGE;
         } catch (Exception e) {
@@ -50,10 +51,16 @@ public class OrderCreateTransactionListener implements TransactionListener {
         }
     }
 
+    //事务回查方法，用于判断本地事务是否已经执行成功。
+    //当 RocketMQ Broker 没有收到事务提交/回滚结果时，会回调此方法进行事务状态检查
     @Override
     public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
-        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(JSON.parseObject(new String(messageExt.getBody())).getString("body"), OrderCreateAndConfirmRequest.class);
+        // 从消息中解析订单请求
+        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(
+                JSON.parseObject(new String(messageExt.getBody())).getString("body"),
+                OrderCreateAndConfirmRequest.class);
 
+        //
         SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
 
         //如果订单已经创建成功，则直接返回。不再需要做废单处理了。

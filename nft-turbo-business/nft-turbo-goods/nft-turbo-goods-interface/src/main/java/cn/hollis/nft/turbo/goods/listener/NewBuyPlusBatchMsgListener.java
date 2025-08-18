@@ -26,11 +26,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
 
-/**
- * @author 批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
- * 这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，
- * 如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
- */
+//批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
+//这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，
+//如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
 @Component
 @Slf4j
 @RocketMQMessageListener(topic = "new-buy-plus-topic", consumerGroup = "new-buy-plus-group")
