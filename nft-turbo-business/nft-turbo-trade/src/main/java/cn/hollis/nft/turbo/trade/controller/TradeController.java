@@ -194,19 +194,19 @@ public class TradeController {
             //订单校验
             orderValidatorChain.validate(orderCreateAndConfirmRequest);
 
-            //本地事务执行器：OrderCreateTransactionListener  消息监听：NewBuyPlusMsgListener or NewBuyPlusBatchMsgListener ,
+            //消息监听：NewBuyPlusMsgListener or NewBuyPlusBatchMsgListener
+            //消息发送给broker之后同步不会立即推送给消费者，而是执行本地事务OrderCreateTransactionListener进行库存预扣减
             boolean result = streamProducer.send("newBuyPlus-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateAndConfirmRequest));
-
+            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
             if (!result) {
                 throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
             }
 
-            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
-            //因为上面是用了MQ的事务消息，Redis的库存扣减是在事务消息的本地事务中同步执行的（InventoryDecreaseTransactionListener#executeLocalTransaction），所以只要成功了，这里一定能查到
-
+            //获取订单
             SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
 
             if (response.getSuccess() && response.getData() != null && response.getData().getOrderState() == TradeOrderState.CONFIRM) {
+                //库存扣减旁路验证
                 inventoryBypassVerify(new InventoryRequest(orderCreateAndConfirmRequest));
                 return Result.success(orderCreateAndConfirmRequest.getOrderId());
             }

@@ -113,27 +113,31 @@ public class TradeApplicationService {
 
     //秒杀第三套方案，不基于TCC
     public OrderResponse newBuyPlus(OrderCreateAndConfirmRequest orderCreateRequest) {
-
-        //1、扣减Redis库存
+        //构造库存扣减请求
         InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
         try {
+            //redis中库存预扣减
             SingleResponse<Boolean> response = inventoryFacadeService.decrease(inventoryRequest);
             Assert.isTrue(response.getSuccess() && response.getData(), "decrease inventory failed");
         } catch (Exception e) {
+            //获取库存操作流水
             SingleResponse<String> decreaseLogResp = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
             if (!decreaseLogResp.getSuccess() || decreaseLogResp.getData() == null) {
-                return new OrderResponse.OrderResponseBuilder().buildFail(INVENTORY_DECREASE_FAILED.getCode(), INVENTORY_DECREASE_FAILED.getMessage());
+                return new OrderResponse.OrderResponseBuilder().buildFail(
+                        INVENTORY_DECREASE_FAILED.getCode(), INVENTORY_DECREASE_FAILED.getMessage());
             }
         }
 
-        //2、创建订单
         try {
             orderCreateRequest.setSyncDecreaseInventory(false);
+            //确认并创建订单
             OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateRequest);
             Assert.isTrue(orderResponse.getSuccess(), "createAndConfirm failed");
         } catch (Exception e) {
+            //处理逻辑再NewBuyPlusBatchMsgListener中
             streamProducer.send("newBuyPlusPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_30_S);
-            return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_FAILED.getCode(), ORDER_CREATE_FAILED.getMessage());
+            return new OrderResponse.OrderResponseBuilder().buildFail(
+                    ORDER_CREATE_FAILED.getCode(), ORDER_CREATE_FAILED.getMessage());
         }
 
         return new OrderResponse.OrderResponseBuilder().orderId(orderCreateRequest.getOrderId()).buildSuccess();
@@ -152,7 +156,9 @@ public class TradeApplicationService {
 
         //Try
         try {
+            //构造库存扣减请求
             InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+            //
             boolean result = inventoryTransactionFacadeService.tryDecrease(inventoryRequest);
             Assert.isTrue(result, "decrease inventory failed");
 

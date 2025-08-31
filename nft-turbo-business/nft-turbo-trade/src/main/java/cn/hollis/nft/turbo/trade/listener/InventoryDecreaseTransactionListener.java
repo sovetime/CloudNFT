@@ -32,7 +32,11 @@ public class InventoryDecreaseTransactionListener implements TransactionListener
     public LocalTransactionState executeLocalTransaction(Message message, Object o) {
         try {
             // 从消息中解析订单请求
-            OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(message.getBody()).getString("body"), OrderCreateRequest.class);
+            OrderCreateRequest orderCreateRequest = JSON.parseObject(
+                    JSON.parseObject(message.getBody()).getString("body"),
+                    OrderCreateRequest.class);
+
+            //构造库存扣减请求
             InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
             //redis中库存预扣减
             SingleResponse<Boolean> response = inventoryFacadeService.decrease(inventoryRequest);
@@ -58,7 +62,6 @@ public class InventoryDecreaseTransactionListener implements TransactionListener
                 OrderCreateRequest.class);
 
         SingleResponse<String> response;
-
         // 构造库存请求
         InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
         // 查询库存扣减日志，判断是否执行过扣减操作

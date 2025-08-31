@@ -49,11 +49,14 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
     @Resource
     private InventoryFacadeService inventoryFacadeService;
 
+    //
     @Bean
     Consumer<Message<MessageBody>> newBuyPlusPreCancel() {
         return msg -> {
+            //获取消息
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
             log.warn("NewBuyPlusMsgListener receive newBuyPlusPreCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
+
             SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
 
             //如果订单已经创建成功，则直接返回。不再需要做废单处理了。
@@ -62,6 +65,7 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
                 //所以在这里需要做补偿
                 GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateAndConfirmRequest);
                 log.info("saleWithoutHint in newBuyPlusPreCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
+                //
                 GoodsSaleResponse goodsSaleResponse = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
                 Assert.isTrue(goodsSaleResponse.getSuccess(), "saleWithoutHint failed ," + response.getResponseMessage());
                 return;
@@ -73,6 +77,7 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
         };
     }
 
+    //
     @Bean
     Consumer<Message<MessageBody>> newBuyPlusCancel() {
         return msg -> {

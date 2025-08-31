@@ -28,10 +28,15 @@ public class OrderCreateTransactionListener implements TransactionListener {
     @Resource
     private OrderFacadeService orderFacadeService;
 
+    //执行本地事务
     @Override
     public LocalTransactionState executeLocalTransaction(Message message, Object o) {
         try {
-            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(JSON.parseObject(message.getBody()).getString("body"), OrderCreateAndConfirmRequest.class);
+            // 从消息中解析订单请求
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(
+                    JSON.parseObject(message.getBody()).getString("body"),
+                    OrderCreateAndConfirmRequest.class);
+
             //此处废弃了TCC的方案，主要是这个方案上会多次访问数据库，占用很多IO，导致CPU飙高的问题，所以改用非TCC方案，详见压测部分视频
             //tradeApplicationService.newBuyPlusByTcc(orderCreateAndConfirmRequest);
             //为了避免在创建订单的时候，confirm假失败（比如网络超时），导致库存不扣减的问题，这里需要查询最新的状态决定是否要发消息
