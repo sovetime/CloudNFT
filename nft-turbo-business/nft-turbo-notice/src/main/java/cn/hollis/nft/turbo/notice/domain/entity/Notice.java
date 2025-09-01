@@ -13,49 +13,33 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Hollis
- */
+
 @Setter
 @Getter
 public class Notice extends BaseEntity {
 
-    /**
-     * 通知标题
-     */
+    //通知标题
     private String noticeTitle;
 
-    /**
-     * 通知内容
-     */
+    //通知内容
     private String noticeContent;
 
-    /**
-     * 通知类型
-     */
+    //通知类型
     private NoticeType noticeType;
 
-    /**
-     * 发送成功时间
-     */
+    //发送成功时间
     private Date sendSuccessTime;
-    /**
-     * 接收地址
-     */
+
+    //接收地址
     private String targetAddress;
-    /**
-     * 状态
-     */
+
+    //状态
     private NoticeState state;
 
-    /**
-     * 重试次数
-     */
+    //重试次数
     private int retryTimes;
 
-    /**
-     * 扩展信息
-     */
+    // 扩展信息
     private String extendInfo;
 
     public void addExtendInfo(String key, String value) {

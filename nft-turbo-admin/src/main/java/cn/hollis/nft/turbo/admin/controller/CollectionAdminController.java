@@ -165,12 +165,7 @@ public class CollectionAdminController {
         }
     }
 
-    /**
-     * 藏品列表
-     *
-     * @param
-     * @return 结果
-     */
+    //藏品列表
     @GetMapping("/collectionList")
     public MultiResult<CollectionVO> collectionList(String state, String keyWord, int pageSize, int currentPage) {
         CollectionPageQueryRequest collectionPageQueryRequest = new CollectionPageQueryRequest();

@@ -5,7 +5,8 @@ spring:
     import: classpath:base.yml,classpath:cache.yml,classpath:config.yml,classpath:limiter.yml
   cloud:
     gateway:
-      default-filters:           # 全局默认过滤器
+      default-filters:           # 为所有路由统一添加的过滤器，无需每个 route 单独配置
+        # 要去重的响应头,保留唯一值
         - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_UNIQUE
       globalcors:                # 全局跨域配置
         cors-configurations:

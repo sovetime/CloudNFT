@@ -8,11 +8,8 @@ import com.xxl.job.core.handler.annotation.XxlJob;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
-/**
- * 支付一致性检查任务
- *
- * @author Hollis
- */
+
+//支付一致性检查任务
 @Component
 public class PayDetailCheckJob {
 

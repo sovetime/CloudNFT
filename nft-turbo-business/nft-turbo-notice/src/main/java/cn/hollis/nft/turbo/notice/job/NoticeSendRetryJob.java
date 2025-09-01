@@ -16,14 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-/**
- * 消息通知任务
- * <p>
- * 已废弃，失败不自动重试。靠用户手动重试
- * </p>
- *
- * @author Hollis
- */
+
+//消息通知任务，已废弃，失败不自动重试。靠用户手动重试
 @Component
 @Deprecated
 public class NoticeSendRetryJob {

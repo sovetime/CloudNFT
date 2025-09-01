@@ -22,11 +22,8 @@ import java.util.List;
 
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 
-/**
- * 库存一致性检查任务
- *
- * @author Hollis
- */
+
+//库存一致性检查任务
 @Component
 public class BlindBoxInventoryCheckJob {
 

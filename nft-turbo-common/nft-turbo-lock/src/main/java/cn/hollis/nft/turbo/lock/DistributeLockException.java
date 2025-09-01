@@ -1,10 +1,7 @@
 package cn.hollis.nft.turbo.lock;
 
-/**
- * 分布式锁异常
- *
- * @author hollis
- */
+
+//分布式锁异常
 public class DistributeLockException extends RuntimeException {
 
     public DistributeLockException() {

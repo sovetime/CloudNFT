@@ -45,7 +45,6 @@ public class OrderController {
     public Result<String> setPool(int core, int max) {
         String userId = (String) StpUtil.getLoginId();
         //todo 查询用户，判断是管理员才可以执行。
-        //
         orderFacadeService.setPool(core, max);
 
         return Result.success("true");
