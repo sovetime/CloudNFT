@@ -12,9 +12,8 @@ import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +22,7 @@ import java.util.List;
 
 //藏品上链铸造重试任务
 @Component
+@Slf4j
 public class CollectionChainMintRetryJob {
 
     @Autowired
@@ -36,7 +36,6 @@ public class CollectionChainMintRetryJob {
 
     private static final int PAGE_SIZE = 100;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CollectionChainMintRetryJob.class);
 
     @XxlJob("collectionChainMintRetryJob")
     public ReturnT<String> execute() {
@@ -54,7 +53,7 @@ public class CollectionChainMintRetryJob {
     }
 
     private void executeSingle(HeldCollection heldCollection) {
-        LOG.info("start to execute chainMint retry , heldCollectionId is {}", heldCollection.getId());
+        log.info("start to execute chainMint retry , heldCollectionId is {}", heldCollection.getId());
 
         UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(heldCollection.getUserId()));
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
@@ -70,6 +69,6 @@ public class CollectionChainMintRetryJob {
 
         //如果失败了，则依靠定时任务补偿
         RemoteCallWrapper.call(req -> chainFacadeService.mint(req), chainProcessRequest, "mint");
-        LOG.info("transaction is commit ,end to mint , heldCollectionId : " + heldCollection.getId());
+        log.info("transaction is commit ,end to mint , heldCollectionId : " + heldCollection.getId());
     }
 }

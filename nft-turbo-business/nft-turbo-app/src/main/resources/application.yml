@@ -125,16 +125,20 @@ spring:
       sharding:
         tables:
           trade_order:
-            actual-data-nodes: ds.trade_order_000${0..3}
+            actual-data-nodes: ds.trade_order_000${0..3}   # 数据源名称.表名称_0000${0..3}
             keyGenerateStrategy:
-              column: id
-              keyGeneratorName: snowflake
-            table-strategy:
-              complex:
+              column: id   #逐主键列名
+              keyGeneratorName: snowflake  #使用雪花算法生成主键
+            table-strategy:  #表分片策略
+              complex:  #复合分片策略
+                #主分片键 ：根据buyer_id 进行分表扫表
+                #辅助分片：order_id，项目中把orderId 进行绑定，这里分片是为了避免全表扫描
                 shardingColumns: buyer_id,order_id
-                shardingAlgorithmName: turbo-complex-sharding
+                shardingAlgorithmName: turbo-complex-sharding   #使用的分片算法
 #              hint:
 #                shardingAlgorithmName: turbo-hint-sharding
+
+          #订单流水表分片规则和订单表分片规则一致
           trade_order_stream:
             actual-data-nodes: ds.trade_order_stream_000${0..3}
             keyGenerateStrategy:
@@ -144,18 +148,20 @@ spring:
               complex:
                 shardingColumns: buyer_id,order_id
                 shardingAlgorithmName: turbo-complex-sharding
+
+        #分片算法配置
         shardingAlgorithms:
           #          t-order-inline:
           #            type: INLINE
           #            props:
           #              algorithm-expression: trade_order_0${Math.abs(buyer_id.hashCode()) % 4}
           turbo-complex-sharding:
-            type: CLASS_BASED
+            type: CLASS_BASED  #基于自定义类的分片算法
             props:
-              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
-              strategy: complex
-              tableCount: 4
-              mainColum: buyer_id
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm #路径
+              strategy: complex   #复合分片策略
+              tableCount: 4       #分表数量
+              mainColum: buyer_id #主要分片列是buyer_id
           turbo-hint-sharding:
             type: CLASS_BASED
             props:
@@ -163,10 +169,10 @@ spring:
               strategy: hint
         keyGenerators:
           snowflake:
-            type: SNOWFLAKE
+            type: SNOWFLAKE  #使用雪花算法生成主键
         auditors:
           sharding_key_required_auditor:
-            type: DML_SHARDING_CONDITIONS
+            type: DML_SHARDING_CONDITIONS   #要求 DML 操作必须包含分片条件，防止全表扫描
 
 server:
   port: 8085

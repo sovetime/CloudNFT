@@ -27,6 +27,7 @@ public enum BusinessCode {
         if (code > MAX_CODE || code < MIN_CODE) {
             throw new UnsupportedOperationException("unsupport code : " + code);
         }
+
         this.code = code;
         this.tableCount = tableCount;
     }

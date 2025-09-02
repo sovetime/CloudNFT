@@ -62,7 +62,7 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
         return refundOrder;
     }
 
-    //腿狂状态更新
+    //退还状态更新
     public boolean refunding(String refundOrderId) {
         RefundOrder refundOrder = refundOrderMapper.selectByRefundOrderId(refundOrderId);
         Assert.isTrue(refundOrder.getRefundOrderState() == TO_REFUND);

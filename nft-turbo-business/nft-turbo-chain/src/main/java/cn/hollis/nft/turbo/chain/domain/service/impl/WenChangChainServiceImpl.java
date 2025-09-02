@@ -184,7 +184,6 @@ public class WenChangChainServiceImpl extends AbstractChainService {
                     data.setState(ChainOperateStateEnum.FAILED.name());
                     break;
                 case "3":
-                    data.setState(ChainOperateStateEnum.INIT.name());
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + status);

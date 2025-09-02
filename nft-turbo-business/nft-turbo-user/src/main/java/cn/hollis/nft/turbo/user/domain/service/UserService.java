@@ -95,6 +95,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
                 .expire(Duration.ofHours(2))
                 .syncLocal(true)
                 .build();
+
         idUserCache = cacheManager.getOrCreateCache(idQc);
     }
 
@@ -329,6 +330,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     }
 
     //通过用户ID查询用户信息
+    //cacheNullValue = true,表示缓存空值，为了避免缓存穿透
     @Cached(name = ":user:cache:id:", cacheType = CacheType.BOTH, key = "#userId", cacheNullValue = true)
     @CacheRefresh(refresh = 60, timeUnit = TimeUnit.MINUTES)
     public User findById(Long userId) {
@@ -490,6 +492,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     public void afterPropertiesSet() throws Exception {
         this.nickNameBloomFilter = redissonClient.getBloomFilter("nickName");
         if (nickNameBloomFilter != null && !nickNameBloomFilter.isExists()) {
+            //插入元素总数，可接受的误判率1%
             this.nickNameBloomFilter.tryInit(100000L, 0.01);
         }
 

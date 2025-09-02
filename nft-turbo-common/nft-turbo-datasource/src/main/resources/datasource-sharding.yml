@@ -1,9 +1,9 @@
 spring:
   shardingsphere:
     mode:
-      type: Standalone
+      type: Standalone  # 单机模式运行
       repository:
-        type: JDBC
+        type: JDBC     # 通过JDBC存储到数据库中
 #    props:
 #      sql-show: true
     datasource:

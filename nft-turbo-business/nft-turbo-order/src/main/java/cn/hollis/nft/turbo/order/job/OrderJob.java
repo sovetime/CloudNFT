@@ -70,9 +70,9 @@ public class OrderJob {
     @XxlJob("orderTimeOutExecute")
     public ReturnT<String> orderTimeOutExecute() {
         try {
-            //分片总数
-            int shardIndex = XxlJobHelper.getShardIndex();
             //分片序号
+            int shardIndex = XxlJobHelper.getShardIndex();
+            //分片总数
             int shardTotal = XxlJobHelper.getShardTotal();
 
             log.info("orderTimeOutExecute start to execute , shardIndex is {} , shardTotal is {}", shardIndex, shardTotal);

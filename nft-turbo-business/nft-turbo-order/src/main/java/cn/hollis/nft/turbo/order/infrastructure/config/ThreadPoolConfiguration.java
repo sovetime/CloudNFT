@@ -20,6 +20,8 @@ public class ThreadPoolConfiguration {
                 60, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>());
 
+        //是 Micrometer 框架提供的一个工具方法，用于自动收集线程池的关键性能指标，并将这些指标注册到指定的 MeterRegistry 中
+        //可以通过Prometheus+Grafana进行可视化监控
         ExecutorServiceMetrics.monitor(registry, executor, "newBuyConsumePool");
         return executor;
     }

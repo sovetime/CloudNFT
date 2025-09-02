@@ -15,12 +15,7 @@ public class DataObjectHandler implements MetaObjectHandler {
         this.setFieldValByName("lockVersion", 0, metaObject);
     }
 
-    /**
-     * 当没有值的时候再设置属性，如果有值则不设置。主要是方便单元测试
-     * @param fieldName
-     * @param fieldVal
-     * @param metaObject
-     */
+    //当没有值的时候再设置属性，如果有值则不设置。主要是方便单元测试
     private void setFieldValByNameIfNull(String fieldName, Object fieldVal, MetaObject metaObject) {
         if (metaObject.getValue(fieldName) == null) {
             this.setFieldValByName(fieldName, fieldVal, metaObject);

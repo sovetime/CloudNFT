@@ -114,6 +114,7 @@ public class AuthController {
                 StpUtil.login(userInfo.getUserId(),
                         new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())
                         .setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));
+
                 StpUtil.getSession().set(userInfo.getUserId().toString(), userInfo);
                 LoginVO loginVO = new LoginVO(userInfo);
                 return Result.success(loginVO);
@@ -125,6 +126,7 @@ public class AuthController {
             StpUtil.login(userInfo.getUserId(),
                     new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())//持久化登录（记住我）
                     .setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));    //超时时间
+
             StpUtil.getSession().set(userInfo.getUserId().toString(), userInfo);
             LoginVO loginVO = new LoginVO(userInfo);
             return Result.success(loginVO);
