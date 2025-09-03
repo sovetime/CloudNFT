@@ -27,7 +27,7 @@ import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.HTTP_SERVER
 import static cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.impl.MockPayChannelServiceImpl.context;
 
 
-// 微信支付回调入口
+// 微信支付+回调
 @Slf4j
 @Controller
 @RequestMapping("/wxPay")

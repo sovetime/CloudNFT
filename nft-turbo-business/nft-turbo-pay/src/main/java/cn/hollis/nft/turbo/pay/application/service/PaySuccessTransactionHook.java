@@ -20,11 +20,15 @@ import lombok.extern.slf4j.Slf4j;
 //支付成功事务回调
 @Slf4j
 @NoArgsConstructor
+//TransactionHook 实现事务钩子接口，用于在事务生命周期的不同阶段插入逻辑
 public class PaySuccessTransactionHook implements TransactionHook {
 
     //从 Spring 的上下文中获取到 Bean
-    CollectionReadFacadeService collectionFacadeService = (CollectionReadFacadeService) SpringContextHolder.getBean("collectionReadFacadeService");
+    //商品服务bean
+    CollectionReadFacadeService collectionFacadeService = (CollectionReadFacadeService) SpringContextHolder
+                                                                            .getBean("collectionReadFacadeService");
 
+    //用户服务bean
     UserFacadeService userFacadeService = (UserFacadeService) SpringContextHolder.getBean("userFacadeService");
 
     ChainFacadeService chainFacadeService = (ChainFacadeService) SpringContextHolder.getBean("chainFacadeService");

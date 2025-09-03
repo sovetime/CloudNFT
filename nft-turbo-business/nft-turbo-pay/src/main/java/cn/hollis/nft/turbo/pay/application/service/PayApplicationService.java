@@ -77,7 +77,8 @@ public class PayApplicationService {
     protected TransactionTemplate transactionTemplate;
 
     //用于测试Seata+ShardingJDBC
-    //如果要测试这个方法，需要把orderService.create(request)方法上的 @ShardingSphereTransactionType(TransactionType.BASE) 注解加上，否则无法回滚
+    //如果要测试这个方法，需要把orderService.create(request)方法上的 @ShardingSphereTransactionType(TransactionType.BASE) 注解加上
+    //否则无法回滚
     @GlobalTransactional(rollbackFor = Exception.class)
     public void test() {
         CollectionCreateRequest request = new CollectionCreateRequest();
@@ -286,7 +287,8 @@ public class PayApplicationService {
             refundChannelRequest.setRefundAmount(MoneyUtils.yuanToCent(refundOrder.getApplyRefundAmount()));
             refundChannelRequest.setRefundReason(refundOrder.getMemo());
 
-            RefundChannelResponse refundChannelResponse = payChannelServiceFactory.get(paySuccessEvent.getPayChannel()).refund(refundChannelRequest);
+            RefundChannelResponse refundChannelResponse = payChannelServiceFactory.get(paySuccessEvent.getPayChannel())
+                                                                                    .refund(refundChannelRequest);
 
             //退款单状态更新
             if (refundChannelResponse.getSuccess()) {

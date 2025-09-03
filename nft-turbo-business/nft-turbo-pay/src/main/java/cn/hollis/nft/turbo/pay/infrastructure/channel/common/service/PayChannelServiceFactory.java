@@ -28,7 +28,7 @@ public class PayChannelServiceFactory {
     //payChannel 传入支付渠道
     public PayChannelService get(PayChannel payChannel) {
 
-        //在开发环境获取mock服务
+        //在开发环境获取mock 服务
         if (PROFILE_DEV.equals(profile)) {
             return serviceMap.get("mockPayChannelService");
         }
