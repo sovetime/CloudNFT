@@ -52,6 +52,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
         consumer.setPullInterval(500);
         consumer.setConsumeMessageBatchMaxSize(64);
         consumer.setPullBatchSize(64);
+        //注册顺序消息监听器
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             log.warn("NewBuyPlusBatchMsgListener receive message size: {}", msgs.size());
 
@@ -63,10 +64,11 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
                 Callable<Boolean> task = () -> {
                     try {
                         OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(messageExt.getBody()).getString("body"), OrderCreateRequest.class);
+                        //执行实际的下单逻辑
                         return doNewBuyPlusExecute(orderCreateRequest);
                     } catch (Exception e) {
                         log.error("Task failed", e);
-                        return false; // 标记失败
+                        return false;
                     }
                 };
                 futures.add(completionService.submit(task));
@@ -92,6 +94,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
         });
     }
 
+    //执行实际的下单逻辑
     public boolean doNewBuyPlusExecute(OrderCreateRequest orderCreateRequest) {
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         BeanUtils.copyProperties(orderCreateRequest, orderCreateAndConfirmRequest);
@@ -99,6 +102,8 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
         orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
         orderCreateAndConfirmRequest.setOperateTime(new Date());
         GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateAndConfirmRequest);
+
+        //商品出售
         GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
         Assert.isTrue(response.getSuccess(), "saleWithoutHint failed ," + response.getResponseMessage());
         return true;

@@ -65,7 +65,7 @@ public class OrderCreateTransactionListener implements TransactionListener {
                 JSON.parseObject(new String(messageExt.getBody())).getString("body"),
                 OrderCreateAndConfirmRequest.class);
 
-        //
+        //获取订单详情
         SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
 
         //如果订单已经创建成功，则直接返回。不再需要做废单处理了。

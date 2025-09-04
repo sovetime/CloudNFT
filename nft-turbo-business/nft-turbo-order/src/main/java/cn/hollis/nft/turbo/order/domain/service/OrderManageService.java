@@ -94,7 +94,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return tradeOrder;
     }
 
-    //创建并确认订单，返回订单号
+    //创建并确认订单，订单落库
     @Transactional(rollbackFor = Exception.class)
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
         //根据幂等号查询订单

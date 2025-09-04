@@ -23,7 +23,7 @@ public interface GoodsFacadeService {
     //藏品出售的try阶段，做库存占用
     public GoodsSaleResponse sale(GoodsSaleRequest request);
 
-    // 藏品出售的try阶段，做库存占用-无hint
+    // 藏品出售-无hint
     public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request);
 
 

@@ -71,6 +71,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
         consumer.setPullBatchSize(64);
         // 设置消费模式
         // MessageListenerConcurrently 并发消费
+        // registerMessageListener 注册顺序消息监听器
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             log.warn("NewBuyBatchMsgListener receive message size: {}", msgs.size());
 
@@ -125,7 +126,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
         orderCreateAndConfirmRequest.setOperateTime(new Date());
         orderCreateAndConfirmRequest.setSyncDecreaseInventory(true);
 
-        //创建并确认订单
+        //创建并确认订单，进行库存扣减
         OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateAndConfirmRequest);
         //订单因为校验前置校验不通过而下单失败，回滚库存
         if (!orderResponse.getSuccess() && ORDER_CREATE_VALID_FAILED.getCode().equals(orderResponse.getResponseCode())) {

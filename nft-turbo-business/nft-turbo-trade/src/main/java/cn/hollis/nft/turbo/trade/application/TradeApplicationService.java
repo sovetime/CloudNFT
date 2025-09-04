@@ -129,8 +129,9 @@ public class TradeApplicationService {
         }
 
         try {
+            //不再做数据库层面的同步扣减，库存的扣减已经在 Redis 中完成。
             orderCreateRequest.setSyncDecreaseInventory(false);
-            //确认并创建订单
+            //确认并创建订单，这里传递参数是不做数据库库存扣减的
             OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateRequest);
             Assert.isTrue(orderResponse.getSuccess(), "createAndConfirm failed");
         } catch (Exception e) {

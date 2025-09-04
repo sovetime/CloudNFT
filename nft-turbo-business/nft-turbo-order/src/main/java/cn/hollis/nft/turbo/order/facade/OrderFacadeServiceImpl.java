@@ -129,7 +129,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(response.getResponseCode(), response.getResponseMessage());
     }
 
-    //创建并确认订单
+    //创建并确认订单，进行库存扣减
     @Override
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
     @Facade
@@ -141,15 +141,17 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
             return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
 
+        //进行库存扣减
         if (request.isSyncDecreaseInventory()) {
             GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
+            //进行库存扣减
             GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
             if (!response.getSuccess()) {
                 return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
             }
         }
 
-        //创建并确认订单，返回订单号
+        //创建并确认订单，订单落库
         return orderService.createAndConfirm(request);
     }
 

@@ -123,7 +123,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         return response;
     }
 
-    // 藏品出售的try阶段，做库存预占用-无hint
+    // 藏品出售-无hint
     @Override
     public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request) {
         GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
