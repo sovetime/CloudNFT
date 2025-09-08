@@ -104,8 +104,7 @@ public class DistributeLockAspect {
                     log.info(String.format("try lock for key : %s , wait : %s", lockKey, waitTime));
                     lockResult = rLock.tryLock(waitTime, TimeUnit.MILLISECONDS);
                 } else {
-                    log.info(String.format("try lock for key : %s , expire : %s , wait : %s",
-                            lockKey, expireTime, waitTime));
+                    log.info(String.format("try lock for key : %s , expire : %s , wait : %s", lockKey, expireTime, waitTime));
                     lockResult = rLock.tryLock(waitTime, expireTime, TimeUnit.MILLISECONDS);
                 }
             }
