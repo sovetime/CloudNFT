@@ -1,10 +1,7 @@
 package cn.hollis.nft.turbo.pay.infrastructure.channel.common.service;
 
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.*;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillChannelResponse;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillDownloadChannelResponse;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.PayChannelResponse;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.RefundChannelResponse;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -14,6 +11,9 @@ public interface PayChannelService {
 
     //支付
     PayChannelResponse pay(PayChannelRequest payChannelRequest);
+
+    //查询支付结果
+    PayResultQueryResponse payResultQuery(String channelStreamId);
 
     //支付结果回调
     boolean notify(HttpServletRequest request, HttpServletResponse response);

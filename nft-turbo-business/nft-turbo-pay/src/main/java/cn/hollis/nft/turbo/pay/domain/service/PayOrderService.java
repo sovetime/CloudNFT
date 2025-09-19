@@ -143,4 +143,17 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
 
         return this.list(wrapper);
     }
+
+
+    public List<PayOrder> pageQueryPayingOrders(int pageSize, Long minId) {
+        QueryWrapper<PayOrder> wrapper = new QueryWrapper<>();
+        wrapper.eq("order_state", PayOrderState.PAYING);
+        if (minId != null) {
+            wrapper.ge("id", minId);
+        }
+        wrapper.orderBy(true, true, "gmt_create");
+        wrapper.last("limit " + pageSize);
+
+        return this.list(wrapper);
+    }
 }

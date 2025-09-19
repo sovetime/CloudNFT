@@ -10,6 +10,7 @@ import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.*;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillDownloadChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.PayChannelResponse;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.PayResultQueryResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelService;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.utils.HttpKit;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.wechat.entity.WxPayBean;
@@ -24,6 +25,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.nacos.shaded.com.google.common.collect.ImmutableMap;
 import com.ijpay.core.IJPayHttpResponse;
 import com.ijpay.core.enums.AuthTypeEnum;
 import com.ijpay.core.enums.RequestMethodEnum;
@@ -120,6 +122,39 @@ public class WxPayChannelServiceImpl implements PayChannelService {
             Map bodyMap = JSON.parseObject(body, Map.class);
             resp.setPayUrl(bodyMap.get("code_url").toString());
             resp.setSuccess(true);
+            return resp;
+        } catch (Exception e) {
+            log.error("pay error ", e);
+            resp.setSuccess(false);
+            return resp;
+        }
+    }
+
+    @Override
+    public PayResultQueryResponse payResultQuery(String outTradeNo) {
+        PayResultQueryResponse resp = new PayResultQueryResponse();
+
+        try {
+
+            IJPayHttpResponse response = WxPayApi.v3(
+                    RequestMethodEnum.GET,
+                    WxDomainEnum.CHINA.toString(),
+                    String.format(BasePayApiEnum.ORDER_QUERY_BY_OUT_TRADE_NO.toString(), outTradeNo),
+                    wxPayBean.getMchId(),
+                    getSerialNumber(),
+                    null,
+                    wxPayBean.getKeyPath(),
+                    ImmutableMap.of("mchid", wxPayBean.getMchId()));
+
+            log.info("response {}", response);
+            // 根据证书序列号查询对应的证书来验证签名结果
+            boolean verifySignature = WxPayKit.verifySignature(response, wxPayBean.getPlatformCertPath());
+            log.info("verifySignature: {}", verifySignature);
+            String body = response.getBody();
+            WxPayNotifyEntity wxPayNotifyEntity = JSON.parseObject(body, WxPayNotifyEntity.class);
+            System.out.println(JSON.toJSONString(wxPayNotifyEntity));
+            resp.setSuccess(true);
+            resp.setWxPayNotifyEntity(wxPayNotifyEntity);
             return resp;
         } catch (Exception e) {
             log.error("pay error ", e);

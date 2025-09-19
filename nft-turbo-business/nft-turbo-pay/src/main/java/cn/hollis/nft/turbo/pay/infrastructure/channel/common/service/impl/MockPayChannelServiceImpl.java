@@ -6,10 +6,7 @@ import cn.hollis.nft.turbo.pay.application.service.PayApplicationService;
 import cn.hollis.nft.turbo.pay.domain.event.PaySuccessEvent;
 import cn.hollis.nft.turbo.pay.domain.event.RefundSuccessEvent;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.*;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillChannelResponse;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillDownloadChannelResponse;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.PayChannelResponse;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.RefundChannelResponse;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.*;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelService;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.alibaba.ttl.threadpool.TtlExecutors;
@@ -73,6 +70,11 @@ public class MockPayChannelServiceImpl implements PayChannelService {
         }, 3, TimeUnit.SECONDS);
 
         return payChannelResponse;
+    }
+
+    @Override
+    public PayResultQueryResponse payResultQuery(String channelStreamId) {
+        return null;
     }
 
     //结果回调
