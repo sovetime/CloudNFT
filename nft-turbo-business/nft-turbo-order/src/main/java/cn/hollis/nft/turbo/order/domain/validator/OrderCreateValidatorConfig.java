@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 
 //订单创建校验器配置
 @Configuration
+//废弃，相关配置挪到cn.hollis.nft.turbo.order.configuration.OrderClientConfiguration 中，方便和trade模块复用
+@Deprecated
 public class OrderCreateValidatorConfig {
 
     @Autowired

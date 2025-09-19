@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_NOT_EXIST;
+
 
 //盲盒服务
 @DubboService(version = "1.0.0")
@@ -41,6 +43,9 @@ public class BlindBoxReadFacadeServiceImpl implements BlindBoxReadFacadeService 
     @Override
     public SingleResponse<BlindBoxVO> queryById(Long blindBoxId) {
         BlindBox blindBox = blindBoxService.queryById(blindBoxId);
+        if (blindBox == null) {
+            return SingleResponse.fail(BLIND_BOX_NOT_EXIST.getCode(), BLIND_BOX_NOT_EXIST.getMessage());
+        }
 
         InventoryRequest request = new InventoryRequest();
         request.setGoodsId(blindBoxId.toString());

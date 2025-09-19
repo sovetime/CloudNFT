@@ -51,8 +51,11 @@ public class CollectionInventoryCheckJob {
                 JSONObject jsonObject = JSON.parseObject(inventoryLog);
                 Date createTime = new Date(jsonObject.getLong("timestamp"));
 
+                String action = jsonObject.getString("action");
+
                 //只处理3秒钟之前的数据，避免出现清理后导致重复扣减
-                if (DateUtils.addSeconds(createTime, 3).compareTo(new Date()) < 0) {
+                //只处理库存扣减的流水，库存增加的流水不处理
+                if ("decrease".equals(action) && DateUtils.addSeconds(createTime, 3).compareTo(new Date()) < 0) {
                     inventoryCheckRequest.setGoodsId(hotCollectionId);
                     inventoryCheckRequest.setGoodsType(GoodsType.COLLECTION);
                     inventoryCheckRequest.setGoodsEvent(GoodsEvent.TRY_SALE);

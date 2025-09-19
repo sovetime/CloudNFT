@@ -163,6 +163,21 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     }
 
     @Override
+    public SingleResponse<String> getInventoryIncreaseLog(InventoryRequest inventoryRequest) {
+        GoodsType goodsType = inventoryRequest.getGoodsType();
+        String inventoryResponse = switch (goodsType) {
+            case COLLECTION -> collectionInventoryRedisService.getInventoryIncreaseLog(inventoryRequest);
+
+            case BLIND_BOX -> blindBoxInventoryRedisService.getInventoryIncreaseLog(inventoryRequest);
+
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
+        };
+
+        return SingleResponse.of(inventoryResponse);
+    }
+
+
+    @Override
     public SingleResponse<String> getInventoryDecreaseLog(InventoryRequest inventoryRequest) {
         GoodsType goodsType = inventoryRequest.getGoodsType();
         String inventoryResponse = switch (goodsType) {

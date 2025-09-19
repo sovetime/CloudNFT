@@ -157,7 +157,6 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         }
     }
 
-    //
     @Override
     public String getInventoryDecreaseLog(InventoryRequest request) {
         String luaScript = """
@@ -169,6 +168,20 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
                 luaScript,
                 RScript.ReturnType.STATUS,
                 Arrays.asList(getCacheStreamKey(request)), "DECREASE_" + request.getIdentifier());
+        return stream;
+    }
+
+    @Override
+    public String getInventoryIncreaseLog(InventoryRequest request) {
+        String luaScript = """
+                local jsonString = redis.call('hget', KEYS[1], ARGV[1])
+                return jsonString
+                """;
+
+        String stream = redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
+                luaScript,
+                RScript.ReturnType.STATUS,
+                Arrays.asList(getCacheStreamKey(request)), "INCREASE_" + request.getIdentifier());
         return stream;
     }
 

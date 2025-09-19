@@ -1,0 +1,3 @@
+cn.hollis.nft.turbo.api.collection.model.CollectionVO
+cn.hollis.nft.turbo.api.box.model.BlindBoxVO
+cn.hollis.nft.turbo.api.collection.model.HeldCollectionVO

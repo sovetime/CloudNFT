@@ -86,8 +86,8 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return heldCollections;
     }
 
-    //
     @Transactional(rollbackFor = Exception.class)
+    @DistributeLock(keyExpression = "#request.serialNoBaseId", scene = "HELD_COLLECTION_CREATE")
     public HeldCollection create(HeldCollectionCreateRequest request) {
         //根据藏品id、业务单号获取对应的藏品
         HeldCollection existHeldCollection = queryByCollectionIdAndBizNo(request.getGoodsId(), request.getBizNo());

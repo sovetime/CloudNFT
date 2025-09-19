@@ -2,11 +2,13 @@ package cn.hollis.nft.turbo.order.sharding.id;
 import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.order.sharding.strategy.DefaultShardingTableStrategy;
 import cn.hutool.core.util.IdUtil;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 
 
 //分布式ID
+@NoArgsConstructor
 public class DistributeID {
 
     //系统标识码
@@ -17,9 +19,6 @@ public class DistributeID {
     private String seq;
     //分表策略
     private static DefaultShardingTableStrategy shardingTableStrategy = new DefaultShardingTableStrategy();
-
-    public DistributeID() {
-    }
 
     //生成唯一ID
     //businessCode->业务码，workerId->分布式的ID，externalId->userid

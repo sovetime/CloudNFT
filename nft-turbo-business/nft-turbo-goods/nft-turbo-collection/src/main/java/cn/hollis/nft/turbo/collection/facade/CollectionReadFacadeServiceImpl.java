@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_NOT_EXIST;
+
 
 //藏品服务
 @DubboService(version = "1.0.0")
@@ -56,6 +58,9 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
     @Override
     public SingleResponse<CollectionVO> queryById(Long collectionId) {
         Collection collection = collectionService.queryById(collectionId);
+        if (collection == null) {
+            return SingleResponse.fail(COLLECTION_NOT_EXIST.getCode(), COLLECTION_NOT_EXIST.getMessage());
+        }
 
         InventoryRequest request = new InventoryRequest();
         request.setGoodsId(collectionId.toString());
