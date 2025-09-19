@@ -2,7 +2,8 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml
+    import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,
+            classpath:stream.yml,classpath:limiter.yml
   cloud:
     function:
       # 定义可用的函数列表，包括新购买、普通购买取消、普通购买预取消

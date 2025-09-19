@@ -47,6 +47,8 @@
         <if test="payChannel!=null">
             AND pay_channel = #{payChannel}
         </if>
+        order by ID DESC
+        LIMIT 1
     </select>
 
     <select id="selectByPayOrderId" resultMap="payOrderMap">

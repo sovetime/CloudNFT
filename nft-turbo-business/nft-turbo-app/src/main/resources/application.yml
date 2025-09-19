@@ -6,7 +6,10 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:base.yml,classpath:datasource-sharding.yml,classpath:rpc.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml,classpath:prometheus.yml   #这里爆红可以直接忽略，没有任何影响
+    import: classpath:base.yml,classpath:datasource-sharding.yml,classpath:rpc.yml,
+            classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:es.yml,
+            classpath:seata.yml,classpath:prometheus.yml,classpath:limiter.yml
+
   cloud:
     function:
       definition: chain;orderClose;heldCollection;newBuy;newBuyPlus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel

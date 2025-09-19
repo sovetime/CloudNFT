@@ -442,11 +442,17 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     }
 
     private boolean addNickName(String nickName) {
-        return this.nickNameBloomFilter != null && this.nickNameBloomFilter.add(nickName);
+        if (nickName != null) {
+            return this.nickNameBloomFilter != null && this.nickNameBloomFilter.add(nickName);
+        }
+        return true;
     }
 
     private boolean addInviteCode(String inviteCode) {
-        return this.inviteCodeBloomFilter != null && this.inviteCodeBloomFilter.add(inviteCode);
+        if (inviteCode != null) {
+            return this.inviteCodeBloomFilter != null && this.inviteCodeBloomFilter.add(inviteCode);
+        }
+        return true;
     }
 
 

@@ -22,3 +22,8 @@ sa-token:
 
 server:
   port: 8082
+
+dubbo:
+  application:
+    qos-port: 33335
+

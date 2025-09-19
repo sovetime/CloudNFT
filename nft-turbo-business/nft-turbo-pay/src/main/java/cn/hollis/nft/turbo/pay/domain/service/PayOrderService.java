@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -142,6 +143,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         wrapper.last("limit " + pageSize);
 
         return this.list(wrapper);
+    }
+
+    public Page<PayOrder> pageQuerySucceedOrders(int pageSize, int currentPage, Date paySucceedDate) {
+        QueryWrapper<PayOrder> wrapper = new QueryWrapper<>();
+        wrapper.eq("order_state", PayOrderState.PAID);
+        wrapper.ge("pay_succeed_time", DateUtils.truncate(paySucceedDate, Calendar.DATE));
+        wrapper.lt("pay_succeed_time", DateUtils.truncate(DateUtils.addDays(paySucceedDate, 1), Calendar.DATE));
+        wrapper.orderBy(true, true, "gmt_create");
+
+        return this.page(new Page<>(currentPage, pageSize), wrapper);
     }
 
 

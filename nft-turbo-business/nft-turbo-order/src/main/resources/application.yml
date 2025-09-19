@@ -4,7 +4,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
   config:
-    import: classpath:base.yml,classpath:rpc.yml,classpath:datasource-sharding.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:seata.yml
+    import: classpath:base.yml,classpath:rpc.yml,classpath:datasource-sharding.yml,
+            classpath:cache.yml,classpath:job.yml,classpath:stream.yml,
+            classpath:seata.yml,classpath:limiter.yml
+
   cloud:
     function:
       definition: orderClose;heldCollection

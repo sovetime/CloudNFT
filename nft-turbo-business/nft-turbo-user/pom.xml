@@ -35,6 +35,11 @@
 
         <dependency>
             <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-limiter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-config</artifactId>
         </dependency>
 

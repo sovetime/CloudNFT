@@ -4,7 +4,10 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:base.yml,classpath:datasource.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml  #这里爆红可以直接忽略，没有任何影响
+    import: classpath:base.yml,classpath:datasource.yml,classpath:rpc.yml,
+            classpath:cache.yml,classpath:stream.yml,classpath:es.yml,
+            classpath:seata.yml,classpath:limiter.yml
+
   cloud:
     function:
       definition: chain

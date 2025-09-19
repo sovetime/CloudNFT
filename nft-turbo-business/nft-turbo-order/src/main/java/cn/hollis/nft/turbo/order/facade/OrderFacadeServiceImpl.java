@@ -27,6 +27,9 @@ import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
 import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.turbo.stream.producer.StreamProducer;
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
@@ -71,8 +74,16 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     private ThreadPoolExecutor newBuyConsumePool;
 
     public void setPool(int core, int max) {
-        newBuyConsumePool.setMaximumPoolSize(max);
-        newBuyConsumePool.setCorePoolSize(core);
+        try (Entry entry = SphU.entry("testSphU")) {
+            // 被保护的业务逻辑
+            // do something here...
+            newBuyConsumePool.setMaximumPoolSize(max);
+            newBuyConsumePool.setCorePoolSize(core);
+        } catch (BlockException ex) {
+            // 资源访问阻止，被限流或被降级
+            // 在此处进行相应的处理操作
+
+        }
     }
 
     @Override

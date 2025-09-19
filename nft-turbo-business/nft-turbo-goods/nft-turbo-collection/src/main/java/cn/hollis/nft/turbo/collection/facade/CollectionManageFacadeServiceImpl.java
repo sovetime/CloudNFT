@@ -89,6 +89,7 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
         if (result) {
             InventoryRequest inventoryRequest = new InventoryRequest();
             inventoryRequest.setGoodsId(request.getCollectionId().toString());
+            inventoryRequest.setGoodsType(GoodsType.COLLECTION);
             inventoryFacadeService.invalid(inventoryRequest);
         }
 

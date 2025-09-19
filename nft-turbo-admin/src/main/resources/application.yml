@@ -22,3 +22,7 @@ sa-token:
 
 server:
   port: 9001
+
+dubbo:
+  application:
+    qos-port: 33336

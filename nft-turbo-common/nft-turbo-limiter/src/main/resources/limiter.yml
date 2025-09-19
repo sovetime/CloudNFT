@@ -3,12 +3,10 @@ spring:
     sentinel:
       transport:
         dashboard: ${nft.turbo.sentinel.url}
-        port: ${nft.turbo.sentinel.port}
       datasource:
-        ds:
+        flow:
           nacos:
             server-addr: ${nft.turbo.nacos.server.url}
-            data-id:  ${nft.turbo.sentinel.nacos.data-id}
-            group-id: DEFAULT_GROUP
-            data-type: json
-            rule-type: flow
+            data-id: business-flow-rules
+            group-id: SENTINEL_GROUP
+            rule-type: FLOW

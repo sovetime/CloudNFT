@@ -2,8 +2,18 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:base.yml,classpath:cache.yml,classpath:config.yml,classpath:limiter.yml
+    import: classpath:base.yml,classpath:cache.yml,classpath:config.yml
   cloud:
+    sentinel:
+      transport:
+        dashboard: ${nft.turbo.sentinel.url}
+      datasource:
+        flow:
+          nacos:
+            server-addr: ${nft.turbo.nacos.server.url}
+            data-id: gateway-flow-rules
+            group-id: SENTINEL_GROUP
+            rule-type: GW_FLOW
     gateway:
       default-filters:           # 为所有路由统一添加的过滤器，无需每个 route 单独配置
         # 要去重的响应头,保留唯一值

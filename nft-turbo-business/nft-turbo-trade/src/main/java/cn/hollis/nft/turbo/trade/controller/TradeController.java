@@ -50,10 +50,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -103,6 +100,16 @@ public class TradeController {
 
     @Resource
     private InventoryCheckFacadeService inventoryCheckFacadeService;
+
+    @GetMapping("/test")
+    @SentinelResource(value = "/trade/test",fallback = "fallback")
+    public String test() {
+        return "test";
+    }
+
+    public void fallback(BlockException ex) {
+        log.error("error",ex);
+    }
 
     //预约
     @PostMapping("/book")
