@@ -42,6 +42,8 @@ import cn.hollis.nft.turbo.trade.param.CancelParam;
 import cn.hollis.nft.turbo.trade.param.PayParam;
 import cn.hollis.nft.turbo.web.vo.Result;
 import cn.hollis.turbo.stream.producer.StreamProducer;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.annotation.Resource;
@@ -124,7 +126,9 @@ public class TradeController {
         //数藏比较特殊，一个商品只能预定一次，所以这里直接用userId+goodsType+goodsId作为标识了，如果支持多次预定的话，需要在再有个活动的概念，基于活动做预约
         goodsBookRequest.setIdentifier(userId + SEPARATOR + bookParam.getGoodsType() + SEPARATOR + bookParam.getGoodsId());
         goodsBookRequest.setBuyerId(userId);
-        GoodsBookResponse goodsBookResponse = RemoteCallWrapper.call(req -> goodsFacadeService.book(req), goodsBookRequest, "bookGoods");
+        GoodsBookResponse goodsBookResponse = RemoteCallWrapper.call(
+                req -> goodsFacadeService.book(req), goodsBookRequest, "bookGoods");
+
         if (goodsBookResponse.getSuccess()) {
             return Result.success(goodsBookResponse.getBookId());
         }

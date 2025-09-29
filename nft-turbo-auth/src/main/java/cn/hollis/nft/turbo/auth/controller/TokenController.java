@@ -49,7 +49,8 @@ public class TokenController {
          *
          * 但是在后面校验token的时候，还是有个问题，那就是我们其实没有校验token对应的商品和下单的商品是不是同一个。这块大家可以自行实现一下。
          */
-        TokenSceneEnum tokenScene = Arrays.stream(TokenSceneEnum.values()).filter(tokenSceneEnum -> tokenSceneEnum.getScene().equals(scene))
+        TokenSceneEnum tokenScene = Arrays.stream(TokenSceneEnum.values())
+                .filter(tokenSceneEnum -> tokenSceneEnum.getScene().equals(scene))
                 .findFirst()
                 .orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_SCENE_NOT_EXIST));
 

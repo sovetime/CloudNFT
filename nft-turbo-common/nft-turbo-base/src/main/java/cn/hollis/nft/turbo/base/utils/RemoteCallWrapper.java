@@ -21,6 +21,7 @@ import static cn.hollis.nft.turbo.base.exception.BizErrorCode.REMOTE_CALL_RESPON
 @Slf4j
 public class RemoteCallWrapper {
 
+    //ImmutableSet 是Google Guava 的一个不可变集合类，一旦创建就不能再增删改元素
     private static ImmutableSet<String> SUCCESS_CHECK_METHOD = ImmutableSet.of("isSuccess", "isSucceeded", "getSuccess");
 
     private static ImmutableSet<String> SUCCESS_CODE_METHOD = ImmutableSet.of("getResponseCode");
@@ -48,9 +49,9 @@ public class RemoteCallWrapper {
     }
 
     //进行远程调用
-    public static <T, R> R call(Function<T, R> function, T request, String requestName, boolean checkResponse,
-                                boolean checkResponseCode) {
+    public static <T, R> R call(Function<T, R> function, T request, String requestName, boolean checkResponse, boolean checkResponseCode) {
         StopWatch stopWatch = new StopWatch();
+
         R response = null;
         try {
             stopWatch.start();
@@ -58,28 +59,25 @@ public class RemoteCallWrapper {
             response = function.apply(request);
             stopWatch.stop();
 
-            //校验业务成功
+            //校验业务响应
             if (checkResponse) {
                 //远程调用结果返回不能为null
                 Assert.notNull(response, REMOTE_CALL_RESPONSE_IS_NULL.name());
-
                 if (!isResponseValid(response)) {
                     log.error("Response Invalid on Remote Call request {} , response {}",
-                            JSON.toJSONString(request),
-                            JSON.toJSONString(response));
+                            JSON.toJSONString(request), JSON.toJSONString(response));
 
                     throw new RemoteCallException(JSON.toJSONString(response), REMOTE_CALL_RESPONSE_IS_FAILED);
                 }
             }
-            //校验业务成功码
+
+            //校验业务响应码
             if (checkResponseCode) {
                 //远程调用结果返回不能为null
                 Assert.notNull(response, REMOTE_CALL_RESPONSE_IS_NULL.name());
-
                 if (!isResponseCodeValid(response)) {
                     log.error("Response code Invalid on Remote Call request {} , response {}",
-                            JSON.toJSONString(request),
-                            JSON.toJSONString(response));
+                            JSON.toJSONString(request), JSON.toJSONString(response));
 
                     throw new RemoteCallException(JSON.toJSONString(response), REMOTE_CALL_RESPONSE_IS_FAILED);
                 }
@@ -94,10 +92,8 @@ public class RemoteCallWrapper {
             throw e;
         } finally {
             if (log.isInfoEnabled()) {
-
-                log.info("## Method={} ,## 耗时={}ms ,## [请求报文]:{},## [响应报文]:{}", requestName,
-                        stopWatch.getTotalTimeMillis(),
-                        JSON.toJSONString(request), JSON.toJSONString(response));
+                log.info("## Method={} ,## 耗时={}ms ,## [请求报文]:{},## [响应报文]:{}",
+                requestName, stopWatch.getTotalTimeMillis(), JSON.toJSONString(request), JSON.toJSONString(response));
             }
         }
 
@@ -105,11 +101,13 @@ public class RemoteCallWrapper {
     }
 
     //校验响应
-    private static <R> boolean isResponseValid(R response)
-            throws IllegalAccessException, InvocationTargetException {
+    private static <R> boolean isResponseValid(R response) throws IllegalAccessException, InvocationTargetException {
         Method successMethod = null;
+
+        //获取响应成功方法
         Method[] methods = response.getClass().getMethods();
         for (Method method : methods) {
+            //获取方法名
             String methodName = method.getName();
             if (SUCCESS_CHECK_METHOD.contains(methodName)) {
                 successMethod = method;
@@ -124,11 +122,13 @@ public class RemoteCallWrapper {
     }
 
     //校验响应码
-    private static <R> boolean isResponseCodeValid(R response)
-            throws IllegalAccessException, InvocationTargetException {
+    private static <R> boolean isResponseCodeValid(R response) throws IllegalAccessException, InvocationTargetException {
         Method successMethod = null;
+
+        //获取响应成功方法
         Method[] methods = response.getClass().getMethods();
         for (Method method : methods) {
+            //获取方法名
             String methodName = method.getName();
             if (SUCCESS_CODE_METHOD.contains(methodName)) {
                 successMethod = method;

@@ -222,6 +222,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         if (goodsVO.canBookNow()) {
             return goodsBookService.book(request);
         }
+
         throw new RuntimeException("GOODS_CAN_NOT_BOOK_NOW");
     }
 

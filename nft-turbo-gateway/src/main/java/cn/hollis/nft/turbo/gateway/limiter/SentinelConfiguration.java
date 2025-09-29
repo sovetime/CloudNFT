@@ -12,6 +12,8 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class SentinelConfiguration {
 
+    //@PostConstruct 在Spring 容器实例化该类并完成依赖注入后
+    //初始化网关限流的拦截处理器
     @PostConstruct
     public void initGatewayBlockHandler() {
         GatewayCallbackManager.setBlockHandler(new BlockRequestHandler() {

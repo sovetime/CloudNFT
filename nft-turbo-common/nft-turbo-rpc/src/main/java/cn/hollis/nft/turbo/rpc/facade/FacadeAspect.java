@@ -7,14 +7,13 @@ import cn.hollis.nft.turbo.base.response.ResponseCode;
 import cn.hollis.nft.turbo.base.utils.BeanValidator;
 import com.alibaba.fastjson2.JSON;
 import jakarta.validation.ValidationException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -23,33 +22,33 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 
-// FacadeAspect 是一个切面类，用于统一处理带有 @Facade 注解的方法调用
 //它提供了参数校验、方法执行、日志记录、响应补全以及异常处理等功能。
 @Aspect
 @Component
+@Slf4j
 @Order(Integer.MIN_VALUE)
 public class FacadeAspect {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FacadeAspect.class);
-
-    //切面环绕通知方法，用于处理标注了 @Facade 注解的方法
     //主要功能：参数校验，方法执行，响应补全，日志记录，异常处理及失败响应构造。
     @Around("@annotation(cn.hollis.nft.turbo.rpc.facade.Facade)")
     public Object facade(ProceedingJoinPoint pjp) throws Exception {
-
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+        //获取目标方法
         Method method = ((MethodSignature) pjp.getSignature()).getMethod();
+        // 获取参数
         Object[] args = pjp.getArgs();
-
+        // 获取返回值类型
         Class returnType = ((MethodSignature) pjp.getSignature()).getMethod().getReturnType();
 
         // 循环遍历所有参数，进行参数校验
         for (Object parameter : args) {
             try {
+                //使用参数校验工具进行参数校验
                 BeanValidator.validateObject(parameter);
             } catch (ValidationException e) {
+                //打印错误日志
                 printErrorLog(stopWatch, method, args, "failed to validate", null, e);
                 return getFailedResponse(returnType, e);
             }
@@ -58,7 +57,9 @@ public class FacadeAspect {
         try {
             // 目标方法执行
             Object response = pjp.proceed();
+            // 补全响应对象中的 code 和 message 字段
             enrichObject(response);
+            // 打印方法执行日志
             printInfoLog(stopWatch, method, args, "end to execute", response, null);
             return response;
         } catch (Throwable throwable) {
@@ -69,32 +70,28 @@ public class FacadeAspect {
     }
 
     //打印方法执行日志,包含方法名、执行耗时、参数、响应结果或异常信息等
-    private void printInfoLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response,
-                          Throwable throwable) {
+    private void printInfoLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response, Throwable throwable) {
         try {
             // 因为此处有 JSON.toJSONString，可能会有异常，需要进行捕获，避免影响主干流程
-            LOGGER.info(getInfoMessage(action, stopWatch, method, args, response, throwable), throwable);
+            log.info(getInfoMessage(action, stopWatch, method, args, response, throwable), throwable);
         } catch (Exception e1) {
-            LOGGER.error("log failed", e1);
+            log.error("log failed", e1);
         }
     }
 
     //日志打印
-    private void printErrorLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response,
-                               Throwable throwable) {
+    private void printErrorLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response, Throwable throwable) {
         try {
             //因为此处有JSON.toJSONString，可能会有异常，需要进行捕获，避免影响主干流程
-            LOGGER.error(getInfoMessage(action, stopWatch, method, args, response, throwable), throwable);
+            log.error(getInfoMessage(action, stopWatch, method, args, response, throwable), throwable);
             // 如果校验失败，则返回一个失败的response
         } catch (Exception e1) {
-            LOGGER.error("log failed", e1);
+            log.error("log failed", e1);
         }
     }
 
     //构造统一格式的日志信息字符串,包含方法名、执行时间、参数、响应结果、异常信息等。
-    private String getInfoMessage(String action, StopWatch stopWatch, Method method, Object[] args,
-                                                            Object response, Throwable exception) {
-
+    private String getInfoMessage(String action, StopWatch stopWatch, Method method, Object[] args, Object response, Throwable exception) {
         StringBuilder stringBuilder = new StringBuilder(action);
         stringBuilder.append(" ,method = ");
         stringBuilder.append(method.getName());
@@ -174,8 +171,7 @@ public class FacadeAspect {
             return response;
         }
 
-        LOGGER.error(
-                "failed to getFailedResponse , returnType (" + returnType + ") is not instanceof BaseResponse");
+        log.error("failed to getFailedResponse , returnType (" + returnType + ") is not instanceof BaseResponse");
         return null;
     }
 }
