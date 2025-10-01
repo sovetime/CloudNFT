@@ -70,6 +70,11 @@
             <artifactId>nft-turbo-skywalking</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-cache</artifactId>
+        </dependency>
+
         <!-- Sa-Token 权限认证 -->
         <dependency>
             <groupId>cn.dev33</groupId>

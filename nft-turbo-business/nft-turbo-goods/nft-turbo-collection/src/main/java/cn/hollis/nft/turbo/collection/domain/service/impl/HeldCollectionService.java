@@ -17,6 +17,7 @@ import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionTransferReque
 import cn.hollis.nft.turbo.collection.exception.CollectionErrorCode;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.HeldCollectionMapper;
+import cn.hollis.nft.turbo.lock.DistributeLock;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
