@@ -40,6 +40,7 @@ public class GoodsBookService extends ServiceImpl<GoodsBookMapper, GoodsBook> {
 
 
     //商品预约,先更新缓存，再更新数据库。优先保证缓存，如果出现不一致，以缓存为主
+    //根据商品预约情况决定是否成为热蒙商品
     @Transactional(rollbackFor = Exception.class)
     public GoodsBookResponse book(GoodsBookRequest request) {
         // 因为用户id都是不重复的，并且可以转换成integer，所以这里可以使用BitSet来存储预约信息，减少存储量

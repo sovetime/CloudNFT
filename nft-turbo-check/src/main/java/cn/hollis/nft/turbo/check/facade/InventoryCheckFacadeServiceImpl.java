@@ -21,9 +21,10 @@ public class InventoryCheckFacadeServiceImpl implements InventoryCheckFacadeServ
     //库存核对
     @Override
     public InventoryCheckResponse check(InventoryCheckRequest request) {
+        //构造库存核对请求
         InventoryCheckResponse response = new InventoryCheckResponse();
+        //做库存检查，检查库存变更数量
         boolean checkResult = doInventoryCheck(request);
-
         response.setSuccess(true);
         response.setCheckResult(checkResult);
         return response;
@@ -33,15 +34,14 @@ public class InventoryCheckFacadeServiceImpl implements InventoryCheckFacadeServ
     private boolean doInventoryCheck(InventoryCheckRequest inventoryCheckRequest) {
         //获取商品流水
         GoodsStreamVO goodsStreamVO = goodsFacadeService.getGoodsInventoryStream(
-                                                inventoryCheckRequest.getGoodsId(),
-                                                inventoryCheckRequest.getGoodsType(),
-                                                inventoryCheckRequest.getGoodsEvent(),
-                                                inventoryCheckRequest.getIdentifier());
+                                    inventoryCheckRequest.getGoodsId(), inventoryCheckRequest.getGoodsType(),
+                                    inventoryCheckRequest.getGoodsEvent(), inventoryCheckRequest.getIdentifier());
 
         if (goodsStreamVO == null) {
             return false;
         }
 
+        //检查库存变更数量
         return goodsStreamVO.getChangedQuantity().equals(inventoryCheckRequest.getChangedQuantity());
     }
 }

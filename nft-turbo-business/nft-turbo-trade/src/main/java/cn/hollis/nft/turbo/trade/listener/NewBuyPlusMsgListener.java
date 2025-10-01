@@ -49,7 +49,7 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
     @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    //
+    //由于网络延迟或者数据库异常而导致查询到的订单状态不是CONFIRM，但是后来又变成了CONFIRM的情况，的补偿机制
     @Bean
     Consumer<Message<MessageBody>> newBuyPlusPreCancel() {
         return msg -> {
@@ -81,8 +81,11 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
     @Bean
     Consumer<Message<MessageBody>> newBuyPlusCancel() {
         return msg -> {
+            //从msg中解析出消息对象
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
             log.warn("NewBuyPlusMsgListener receive newBuyPlusCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
+
+            //取消订单
             doCancel(orderCreateAndConfirmRequest);
         };
     }
@@ -90,13 +93,17 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
     //TCC场景下的cancel
     @Deprecated
     private void doCancel(OrderCreateAndConfirmRequest orderCreateAndConfirmRequest) {
+        //创建库存扣减请求
         InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
+        //库存扣减-cancel
         boolean result = inventoryTransactionFacadeService.cancelDecrease(inventoryRequest);
+
         Assert.isTrue(result, "inventory increase failed");
         OrderDiscardRequest orderDiscardRequest = new OrderDiscardRequest();
         orderDiscardRequest.setOperatorType(UserType.PLATFORM);
         orderDiscardRequest.setOperator(UserType.PLATFORM.name());
         BeanUtils.copyProperties(orderCreateAndConfirmRequest, orderDiscardRequest);
+
         OrderResponse orderResponse = orderTransactionFacadeService.cancelOrder(orderDiscardRequest, "newBuyPlus");
         Assert.isTrue(orderResponse.getSuccess(), orderResponse.getResponseCode());
     }

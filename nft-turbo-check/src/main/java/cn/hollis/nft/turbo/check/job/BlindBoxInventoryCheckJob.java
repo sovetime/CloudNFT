@@ -38,7 +38,9 @@ public class BlindBoxInventoryCheckJob {
 
     @XxlJob("blindBoxInventoryCheckJob")
     public ReturnT<String> execute() {
+        //获取热门商品id列表
         List<String> hotCollectionIds = goodsFacadeService.getHotGoods(GoodsType.BLIND_BOX.name());
+
         for (String hotCollectionId : hotCollectionIds) {
             InventoryRequest inventoryRequest = new InventoryRequest();
             inventoryRequest.setGoodsId(hotCollectionId);

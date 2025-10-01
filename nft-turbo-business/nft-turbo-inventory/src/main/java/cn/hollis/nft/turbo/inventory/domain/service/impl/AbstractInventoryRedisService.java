@@ -3,12 +3,11 @@ package cn.hollis.nft.turbo.inventory.domain.service.impl;
 import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
 import cn.hollis.nft.turbo.inventory.domain.response.InventoryResponse;
 import cn.hollis.nft.turbo.inventory.domain.service.InventoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.RedisException;
 import org.redisson.client.codec.IntegerCodec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Instant;
@@ -22,16 +21,19 @@ import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
 
 
 //库存服务通用实现-基于Redis
+@Slf4j
 public abstract class AbstractInventoryRedisService implements InventoryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractInventoryRedisService.class);
 
     @Autowired
     private RedissonClient redissonClient;
 
     public static final String ERROR_CODE_INVENTORY_NOT_ENOUGH = "INVENTORY_NOT_ENOUGH";
+
     public static final String ERROR_CODE_INVENTORY_IS_ZERO = "INVENTORY_IS_ZERO";
+
     public static final String ERROR_CODE_KEY_NOT_FOUND = "KEY_NOT_FOUND";
+
     public static final String ERROR_CODE_OPERATION_ALREADY_EXECUTED = "OPERATION_ALREADY_EXECUTED";
 
     //库存初始化
@@ -134,7 +136,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
             return inventoryResponse;
 
         } catch (RedisException e) {
-            logger.error("decrease error , goodsId = {} , identifier = {} ,", request.getGoodsId(), request.getIdentifier(), e);
+            log.error("decrease error , goodsId = {} , identifier = {} ,", request.getGoodsId(), request.getIdentifier(), e);
             inventoryResponse.setSuccess(false);
             inventoryResponse.setGoodsId(request.getGoodsId());
             inventoryResponse.setGoodsType(request.getGoodsType());
@@ -157,6 +159,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         }
     }
 
+    //获取库存扣减流水
     @Override
     public String getInventoryDecreaseLog(InventoryRequest request) {
         String luaScript = """
@@ -171,6 +174,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         return stream;
     }
 
+    //获取库存增加流水
     @Override
     public String getInventoryIncreaseLog(InventoryRequest request) {
         String luaScript = """
@@ -185,6 +189,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         return stream;
     }
 
+    //查询库存扣减流水
     @Override
     public List<String> getInventoryDecreaseLogs(InventoryRequest request) {
         String luaScript = """
@@ -200,6 +205,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         return stream;
     }
 
+    //删除库存流水
     @Override
     public Long removeInventoryDecreaseLog(InventoryRequest request) {
         String luaScript = """
@@ -211,9 +217,11 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
                 luaScript,
                 RScript.ReturnType.INTEGER,
                 Arrays.asList(getCacheStreamKey(request)), "DECREASE_" + request.getIdentifier());
+
         return stream;
     }
 
+    //增加库存
     @Override
     public InventoryResponse increase(InventoryRequest request) {
         InventoryResponse inventoryResponse = new InventoryResponse();
@@ -266,11 +274,12 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
             return inventoryResponse;
 
         } catch (RedisException e) {
-            logger.error("increase error , goodsId = {} , identifier = {} ,", request.getGoodsId(), request.getIdentifier(), e);
+            log.error("increase error , goodsId = {} , identifier = {} ,", request.getGoodsId(), request.getIdentifier(), e);
             inventoryResponse.setSuccess(false);
             inventoryResponse.setGoodsId(request.getGoodsId());
             inventoryResponse.setGoodsType(request.getGoodsType());
             inventoryResponse.setIdentifier(request.getIdentifier());
+
             if (e.getMessage().startsWith(ERROR_CODE_KEY_NOT_FOUND)) {
                 inventoryResponse.setResponseCode(ERROR_CODE_KEY_NOT_FOUND);
             } else if (e.getMessage().startsWith(ERROR_CODE_OPERATION_ALREADY_EXECUTED)) {

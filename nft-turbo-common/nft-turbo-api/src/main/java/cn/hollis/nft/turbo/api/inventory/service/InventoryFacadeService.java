@@ -20,16 +20,16 @@ public interface InventoryFacadeService {
     //库存失效
     public SingleResponse<Void> invalid(InventoryRequest inventoryRequest);
 
-    //查询库存扣减流水
+    //获取库存扣减流水
     public SingleResponse<String> getInventoryDecreaseLog(InventoryRequest inventoryRequest);
 
-    //查询库存增加流水
+    //获取库存增加流水
     public SingleResponse<String> getInventoryIncreaseLog(InventoryRequest inventoryRequest);
 
-    //批量查询库存流水
+    //批量获取库存扣减流水
     public MultiResponse<String> getInventoryDecreaseLogs(InventoryRequest inventoryRequest);
 
-    // 查询库存
+    //查询库存
     public SingleResponse<Integer> queryInventory(InventoryRequest inventoryRequest);
 
     //移除流水

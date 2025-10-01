@@ -24,6 +24,7 @@ public class HotGoodsService {
     @Autowired
     private RedissonClient redissonClient;
 
+    //热门商品本地缓存
     private Cache<String, Boolean> hotGoodsLocalCache;
 
     private static final String HOT_GOODS_SET_KEY = "goods:hot:set";
@@ -40,17 +41,22 @@ public class HotGoodsService {
                 .build();
     }
 
+    //添加热点商品
     public void addHotGoods(String goodsId, String goodsType) {
         if (!isHotGoods(goodsId, goodsType)) {
+            //goods:hot:商品类型:商品id
             String hotGoodsKey = HOT_GOODS_KEY + goodsType + CacheConstant.CACHE_KEY_SEPARATOR + goodsId;
             hotGoodsLocalCache.put(hotGoodsKey, true);
+            //存储到redis中，使用Set 进行存储
             redissonClient.getSet(HOT_GOODS_SET_KEY).add(hotGoodsKey);
         }
     }
 
+    //判断是否是热点商品
     public Boolean isHotGoods(String goodsId, String goodsType) {
         String hotGoodsKey = HOT_GOODS_KEY + goodsType + CacheConstant.CACHE_KEY_SEPARATOR + goodsId;
         Boolean isHot = hotGoodsLocalCache.getIfPresent(hotGoodsKey);
+
         if (isHot == null) {
             RSet<String> hotGoodsSet = redissonClient.getSet(HOT_GOODS_SET_KEY);
             isHot = hotGoodsSet.contains(hotGoodsKey);
@@ -61,9 +67,11 @@ public class HotGoodsService {
         return isHot;
     }
 
+    //获取热门商品id列表
     public List<String> getHotGoods(String goodsType) {
         List<String> hotGoods = new ArrayList<>();
         Set<String> hotKeys = redissonClient.getSet(HOT_GOODS_SET_KEY);
+
         for (String hotKey : hotKeys) {
             if (!hotKey.contains(goodsType)) {
                 hotGoods.add(hotKey.substring(hotKey.lastIndexOf(CacheConstant.CACHE_KEY_SEPARATOR)) + 1);
@@ -72,6 +80,7 @@ public class HotGoodsService {
         return hotGoods;
     }
 
+    //获取所有热点商品
     public Set<HotGoods> getAllHotGoods() {
         RSet<String> hotGoodsSet = redissonClient.getSet(HOT_GOODS_SET_KEY);
         Set<String> hotKeys = hotGoodsSet.readAll();

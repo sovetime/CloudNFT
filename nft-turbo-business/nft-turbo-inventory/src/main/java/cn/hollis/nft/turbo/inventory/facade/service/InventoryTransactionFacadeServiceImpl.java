@@ -51,7 +51,8 @@ public class InventoryTransactionFacadeServiceImpl implements InventoryTransacti
         Assert.isTrue(transactionCancelResponse.getSuccess(), "transaction cancel failed");
 
         if (transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_TRY_SUCCESS
-                || transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_CONFIRM_SUCCESS) {
+        || transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_CONFIRM_SUCCESS) {
+
             SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
             //如果try或者confirm失败了，则把库存加回去
             if (response.getSuccess() && response.getData() != null) {

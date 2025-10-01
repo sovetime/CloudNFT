@@ -159,12 +159,14 @@ public class TradeApplicationService {
         try {
             //构造库存扣减请求
             InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
-            //
+            //库存扣减-try
             boolean result = inventoryTransactionFacadeService.tryDecrease(inventoryRequest);
             Assert.isTrue(result, "decrease inventory failed");
 
+            //创建订单
             result = orderTransactionFacadeService.tryOrder(orderCreateRequest,"newBuyPlus").getSuccess();
             Assert.isTrue(result, "order create failed");
+
         } catch (Exception e) {
             isTrySuccess = false;
             log.error("newBuyPlus try failed, ", e);
