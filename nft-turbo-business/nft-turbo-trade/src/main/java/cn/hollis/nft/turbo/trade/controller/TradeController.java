@@ -185,6 +185,7 @@ public class TradeController {
             if (response.getSuccess() && response.getData() != null) {
                 //再检查一下是否有回退库存的流水，如果回退过，则不需要旁路验证
                 SingleResponse<String> increaseLog = inventoryFacadeService.getInventoryIncreaseLog(inventoryRequest);
+                //如果没有回退的流水，则进行库存旁路验证
                 if (increaseLog.getSuccess() && increaseLog.getData() == null) {
                     inventoryBypassVerify(inventoryRequest);
                     return Result.success(orderCreateRequest.getOrderId());
@@ -232,7 +233,6 @@ public class TradeController {
 
         return Result.error(TradeErrorCode.ORDER_CREATE_FAILED.getCode(), TradeErrorCode.ORDER_CREATE_FAILED.getMessage());
     }
-
 
     //库存扣减旁路验证
     private void inventoryBypassVerify(InventoryRequest inventoryRequest) {
