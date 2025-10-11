@@ -1,0 +1,91 @@
+package cn.time.nft.turbo.pay.application.service;
+
+import cn.time.nft.turbo.api.chain.constant.ChainOperateBizTypeEnum;
+import cn.time.nft.turbo.api.chain.request.ChainProcessRequest;
+import cn.time.nft.turbo.api.chain.service.ChainFacadeService;
+import cn.time.nft.turbo.api.collection.model.HeldCollectionVO;
+import cn.time.nft.turbo.api.collection.service.CollectionReadFacadeService;
+import cn.time.nft.turbo.api.user.request.UserQueryRequest;
+import cn.time.nft.turbo.api.user.response.UserQueryResponse;
+import cn.time.nft.turbo.api.user.response.data.UserInfo;
+import cn.time.nft.turbo.api.user.service.UserFacadeService;
+import cn.time.nft.turbo.base.response.SingleResponse;
+import cn.time.nft.turbo.base.utils.RemoteCallWrapper;
+import cn.time.nft.turbo.base.utils.SpringContextHolder;
+import io.seata.tm.api.transaction.TransactionHook;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+
+//支付成功事务回调
+@Slf4j
+@NoArgsConstructor
+//TransactionHook 实现事务钩子接口，用于在事务生命周期的不同阶段插入逻辑
+public class PaySuccessTransactionHook implements TransactionHook {
+
+    //从 Spring 的上下文中获取到 Bean
+    //商品服务bean
+    CollectionReadFacadeService collectionFacadeService = (CollectionReadFacadeService) SpringContextHolder
+                                                                            .getBean("collectionReadFacadeService");
+
+    //用户服务bean
+    UserFacadeService userFacadeService = (UserFacadeService) SpringContextHolder.getBean("userFacadeService");
+
+    ChainFacadeService chainFacadeService = (ChainFacadeService) SpringContextHolder.getBean("chainFacadeService");
+
+    private Long heldCollectionId;
+
+    public PaySuccessTransactionHook(Long heldCollectionId) {
+        this.heldCollectionId = heldCollectionId;
+    }
+
+    @Override
+    public void beforeBegin() {
+    }
+
+    @Override
+    public void afterBegin() {
+    }
+
+    @Override
+    public void beforeCommit() {
+    }
+
+    @Override
+    public void afterCommit() {
+        log.info("transaction is commit ,start to mint , heldCollectionId : " + heldCollectionId);
+        SingleResponse<HeldCollectionVO> response = collectionFacadeService.queryHeldCollectionById(heldCollectionId);
+
+        if (response.getSuccess()) {
+            HeldCollectionVO heldCollection = response.getData();
+            UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(heldCollection.getUserId()));
+            UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
+
+            ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
+            chainProcessRequest.setRecipient(userQueryResponse.getData().getBlockChainUrl());
+            chainProcessRequest.setClassId(heldCollection.getCollectionId().toString());
+            chainProcessRequest.setClassName(heldCollection.getName());
+            chainProcessRequest.setSerialNo(heldCollection.getSerialNo());
+            chainProcessRequest.setBizId(heldCollection.getId().toString());
+            chainProcessRequest.setBizType(ChainOperateBizTypeEnum.HELD_COLLECTION.name());
+            chainProcessRequest.setIdentifier(heldCollection.getId().toString());
+
+            //如果失败了，则依靠定时任务补偿
+            RemoteCallWrapper.call(req -> chainFacadeService.mint(req), chainProcessRequest, "mint");
+            log.info("transaction is commit ,end to mint , heldCollectionId : " + heldCollectionId);
+        }
+    }
+
+    @Override
+    public void beforeRollback() {
+    }
+
+    @Override
+    public void afterRollback() {
+        log.info("transaction is rollback, do nothing : " + heldCollectionId);
+    }
+
+    @Override
+    public void afterCompletion() {
+    }
+}

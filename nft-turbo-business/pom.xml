@@ -6,12 +6,12 @@
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>cn.hollis</groupId>
+        <groupId>cn.time</groupId>
         <artifactId>NFTurbo</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>cn.hollis</groupId>
+    <groupId>cn.time</groupId>
     <artifactId>nft-turbo-business</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 

@@ -93,7 +93,7 @@ spring:
             # 算法属性配置
             props:
               # 自定义分片算法类的全限定名
-              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
+              algorithmClassName: cn.time.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
               # 分片策略为complex复合策略
               strategy: complex
               # 分表数量为4

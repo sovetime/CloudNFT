@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.hollis</groupId>
+        <groupId>cn.time</groupId>
         <artifactId>NFTurbo</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>cn.hollis</groupId>
+    <groupId>cn.time</groupId>
     <artifactId>nft-turbo-gateway</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -56,22 +56,22 @@
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-config</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-skywalking</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-cache</artifactId>
         </dependency>
 
@@ -127,7 +127,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
 <!--                    <skip>true</skip>-->
-                    <mainClass>cn.hollis.nft.turbo.gateway.NfTurboGatewayApplication</mainClass>
+                    <mainClass>cn.time.nft.turbo.gateway.NfTurboGatewayApplication</mainClass>
                 </configuration>
 
                 <executions>

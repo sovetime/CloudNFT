@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="cn.hollis.nft.turbo.user.infrastructure.mapper.UserMapper">
-    <resultMap id="BaseResultMap" type="cn.hollis.nft.turbo.user.domain.entity.User">
+<mapper namespace="cn.time.nft.turbo.user.infrastructure.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="cn.time.nft.turbo.user.domain.entity.User">
         <result property="id" column="ID"/>
         <result property="gmtCreate" column="GMT_CREATE"/>
         <result property="gmtModified" column="GMT_MODIFIED"/>
@@ -17,8 +17,8 @@
         <result property="blockChainUrl" column="BLOCK_CHAIN_URL"/>
         <result property="blockChainPlatform" column="BLOCK_CHAIN_PLATFORM"/>
         <result property="certification" column="CERTIFICATION"/>
-        <result property="realName" column="REAL_NAME" typeHandler="cn.hollis.nft.turbo.user.infrastructure.mapper.AesEncryptTypeHandler"/>
-        <result property="idCardNo" column="ID_CARD_NO" typeHandler="cn.hollis.nft.turbo.user.infrastructure.mapper.AesEncryptTypeHandler"/>
+        <result property="realName" column="REAL_NAME" typeHandler="cn.time.nft.turbo.user.infrastructure.mapper.AesEncryptTypeHandler"/>
+        <result property="idCardNo" column="ID_CARD_NO" typeHandler="cn.time.nft.turbo.user.infrastructure.mapper.AesEncryptTypeHandler"/>
         <result property="userRole" column="USER_ROLE"/>
         <result property="deleted" column="DELETED"/>
         <result property="lockVersion" column="LOCK_VERSION"/>

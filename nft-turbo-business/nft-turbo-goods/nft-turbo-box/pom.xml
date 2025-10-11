@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.hollis</groupId>
+        <groupId>cn.time</groupId>
         <artifactId>nft-turbo-goods</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>cn.hollis</groupId>
+    <groupId>cn.time</groupId>
     <artifactId>nft-turbo-box</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -23,53 +23,53 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-collection</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-web</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-base</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-limiter</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-datasource</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-rpc</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-mq</artifactId>
         </dependency>
 
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-config</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-lock</artifactId>
         </dependency>
 

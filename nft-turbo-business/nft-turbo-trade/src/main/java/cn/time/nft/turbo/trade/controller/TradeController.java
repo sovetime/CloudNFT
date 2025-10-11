@@ -1,0 +1,461 @@
+package cn.time.nft.turbo.trade.controller;
+
+import cn.dev33.satoken.stp.StpUtil;
+import cn.time.nft.turbo.api.check.request.InventoryCheckRequest;
+import cn.time.nft.turbo.api.check.response.InventoryCheckResponse;
+import cn.time.nft.turbo.api.check.service.InventoryCheckFacadeService;
+import cn.time.nft.turbo.api.common.constant.BizOrderType;
+import cn.time.nft.turbo.api.common.constant.BusinessCode;
+import cn.time.nft.turbo.api.goods.constant.GoodsEvent;
+import cn.time.nft.turbo.api.goods.constant.GoodsType;
+import cn.time.nft.turbo.api.goods.model.BaseGoodsVO;
+import cn.time.nft.turbo.api.goods.request.GoodsBookRequest;
+import cn.time.nft.turbo.api.goods.response.GoodsBookResponse;
+import cn.time.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.time.nft.turbo.api.inventory.request.InventoryRequest;
+import cn.time.nft.turbo.api.inventory.service.InventoryFacadeService;
+import cn.time.nft.turbo.api.order.OrderFacadeService;
+import cn.time.nft.turbo.api.order.constant.TradeOrderState;
+import cn.time.nft.turbo.api.order.model.TradeOrderVO;
+import cn.time.nft.turbo.api.order.request.OrderCancelRequest;
+import cn.time.nft.turbo.api.order.request.OrderCreateAndConfirmRequest;
+import cn.time.nft.turbo.api.order.request.OrderCreateRequest;
+import cn.time.nft.turbo.api.order.request.OrderTimeoutRequest;
+import cn.time.nft.turbo.api.order.response.OrderResponse;
+import cn.time.nft.turbo.api.pay.model.PayOrderVO;
+import cn.time.nft.turbo.api.pay.request.PayCreateRequest;
+import cn.time.nft.turbo.api.pay.response.PayCreateResponse;
+import cn.time.nft.turbo.api.pay.service.PayFacadeService;
+import cn.time.nft.turbo.api.user.constant.UserType;
+import cn.time.nft.turbo.base.response.SingleResponse;
+import cn.time.nft.turbo.base.utils.RemoteCallWrapper;
+import cn.time.nft.turbo.order.OrderException;
+import cn.time.nft.turbo.order.sharding.id.DistributeID;
+import cn.time.nft.turbo.order.sharding.id.WorkerIdHolder;
+import cn.time.nft.turbo.order.validator.OrderCreateValidator;
+import cn.time.nft.turbo.trade.application.TradeApplicationService;
+import cn.time.nft.turbo.trade.exception.TradeErrorCode;
+import cn.time.nft.turbo.trade.exception.TradeException;
+import cn.time.nft.turbo.trade.param.BookParam;
+import cn.time.nft.turbo.trade.param.BuyParam;
+import cn.time.nft.turbo.trade.param.CancelParam;
+import cn.time.nft.turbo.trade.param.PayParam;
+import cn.time.nft.turbo.web.vo.Result;
+import cn.time.turbo.stream.producer.StreamProducer;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.fastjson.JSON;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import static cn.time.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
+import static cn.time.nft.turbo.api.user.constant.UserType.PLATFORM;
+import static cn.time.nft.turbo.web.filter.TokenFilter.TOKEN_THREAD_LOCAL;
+
+
+@Slf4j
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("trade")
+public class TradeController {
+
+    //创建线程工厂
+    private static ThreadFactory inventoryBypassVerifyThreadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("inventory-bypass-verify-pool-%d").build();
+
+    private ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(10, inventoryBypassVerifyThreadFactory);
+
+    @Resource
+    private OrderFacadeService orderFacadeService;
+
+    @Autowired
+    private TradeApplicationService tradeApplicationService;
+
+    @Resource
+    private PayFacadeService payFacadeService;
+
+    @Resource
+    private GoodsFacadeService goodsFacadeService;
+
+    @Autowired
+    private StreamProducer streamProducer;
+
+    @Resource
+    private InventoryFacadeService inventoryFacadeService;
+
+    @Resource
+    private OrderCreateValidator orderValidatorChain;
+
+    @Resource
+    private InventoryCheckFacadeService inventoryCheckFacadeService;
+
+    @GetMapping("/test")
+    @SentinelResource(value = "/trade/test",fallback = "fallback")
+    public String test() {
+        return "test";
+    }
+
+    public void fallback(BlockException ex) {
+        log.error("error",ex);
+    }
+
+    //预约
+    @PostMapping("/book")
+    public Result<Long> book(@Valid @RequestBody BookParam bookParam) {
+        //获取userId
+        String userId = (String) StpUtil.getLoginId();
+
+        GoodsBookRequest goodsBookRequest = new GoodsBookRequest();
+        goodsBookRequest.setGoodsId(bookParam.getGoodsId());
+        goodsBookRequest.setGoodsType(GoodsType.valueOf(bookParam.getGoodsType()));
+
+        //数藏比较特殊，一个商品只能预定一次，所以这里直接用userId+goodsType+goodsId作为标识了，如果支持多次预定的话，需要在再有个活动的概念，基于活动做预约
+        goodsBookRequest.setIdentifier(userId + SEPARATOR + bookParam.getGoodsType() + SEPARATOR + bookParam.getGoodsId());
+        goodsBookRequest.setBuyerId(userId);
+        GoodsBookResponse goodsBookResponse = RemoteCallWrapper.call(
+                req -> goodsFacadeService.book(req), goodsBookRequest, "bookGoods");
+
+        if (goodsBookResponse.getSuccess()) {
+            return Result.success(goodsBookResponse.getBookId());
+        }
+        throw new TradeException(TradeErrorCode.GOODS_BOOK_FAILED);
+    }
+
+    //秒杀下单，(基于inventory hint的实现),热点商品
+    @PostMapping("/buy")
+    public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
+        try {
+            //创建订单(从ThreadLocal中获取token)
+            OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
+
+            OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
+
+            if (orderResponse.getSuccess()) {
+                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+                inventoryBypassVerify(inventoryRequest);
+                return Result.success(orderCreateRequest.getOrderId());
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+    }
+
+    //秒杀下单（不基于inventory hint的实现），热点商品
+    @PostMapping("/newBuy")
+    public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
+        OrderCreateRequest orderCreateRequest = null;
+
+        try {
+            //创建订单(从ThreadLocal中获取token)
+            orderCreateRequest = getOrderCreateRequest(buyParam);
+            //订单校验
+            orderValidatorChain.validate(orderCreateRequest);
+
+            //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
+            //消息发送给broker之后同步不会立即推送给消费者，而是执行本地事务InventoryDecreaseTransactionListener进行库存预扣减
+            boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
+            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
+            if (!result) {
+                throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+            }
+
+            //redis库存预扣减是在本地事务中和发送消息给mq同步执行的，消息发送成功后，库存扣减操作流水会写入redis，这里就可以查询操作流水
+            InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+            //查询库存操作流水
+            SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
+
+            if (response.getSuccess() && response.getData() != null) {
+                //再检查一下是否有回退库存的流水，如果回退过，则不需要旁路验证
+                SingleResponse<String> increaseLog = inventoryFacadeService.getInventoryIncreaseLog(inventoryRequest);
+                //如果没有回退的流水，则进行库存旁路验证
+                if (increaseLog.getSuccess() && increaseLog.getData() == null) {
+                    inventoryBypassVerify(inventoryRequest);
+                    return Result.success(orderCreateRequest.getOrderId());
+                }
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        return Result.error(TradeErrorCode.ORDER_CREATE_FAILED.getCode(), TradeErrorCode.ORDER_CREATE_FAILED.getMessage());
+    }
+
+    //秒杀下单（不基于inventory hint的实现），热点商品，同步创建订单
+    @PostMapping("/newBuyPlus")
+    public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
+        try {
+            //创建订单(从ThreadLocal中获取token)
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+            //订单校验
+            orderValidatorChain.validate(orderCreateAndConfirmRequest);
+
+            //消息监听：NewBuyPlusMsgListener or NewBuyPlusBatchMsgListener
+            //消息发送给broker之后同步不会立即推送给消费者，而是执行本地事务OrderCreateTransactionListener进行库存预扣减
+            boolean result = streamProducer.send("newBuyPlus-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateAndConfirmRequest));
+            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
+            if (!result) {
+                throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+            }
+
+            //获取订单
+            SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
+
+            if (response.getSuccess() && response.getData() != null && response.getData().getOrderState() == TradeOrderState.CONFIRM) {
+                //库存扣减旁路验证
+                inventoryBypassVerify(new InventoryRequest(orderCreateAndConfirmRequest));
+                return Result.success(orderCreateAndConfirmRequest.getOrderId());
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        return Result.error(TradeErrorCode.ORDER_CREATE_FAILED.getCode(), TradeErrorCode.ORDER_CREATE_FAILED.getMessage());
+    }
+
+    //库存扣减旁路验证
+    private void inventoryBypassVerify(InventoryRequest inventoryRequest) {
+        try {
+            //延迟3秒检查数据库中是否有库存扣减记录
+            scheduler.schedule(() -> {
+                InventoryCheckRequest inventoryCheckRequest = new InventoryCheckRequest();
+                inventoryCheckRequest.setIdentifier(inventoryRequest.getIdentifier());
+                inventoryCheckRequest.setGoodsType(inventoryRequest.getGoodsType());
+                inventoryCheckRequest.setGoodsId(inventoryRequest.getGoodsId());
+                inventoryCheckRequest.setGoodsEvent(GoodsEvent.TRY_SALE);
+                inventoryCheckRequest.setChangedQuantity(inventoryRequest.getInventory());
+
+                //库存核对
+                InventoryCheckResponse checkResponse = inventoryCheckFacadeService.check(inventoryCheckRequest);
+                //核验成功,数据一致
+                if (checkResponse.getSuccess() && checkResponse.getCheckResult()) {
+                    //删除库存扣减流水记录
+                    inventoryFacadeService.removeInventoryDecreaseLog(inventoryRequest);
+                }
+            }, 3, TimeUnit.SECONDS);
+
+        } catch (Exception e) {
+            //核验失败打印日志，不影响主流程，等异步任务再核对
+            log.error("inventoryBypassVerify failed,", e);
+        }
+    }
+
+
+    //普通下单，非热点商品
+    @PostMapping("/normalBuy")
+    public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
+        try {
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+            orderValidatorChain.validate(orderCreateAndConfirmRequest);
+            OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
+
+            if (orderResponse.getSuccess()) {
+                //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
+                try {
+                    InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
+                    inventoryFacadeService.decrease(inventoryRequest);
+                } catch (Exception e) {
+                    log.error("decrease inventory from redis failed", e);
+                }
+
+                return Result.success(orderCreateAndConfirmRequest.getOrderId());
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+    }
+
+
+    //创建订单(从ThreadLocal中获取token)
+    @NotNull
+    private OrderCreateRequest getOrderCreateRequest(BuyParam buyParam) {
+        //获取用户id
+        String userId = (String) StpUtil.getLoginId();
+        //使用雪花算法生成唯一的订单id
+        String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
+        //创建订单
+        OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
+        orderCreateRequest.setOrderId(orderId);
+        //获取token
+        orderCreateRequest.setIdentifier(TOKEN_THREAD_LOCAL.get());
+        orderCreateRequest.setBuyerId(userId);
+        orderCreateRequest.setGoodsId(buyParam.getGoodsId());
+        orderCreateRequest.setGoodsType(GoodsType.valueOf(buyParam.getGoodsType()));
+        orderCreateRequest.setItemCount(buyParam.getItemCount());
+
+        //获取商品
+        BaseGoodsVO goodsVO = goodsFacadeService.getGoods(buyParam.getGoodsId(), GoodsType.valueOf(buyParam.getGoodsType()));
+        if (goodsVO == null || !goodsVO.available()) {
+            throw new TradeException(TradeErrorCode.GOODS_NOT_FOR_SALE);
+        }
+
+        orderCreateRequest.setItemPrice(goodsVO.getPrice());
+        orderCreateRequest.setSellerId(goodsVO.getSellerId());
+        orderCreateRequest.setGoodsName(goodsVO.getGoodsName());
+        orderCreateRequest.setGoodsPicUrl(goodsVO.getGoodsPicUrl());
+        orderCreateRequest.setSnapshotVersion(goodsVO.getVersion());
+        orderCreateRequest.setOrderAmount(orderCreateRequest.getItemPrice().multiply(new BigDecimal(orderCreateRequest.getItemCount())));
+
+        return orderCreateRequest;
+    }
+
+    //创建订单(从ThreadLocal中获取token)
+    @NotNull
+    private OrderCreateAndConfirmRequest getOrderCreateAndConfirmRequest(BuyParam buyParam) {
+        //获取用户id
+        String userId = (String) StpUtil.getLoginId();
+        //使用雪花算法生成唯一的订单id
+        String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
+        //创建订单
+        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
+        orderCreateAndConfirmRequest.setOrderId(orderId);
+        //获取token
+        orderCreateAndConfirmRequest.setIdentifier(TOKEN_THREAD_LOCAL.get());
+        orderCreateAndConfirmRequest.setBuyerId(userId);
+        orderCreateAndConfirmRequest.setGoodsId(buyParam.getGoodsId());
+        orderCreateAndConfirmRequest.setGoodsType(GoodsType.valueOf(buyParam.getGoodsType()));
+        orderCreateAndConfirmRequest.setItemCount(buyParam.getItemCount());
+
+        //获取商品
+        BaseGoodsVO goodsVO = goodsFacadeService.getGoods(buyParam.getGoodsId(), GoodsType.valueOf(buyParam.getGoodsType()));
+        if (goodsVO == null || !goodsVO.available()) {
+            throw new TradeException(TradeErrorCode.GOODS_NOT_FOR_SALE);
+        }
+
+        orderCreateAndConfirmRequest.setItemPrice(goodsVO.getPrice());
+        orderCreateAndConfirmRequest.setSellerId(goodsVO.getSellerId());
+        orderCreateAndConfirmRequest.setGoodsName(goodsVO.getGoodsName());
+        orderCreateAndConfirmRequest.setGoodsPicUrl(goodsVO.getGoodsPicUrl());
+        orderCreateAndConfirmRequest.setSnapshotVersion(goodsVO.getVersion());
+        orderCreateAndConfirmRequest.setOrderAmount(orderCreateAndConfirmRequest.getItemPrice().multiply(new BigDecimal(orderCreateAndConfirmRequest.getItemCount())));
+        orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
+        orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
+        orderCreateAndConfirmRequest.setOperateTime(new Date());
+
+        return orderCreateAndConfirmRequest;
+    }
+
+    //支付
+    //这里传入订单id以及支付渠道
+    @PostMapping("/pay")
+    public Result<PayOrderVO> pay(@Valid @RequestBody PayParam payParam) {
+        //获取用户id
+        String userId = (String) StpUtil.getLoginId();
+        //获取订单详情
+        SingleResponse<TradeOrderVO> singleResponse = orderFacadeService.getTradeOrder(payParam.getOrderId(), userId);
+
+        TradeOrderVO tradeOrderVO = singleResponse.getData();
+
+        //商品不存在
+        if (tradeOrderVO == null) {
+            throw new TradeException(TradeErrorCode.GOODS_NOT_EXIST);
+        }
+
+        //订单不可支付
+        if (tradeOrderVO.getOrderState() != TradeOrderState.CONFIRM) {
+            throw new TradeException(TradeErrorCode.ORDER_IS_CANNOT_PAY);
+        }
+
+        //订单不可支付
+        if (tradeOrderVO.getTimeout()) {
+            //异步处理超时订单
+            doAsyncTimeoutOrder(tradeOrderVO);
+            throw new TradeException(TradeErrorCode.ORDER_IS_CANNOT_PAY);
+        }
+
+        //无支付权限
+        if (!tradeOrderVO.getBuyerId().equals(userId)) {
+            throw new TradeException(TradeErrorCode.PAY_PERMISSION_DENIED);
+        }
+
+        PayCreateRequest payCreateRequest = new PayCreateRequest();
+        payCreateRequest.setOrderAmount(tradeOrderVO.getOrderAmount());
+        payCreateRequest.setBizNo(tradeOrderVO.getOrderId());
+        payCreateRequest.setBizType(BizOrderType.TRADE_ORDER);
+        payCreateRequest.setMemo(tradeOrderVO.getGoodsName());
+        payCreateRequest.setPayChannel(payParam.getPayChannel());
+        payCreateRequest.setPayerId(tradeOrderVO.getBuyerId());
+        payCreateRequest.setPayerType(tradeOrderVO.getBuyerType());
+        payCreateRequest.setPayeeId(tradeOrderVO.getSellerId());
+        payCreateRequest.setPayeeType(tradeOrderVO.getSellerType());
+
+        //生成支付链接并进行支付
+        PayCreateResponse payCreateResponse = RemoteCallWrapper.call(
+                req -> payFacadeService.generatePayUrl(req), payCreateRequest, "generatePayUrl");
+
+        if (payCreateResponse.getSuccess()) {
+            PayOrderVO payOrderVO = new PayOrderVO();
+            payOrderVO.setPayOrderId(payCreateResponse.getPayOrderId());
+            payOrderVO.setPayUrl(payCreateResponse.getPayUrl());
+            return Result.success(payOrderVO);
+        }
+
+        throw new TradeException(TradeErrorCode.PAY_CREATE_FAILED);
+    }
+
+    //异步关闭订单
+    private void doAsyncTimeoutOrder(TradeOrderVO tradeOrderVO) {
+        if (tradeOrderVO.getOrderState() != TradeOrderState.CLOSED) {
+            Thread.ofVirtual().start(() -> {
+                OrderTimeoutRequest cancelRequest = new OrderTimeoutRequest();
+                cancelRequest.setOperatorType(PLATFORM);
+                cancelRequest.setOperator(PLATFORM.getDesc());
+                cancelRequest.setOrderId(tradeOrderVO.getOrderId());
+                cancelRequest.setOperateTime(new Date());
+                cancelRequest.setIdentifier(UUID.randomUUID().toString());
+
+                //超时关单
+                orderFacadeService.timeout(cancelRequest);
+            });
+        }
+    }
+
+    //取消订单（hit版）
+    @PostMapping("/cancel")
+    public Result<Boolean> cancel(@Valid @RequestBody CancelParam cancelParam) {
+        //获取用户id
+        String userId = (String) StpUtil.getLoginId();
+
+        OrderCancelRequest orderCancelRequest = new OrderCancelRequest();
+        orderCancelRequest.setIdentifier(cancelParam.getOrderId());
+        orderCancelRequest.setOperateTime(new Date());
+        orderCancelRequest.setOrderId(cancelParam.getOrderId());
+        orderCancelRequest.setOperator(userId);
+        orderCancelRequest.setOperatorType(UserType.CUSTOMER);
+
+        //取消订单
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.cancel(req), orderCancelRequest, "cancelOrder");
+
+        if (orderResponse.getSuccess()) {
+            return Result.success(true);
+        }
+
+        throw new TradeException(TradeErrorCode.ORDER_CANCEL_FAILED);
+    }
+
+}

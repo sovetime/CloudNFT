@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>cn.hollis</groupId>
+        <groupId>cn.time</groupId>
         <artifactId>nft-turbo-business</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>cn.hollis</groupId>
+    <groupId>cn.time</groupId>
     <artifactId>nft-turbo-pay</artifactId>
     <description>支付模块</description>
     <version>1.0.0-SNAPSHOT</version>
@@ -23,56 +23,56 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-base</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-limiter</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-datasource</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-config</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-rpc</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-web</artifactId>
         </dependency>
         
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-job</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-seata</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-lock</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.hollis</groupId>
+            <groupId>cn.time</groupId>
             <artifactId>nft-turbo-skywalking</artifactId>
         </dependency>
 

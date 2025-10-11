@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxItemMapper">
+<mapper namespace="cn.time.nft.turbo.box.infrastructure.mapper.BlindBoxItemMapper">
 
-    <resultMap id="resultBlindBoxItemMap" type="cn.hollis.nft.turbo.box.domain.entity.BlindBoxItem">
+    <resultMap id="resultBlindBoxItemMap" type="cn.time.nft.turbo.box.domain.entity.BlindBoxItem">
         <result property="id" column="ID"/>
         <result property="gmtCreate" column="GMT_CREATE"/>
         <result property="gmtModified" column="GMT_MODIFIED"/>
