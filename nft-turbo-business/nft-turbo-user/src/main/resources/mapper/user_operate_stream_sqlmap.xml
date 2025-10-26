@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.time.nft.turbo.user.infrastructure.mapper.UserOperateStreamMapper">
-    <resultMap id="resultUserOperateStreamMap" type="cn.time.nft.turbo.user.domain.entity.UserOperateStream">
+<mapper namespace="cn.hollis.nft.turbo.user.infrastructure.mapper.UserOperateStreamMapper">
+    <resultMap id="resultUserOperateStreamMap" type="cn.hollis.nft.turbo.user.domain.entity.UserOperateStream">
         <result property="id" column="ID"/>
         <result property="gmtCreate" column="GMT_CREATE"/>
         <result property="gmtModified" column="GMT_MODIFIED"/>

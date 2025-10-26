@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.time</groupId>
+        <groupId>cn.hollis</groupId>
         <artifactId>nft-turbo-common</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>cn.time</groupId>
+    <groupId>cn.hollis</groupId>
     <artifactId>nft-turbo-datasource</artifactId>
     <description>数据源组件</description>
     <version>1.0.0-SNAPSHOT</version>

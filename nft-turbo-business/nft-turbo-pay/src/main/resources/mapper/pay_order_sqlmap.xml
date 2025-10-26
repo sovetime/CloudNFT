@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="cn.time.nft.turbo.pay.infrastructure.mapper.PayOrderMapper">
+<mapper namespace="cn.hollis.nft.turbo.pay.infrastructure.mapper.PayOrderMapper">
     <!--  Generate by Octopus Date: 2024-01-19 10:48:24 -->
 
-    <resultMap id="payOrderMap" type="cn.time.nft.turbo.pay.domain.entity.PayOrder">
+    <resultMap id="payOrderMap" type="cn.hollis.nft.turbo.pay.domain.entity.PayOrder">
 
         <result property="id" column="ID"/>
         <result property="gmtCreate" column="GMT_CREATE"/>

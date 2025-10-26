@@ -161,14 +161,14 @@ spring:
           turbo-complex-sharding:
             type: CLASS_BASED  #基于自定义类的分片算法
             props:
-              algorithmClassName: cn.time.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm #路径
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm #路径
               strategy: complex   #复合分片策略
               tableCount: 4       #分表数量
               mainColum: buyer_id #主要分片列是buyer_id
           turbo-hint-sharding:
             type: CLASS_BASED
             props:
-              algorithmClassName: cn.time.nft.turbo.order.infrastructure.sharding.algorithm.TurboHintShardingAlgorithm
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboHintShardingAlgorithm
               strategy: hint
         keyGenerators:
           snowflake:

@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.time</groupId>
+        <groupId>cn.hollis</groupId>
         <artifactId>nft-turbo-business</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>cn.time</groupId>
+    <groupId>cn.hollis</groupId>
     <artifactId>nft-turbo-trade</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <description>交易模块</description>
@@ -29,52 +29,52 @@
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-base</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-limiter</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-config</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-web</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-rpc</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-cache</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-mq</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-order-client</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-skywalking</artifactId>
         </dependency>
 

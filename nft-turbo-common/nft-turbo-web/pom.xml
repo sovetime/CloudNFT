@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.time</groupId>
+        <groupId>cn.hollis</groupId>
         <artifactId>nft-turbo-common</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>cn.time</groupId>
+    <groupId>cn.hollis</groupId>
     <artifactId>nft-turbo-web</artifactId>
     <description>Web组件</description>
     <version>1.0.0-SNAPSHOT</version>
@@ -24,17 +24,17 @@
     <dependencies>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-base</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-sa-token</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.time</groupId>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-cache</artifactId>
         </dependency>
 

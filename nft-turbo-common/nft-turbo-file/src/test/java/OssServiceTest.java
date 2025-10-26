@@ -1,5 +1,5 @@
-import cn.time.nft.turbo.file.OssServiceImpl;
-import cn.time.nft.turbo.file.config.OssConfiguration;
+import cn.hollis.nft.turbo.file.OssServiceImpl;
+import cn.hollis.nft.turbo.file.config.OssConfiguration;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;

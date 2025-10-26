@@ -1,2 +1,2 @@
-cn.time.nft.turbo.limiter.configuration.RateLimiterConfiguration
-cn.time.nft.turbo.limiter.configuration.SentinelConfiguration
+cn.hollis.nft.turbo.limiter.configuration.RateLimiterConfiguration
+cn.hollis.nft.turbo.limiter.configuration.SentinelConfiguration
