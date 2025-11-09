@@ -74,7 +74,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         return SingleResponse.fail(inventoryResponse.getResponseCode(), inventoryResponse.getResponseMessage());
     }
 
-    //库存扣减
+    //库存扣减(redis)
     @Override
     public SingleResponse<Boolean> decrease(InventoryRequest inventoryRequest) {
         //获取商品类型

@@ -91,14 +91,17 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @Facade
     public OrderResponse create(OrderCreateRequest request) {
         try {
+            //订单校验
             orderValidatorChain.validate(request);
         } catch (OrderException e) {
             return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
 
+        //库存扣减(redis)
         InventoryRequest inventoryRequest = new InventoryRequest(request);
         SingleResponse<Boolean> decreaseResult = inventoryFacadeService.decrease(inventoryRequest);
 
+        //订单创建并异步执行确认
         if (decreaseResult.getSuccess()) {
             return orderService.createAndAsyncConfirm(request);
         }

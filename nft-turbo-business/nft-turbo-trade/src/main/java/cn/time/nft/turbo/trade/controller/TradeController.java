@@ -142,8 +142,10 @@ public class TradeController {
             //创建订单(从ThreadLocal中获取token)
             OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
 
+            //远程调用创建订单
             OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
 
+            //库存扣减旁路验证
             if (orderResponse.getSuccess()) {
                 InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
                 inventoryBypassVerify(inventoryRequest);
@@ -237,7 +239,7 @@ public class TradeController {
     //库存扣减旁路验证
     private void inventoryBypassVerify(InventoryRequest inventoryRequest) {
         try {
-            //延迟3秒检查数据库中是否有库存扣减记录
+            //延迟3秒检查数据库中是否有库存扣减记录，使用ScheduledThreadPoolExecutor 线程池
             scheduler.schedule(() -> {
                 InventoryCheckRequest inventoryCheckRequest = new InventoryCheckRequest();
                 inventoryCheckRequest.setIdentifier(inventoryRequest.getIdentifier());

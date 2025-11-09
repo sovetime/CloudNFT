@@ -78,6 +78,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
         TradeOrder tradeOrder = doCreate(request);
 
+        //发布事件
         applicationContext.publishEvent(new OrderCreateEvent(tradeOrder));
         return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
     }

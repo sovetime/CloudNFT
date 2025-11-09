@@ -63,7 +63,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         return stock;
     }
 
-    //库存扣减
+    //库存扣减（redis)
     @Override
     public InventoryResponse decrease(InventoryRequest request) {
         InventoryResponse inventoryResponse = new InventoryResponse();
