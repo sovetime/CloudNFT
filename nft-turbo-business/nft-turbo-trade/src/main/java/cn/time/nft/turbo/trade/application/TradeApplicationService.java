@@ -179,18 +179,20 @@ public class TradeApplicationService {
             return new OrderResponse.OrderResponseBuilder().buildFail(NORMAL_BUY_TCC_CANCEL_FAILED.getCode(), NORMAL_BUY_TCC_CANCEL_FAILED.getMessage());
         }
 
-        //Confirm
+        //Try成功进行Confirm
         boolean isConfirmSuccess = false;
         int retryConfirmCount = 0;
 
         //最大努力执行，失败最多尝试2次.（Dubbo也会有重试机制，在服务突然不可用、超时等情况下会重试2次）
         while (!isConfirmSuccess && retryConfirmCount < MAX_RETRY_TIMES) {
             try {
+                //库存扣减-confirm
                 isConfirmSuccess = inventoryTransactionFacadeService.confirmDecrease(new InventoryRequest(orderCreateRequest));
                 Assert.isTrue(isConfirmSuccess, "confirmDecrease failed");
 
                 OrderConfirmRequest orderConfirmRequest = new OrderConfirmRequest();
                 BeanUtils.copyProperties(orderCreateRequest, orderConfirmRequest);
+                //确认订单
                 isConfirmSuccess = orderTransactionFacadeService.confirmOrder(orderConfirmRequest,"newBuyPlus").getSuccess();
                 Assert.isTrue(isConfirmSuccess, "confirmOrder failed");
             } catch (Exception e) {

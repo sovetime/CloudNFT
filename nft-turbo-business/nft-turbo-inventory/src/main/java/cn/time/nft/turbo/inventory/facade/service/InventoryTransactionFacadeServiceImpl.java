@@ -24,25 +24,33 @@ public class InventoryTransactionFacadeServiceImpl implements InventoryTransacti
     private TransactionLogService transactionLogService;
 
     @Autowired
-    InventoryFacadeService inventoryFacadeService;
+    private InventoryFacadeService inventoryFacadeService;
 
+    //库存扣减-try
     @Override
     public Boolean tryDecrease(InventoryRequest inventoryRequest) {
+        // TCC事务的Try
         TransactionTryResponse transactionTryResponse = transactionLogService.tryTransaction(new TccRequest(inventoryRequest.getIdentifier(), "newBuyPlus", inventoryRequest.getGoodsType().name()));
         Assert.isTrue(transactionTryResponse.getSuccess(), "transaction try failed");
 
+        //幂等处理
         if (transactionTryResponse.getTransTrySuccessType() == TransTrySuccessType.TRY_SUCCESS) {
             return inventoryFacadeService.decrease(inventoryRequest).getData();
         }
         return false;
     }
 
+    //库存扣减-confirm
     @Override
     public Boolean confirmDecrease(InventoryRequest inventoryRequest) {
-        TransactionConfirmResponse transactionConfirmResponse = transactionLogService.confirmTransaction(new TccRequest(inventoryRequest.getIdentifier(), "newBuyPlus", inventoryRequest.getGoodsType().name()));
+        TransactionConfirmResponse transactionConfirmResponse = transactionLogService
+                .confirmTransaction(new TccRequest(inventoryRequest.getIdentifier(),
+                "newBuyPlus", inventoryRequest.getGoodsType().name()));
+
         return transactionConfirmResponse.getSuccess();
     }
 
+    //库存扣减-cancel
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade

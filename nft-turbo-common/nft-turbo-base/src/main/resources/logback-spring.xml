@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- 导入 Spring Boot 默认日志变量和样式 -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-
+    <!-- 从application.yaml中读取spring.application.name，保存到变量 ${app.name}，方便日志路径区分不同项目-->
     <springProperty scope="context" name="app.name" source="spring.application.name"/>
     <!-- 基于 converter -->
     <conversionRule conversionWord="sensitive" converterClass="com.github.houbb.sensitive.logback.converter.SensitiveLogbackConverter" />
-
     <!-- 添加 SkyWalking 的 TraceId 转换器 -->
-    <conversionRule conversionWord="tid"
-                    converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"/>
+    <conversionRule conversionWord="tid" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"/>
 
     <property name="APP_NAME" value="${app.name}"/>
     <property name="LOG_PATH" value="${user.home}/${APP_NAME}/logs"/>
     <property name="LOG_FILE" value="${LOG_PATH}/application.log"/>
     <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%tid] %-5level [%thread] %logger{36} - %sensitive%n"/>
 
+    <!-- 使用RollingFileAppender 根据时间+文件大小滚动日志 -->
+    <!-- 滚动策略每天生成一个新的日志文件，文件超过50MB进行分卷，最多保存7天日志，总体积超过20GB 自动删除旧文件 -->
     <appender name="APPLICATION" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FILE}</file>
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
@@ -30,6 +31,7 @@
         </rollingPolicy>
     </appender>
 
+    <!-- 日志输出到本地控制台 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">
@@ -47,8 +49,9 @@
         <appender-ref ref="APPLICATION"/>
     </appender>
 
+    <!-- 日志级别，同时输出到控制台、异步文件（开发环境不需要） -->
     <root level="WARN">
-        <appender-ref ref="ASYNC"/>
+<!--        <appender-ref ref="ASYNC"/>-->
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
