@@ -13,9 +13,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 //盲盒服务
 public class TransactionLogService extends ServiceImpl<TransactionLogMapper, TransactionLog> {
 
-    // TCC事务的Try
+    // TCC事务的Try，设置订单状态为Try
     public TransactionTryResponse tryTransaction(TccRequest tccRequest) {
         TransactionLog existTransactionLog = getExistTransLog(tccRequest);
+        //如果不存在，则插入一条Try数据
         if (existTransactionLog == null) {
             TransactionLog transactionLog = new TransactionLog(tccRequest, TransActionLogState.TRY);
             if (this.save(transactionLog)) {
@@ -28,13 +29,15 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
         return new TransactionTryResponse(true, TransTrySuccessType.DUPLICATED_TRY);
     }
 
-    //TCC事务的Confirm
+    //TCC事务的Confirm，将订单状态改为Confirm
     public TransactionConfirmResponse confirmTransaction(TccRequest tccRequest) {
+        //判断事务日志是否存在
         TransactionLog existTransactionLog = getExistTransLog(tccRequest);
         if (existTransactionLog == null) {
             throw new UnsupportedOperationException("transacton can not confirm");
         }
 
+        //如果是Try状态，则修改为Confirm状态
         if (existTransactionLog.getState() == TransActionLogState.TRY) {
             existTransactionLog.setState(TransActionLogState.CONFIRM);
             if (this.updateById(existTransactionLog)) {
@@ -52,8 +55,9 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
         throw new UnsupportedOperationException("transacton can not confirm :" + existTransactionLog.getState());
     }
 
-    //TCC事务的Cancel
+    //TCC事务的Cancel，设置订单状态为Cancel
     public TransactionCancelResponse cancelTransaction(TccRequest tccRequest) {
+        //判断事务日志是否存在
         TransactionLog existTransactionLog = getExistTransLog(tccRequest);
         //如果还没有Try，则直接记录一条状态为Cancel的数据，避免发生空回滚，并解决悬挂问题
         if (existTransactionLog == null) {
@@ -90,6 +94,7 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
         return new TransactionCancelResponse(false, "CANCEL_FAILED", "CANCEL_FAILED");
     }
 
+    //判断事务日志是否存在
     private TransactionLog getExistTransLog(TccRequest request) {
         QueryWrapper<TransactionLog> queryWrapper = new QueryWrapper<TransactionLog>();
         queryWrapper.eq("transaction_id", request.getTransactionId());

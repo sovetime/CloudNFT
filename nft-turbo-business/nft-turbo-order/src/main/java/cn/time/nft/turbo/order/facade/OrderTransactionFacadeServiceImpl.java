@@ -33,6 +33,7 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Autowired
     private TransactionLogService transactionLogService;
 
+    //创建订单
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
@@ -43,6 +44,7 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
 
         Assert.isTrue(transactionTryResponse.getSuccess(), "transaction try failed");
 
+        //幂等处理，try成功就创建订单
         if (transactionTryResponse.getTransTrySuccessType() == TransTrySuccessType.TRY_SUCCESS) {
             OrderResponse orderResponse = orderManageService.create(orderCreateRequest);
             Assert.isTrue(orderResponse.getSuccess(), () -> new BizException(OrderErrorCode.CREATE_ORDER_FAILED));
@@ -52,6 +54,7 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
         return new OrderResponse.OrderResponseBuilder().buildSuccess();
     }
 
+    //确认订单
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
@@ -62,16 +65,17 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
 
         Assert.isTrue(transactionConfirmResponse.getSuccess(), "transaction confirm failed");
 
+        //幂等处理，confirm成功就确认订单
         if (transactionConfirmResponse.getTransConfirmSuccessType() == TransConfirmSuccessType.CONFIRM_SUCCESS) {
             OrderResponse orderResponse = orderManageService.confirm(orderConfirmRequest);
             Assert.isTrue(orderResponse.getSuccess(), () -> new BizException(OrderErrorCode.CREATE_ORDER_FAILED));
-
             return orderResponse;
         }
 
         return new OrderResponse.OrderResponseBuilder().buildSuccess();
     }
 
+    //取消订单
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade

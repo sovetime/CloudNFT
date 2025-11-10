@@ -58,11 +58,13 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
     //订单创建
     @Transactional(rollbackFor = Exception.class)
     public OrderResponse create(OrderCreateRequest request) {
+        //根据幂等号查询订单
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
         if (existOrder != null) {
             return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
         }
 
+        //创建订单
         TradeOrder tradeOrder = doCreate(request);
 
         return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
@@ -82,12 +84,14 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
     }
 
+    //订单创建
     private TradeOrder doCreate(OrderCreateRequest request) {
+        //生成对应的订单，保存到数据库
         TradeOrder tradeOrder = TradeOrder.createOrder(request);
-
         boolean result = save(tradeOrder);
         Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
 
+        //构建对应的订单流水并保存
         TradeOrderStream orderStream = new TradeOrderStream(tradeOrder, request.getOrderEvent(), request.getIdentifier());
         result = orderStreamMapper.insert(orderStream) == 1;
         Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
@@ -157,18 +161,18 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return doExecute(request, tradeOrder -> tradeOrder.finish(request));
     }
 
-    //通用订单更新逻辑
+    //更新订单状态
     protected OrderResponse doExecute(BaseOrderUpdateRequest orderRequest, Consumer<TradeOrder> consumer) {
         OrderResponse response = new OrderResponse();
         //调用统一处理方法
         return handle(orderRequest, response, "doExecute", request -> {
-
             //根据订单号查询订单
             TradeOrder existOrder = orderMapper.selectByOrderId(request.getOrderId());
             if (existOrder == null) {
                 throw new OrderException(ORDER_NOT_EXIST);
             }
 
+            //判断权限
             if (!hasPermission(existOrder, orderRequest.getOrderEvent(), orderRequest.getOperator(), orderRequest.getOperatorType())) {
                 throw new OrderException(PERMISSION_DENIED);
             }
@@ -185,10 +189,11 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
             //开启事务执行对应代码
             return transactionTemplate.execute(transactionStatus -> {
-
+                //更新订单状态
                 boolean result = orderMapper.updateByOrderId(existOrder) == 1;
                 Assert.isTrue(result, () -> new OrderException(OrderErrorCode.UPDATE_ORDER_FAILED));
 
+                //构建对应的订单流水并保存
                 TradeOrderStream orderStream = new TradeOrderStream(existOrder, orderRequest.getOrderEvent(), orderRequest.getIdentifier());
                 result = orderStreamMapper.insert(orderStream) == 1;
                 Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
@@ -246,19 +251,11 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
     //判断权限
     private boolean hasPermission(TradeOrder existOrder, TradeOrderEvent orderEvent, String operator, UserType operatorType) {
-        switch (orderEvent) {
-            case PAY:
-            case CANCEL:
-            case CREATE_AND_CONFIRM:
-                return existOrder.getBuyerId().equals(operator);
-            case TIME_OUT:
-            case CONFIRM:
-            case FINISH:
-            case DISCARD:
-                return operatorType == UserType.PLATFORM;
-            default:
-                throw new UnsupportedOperationException("unsupport order event : " + orderEvent);
-        }
+        return switch (orderEvent) {
+            case CREATE_AND_CONFIRM -> existOrder.getBuyerId().equals(operator);
+            case DISCARD -> operatorType == UserType.PLATFORM;
+            default -> throw new UnsupportedOperationException("unsupport order event : " + orderEvent);
+        };
     }
 
     //统一订单处理方法
