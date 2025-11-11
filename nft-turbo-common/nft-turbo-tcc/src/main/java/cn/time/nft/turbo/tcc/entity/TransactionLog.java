@@ -16,10 +16,13 @@ public class TransactionLog extends BaseEntity {
 
     //事务ID
     private String transactionId;
+
     //业务场景
     private String businessScene;
+
     //业务模块
     private String businessModule;
+
     //状态
     private TransActionLogState state;
 

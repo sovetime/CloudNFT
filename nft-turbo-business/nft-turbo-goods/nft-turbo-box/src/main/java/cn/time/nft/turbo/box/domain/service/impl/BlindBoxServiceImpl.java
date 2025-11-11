@@ -290,10 +290,11 @@ public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> i
         return true;
     }
 
+    //取消售卖
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean cancel(GoodsCancelSaleRequest request) {
-        //流水校验
+        //根据幂等号查询库存流水
         BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());
         if (null != existStream) {
             return true;
@@ -307,7 +308,7 @@ public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> i
         int result = blindBoxInventoryStreamMapper.insert(stream);
         Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));
 
-        //核心逻辑执行
+        //库存回退
         result = blindBoxMapper.cancel(request.collectionId(), request.quantity());
         Assert.isTrue(result == 1, () -> new BlindBoxException(BLIND_BOX_SAVE_FAILED));
         return true;

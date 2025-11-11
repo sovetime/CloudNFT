@@ -68,6 +68,7 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
             return new TransactionCancelResponse(false, "EMPTY_CANCEL_FAILED", "EMPTY_CANCEL_FAILED");
         }
 
+        //如果是Try状态，则修改为Cancel状态
         if (existTransactionLog.getState() == TransActionLogState.TRY) {
             existTransactionLog.setState(TransActionLogState.CANCEL);
             existTransactionLog.setCancelType(TransCancelSuccessType.CANCEL_AFTER_TRY_SUCCESS);
@@ -77,6 +78,7 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
             return new TransactionCancelResponse(false, "CANCEL_FAILED", "CANCEL_FAILED");
         }
 
+        //如果是Confirm状态，则修改为Cancel状态
         if (existTransactionLog.getState() == TransActionLogState.CONFIRM) {
             existTransactionLog.setState(TransActionLogState.CANCEL);
             existTransactionLog.setCancelType(TransCancelSuccessType.CANCEL_AFTER_CONFIRM_SUCCESS);

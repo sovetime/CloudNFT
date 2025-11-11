@@ -31,7 +31,7 @@ public interface OrderFacadeService {
     //订单支付
     public OrderResponse paySuccess(OrderPayRequest request);
 
-    // 订单详情
+    //获取订单详情
     public SingleResponse<TradeOrderVO> getTradeOrder(String orderId);
 
     //订单详情

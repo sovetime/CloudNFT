@@ -202,7 +202,8 @@ public class TradeApplicationService {
             }
         }
 
-        //Confirm失败，发【疑似废单消息】进行延迟检查
+        //confirm失败可能是
+        //发【疑似废单消息】进行延迟检查
         if (!isConfirmSuccess) {
             //消息监听： NewBuyPlusMsgListener
             streamProducer.send("newBuyPlusPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_1_M);

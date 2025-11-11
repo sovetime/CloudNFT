@@ -93,11 +93,13 @@ public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacade
         return new GoodsSaleResponse.GoodsResponseBuilder().buildSuccess();
     }
 
+    //解锁库存
     @Override
     @Facade
     @Transactional(rollbackFor = Exception.class)
     @DistributeLock(keyExpression = "#request.bizNo",scene = "NORMAL_BUY_GOODS")
     public GoodsSaleResponse cancelDecreaseInventory(GoodsSaleRequest request) {
+        //TCC事务的Cancel，设置订单状态为Cancel
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
         TransactionCancelResponse transactionCancelResponse = transactionLogService.cancelTransaction(new TccRequest(request.getBizNo(), "normalBuy", goodsType.name()));
         Assert.isTrue(transactionCancelResponse.getSuccess(), "transaction cancel failed");
@@ -118,6 +120,7 @@ public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacade
         //Confirm成功后的Cancel，直接回滚库存
         if (transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_CONFIRM_SUCCESS) {
             GoodsCancelSaleRequest goodsCancelSaleRequest = new GoodsCancelSaleRequest(request.getBizNo(), request.getGoodsId(), request.getQuantity());
+            //取消售卖
             Boolean cancelResult = switch (goodsType) {
                 case BLIND_BOX -> blindBoxService.cancel(goodsCancelSaleRequest);
                 case COLLECTION -> collectionService.cancel(goodsCancelSaleRequest);
