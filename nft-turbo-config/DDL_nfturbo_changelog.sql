@@ -1,3 +1,28 @@
+# 2025-11-10 增加核对明细表,用于对账核对
+CREATE TABLE `pay_check_mismatch_detail`
+(
+    id                      bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `gmt_create`            datetime    NOT NULL COMMENT '创建时间',
+    `gmt_modified`          datetime    NOT NULL COMMENT '修改时间',
+    `pay_order_id`          varchar(64) DEFAULT NULL COMMENT '支付单号',
+    `channel_stream_id`     varchar(64)    DEFAULT NULL COMMENT '渠道流水号',
+    `check_time`            datetime    NOT NULL COMMENT '核对时间',
+    `pay_order_state`       varchar(32)    DEFAULT NULL COMMENT '支付单状态',
+    `channel_stream_state`  varchar(32)    DEFAULT NULL COMMENT '渠道流水状态',
+    `pay_order_amount`      decimal(10, 2) DEFAULT NULL COMMENT '支付单金额',
+    `channel_stream_amount` decimal(10, 2) DEFAULT NULL COMMENT '渠道流水金额',
+    `pay_order_time`        datetime       DEFAULT NULL COMMENT '支付单时间',
+    `channel_stream_time`   datetime       DEFAULT NULL COMMENT '渠道流水时间',
+    `mismatch_type`         varchar(64) NOT NULL COMMENT '不一致类型',
+    `is_daily_cut`          tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是日切相关数据: 0-否, 1-是',
+    `deleted`               tinyint        DEFAULT NULL COMMENT '逻辑删除标识',
+    `lock_version`          int            DEFAULT NULL COMMENT '乐观锁版本号',
+    status                  varchar(32)    DEFAULT 'INIT' COMMENT '状态: INIT-初始状态, SUSPEND-挂起状态, FINISH-完成状态',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_pay_order_id` (`pay_order_id`),
+    UNIQUE KEY `uk_channel_stream_id` (`channel_stream_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='核对结果数据';
+
 # 2025-07-07 增加微信支付流水表,用于对账核对
 
 CREATE TABLE `wechat_transaction` (

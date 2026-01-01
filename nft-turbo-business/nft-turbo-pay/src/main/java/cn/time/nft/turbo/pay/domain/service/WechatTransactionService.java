@@ -4,15 +4,14 @@ import cn.time.nft.turbo.pay.domain.entity.WechatTransaction;
 import cn.time.nft.turbo.pay.infrastructure.mapper.WechatTransactionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@Slf4j
 public class WechatTransactionService extends ServiceImpl<WechatTransactionMapper, WechatTransaction> {
-    private static final Logger logger = LoggerFactory.getLogger(PayOrderService.class);
 
     @Autowired
     private WechatTransactionMapper wechatTransactionMapper;
@@ -23,9 +22,8 @@ public class WechatTransactionService extends ServiceImpl<WechatTransactionMappe
     }
 
     public WechatTransaction queryByMchOrderNo(String mchOrderNo) {
-        return wechatTransactionMapper.selectOne(
-                new QueryWrapper<WechatTransaction>()
-                        .eq("mch_order_no", mchOrderNo)
+        return wechatTransactionMapper.selectOne(new QueryWrapper<WechatTransaction>()
+                .eq("mch_order_no", mchOrderNo)
         );
     }
 }

@@ -73,7 +73,9 @@ public class MockPayChannelServiceImpl implements PayChannelService {
 
     @Override
     public PayResultQueryResponse payResultQuery(String channelStreamId) {
-        return null;
+        PayResultQueryResponse response = new PayResultQueryResponse();
+        response.setSuccess(true);
+        return response;
     }
 
     //结果回调

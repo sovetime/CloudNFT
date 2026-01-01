@@ -148,7 +148,6 @@ public class UserAdminController {
     private void refreshUserInSession(Long userId) {
         UserQueryRequest userQueryRequest = new UserQueryRequest(userId);
         UserQueryResponse userQueryResponse = userFacadeService.query(userQueryRequest);
-        StpUtil.getSession().set(userId.toString(), userQueryResponse.getData());
+        StpUtil.getSessionByLoginId(userId).set(userId.toString(), userQueryResponse.getData());
     }
-
 }
