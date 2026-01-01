@@ -1,15 +1,13 @@
 package cn.time.nft.turbo.chain.domain.constant;
 
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-/**
- * 文昌链配置
- *
- * @author wswyb001
- * @date 2024/01/17
- */
+
+//文昌链配置
 @Component
+@Setter
 @ConfigurationProperties(prefix = "nft.turbo.chain.wenchang")
 public class WenChangChainConfiguration {
 
@@ -25,31 +23,16 @@ public class WenChangChainConfiguration {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     public String apiKey() {
         return apiKey;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
     }
 
     public String apiSecret() {
         return apiSecret;
     }
 
-    public void setApiSecret(String apiSecret) {
-        this.apiSecret = apiSecret;
-    }
-
     public String chainAddrSuper() {
         return chainAddrSuper;
     }
 
-    public void setChainAddrSuper(String chainAddrSuper) {
-        this.chainAddrSuper = chainAddrSuper;
-    }
 }

@@ -2,9 +2,11 @@ package cn.time.nft.turbo.trade.exception;
 
 import cn.time.nft.turbo.base.exception.ErrorCode;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 
 @AllArgsConstructor
+@Getter
 public enum TradeErrorCode implements ErrorCode {
 
     ORDER_CREATE_FAILED("ORDER_CREATE_FAILED", "订单创建失败"),
@@ -25,22 +27,12 @@ public enum TradeErrorCode implements ErrorCode {
 
     INVENTORY_ROLLBACK_FAILED("INVENTORY_ROLLBACK_FAILED", "库存回滚失败"),
 
-    NORMAL_BUY_TCC_CONFIRM_FAILED("NORMAL_BUY_TCC_CONFIRM_FAILED","订单创建失败"),
+    NORMAL_BUY_TCC_CONFIRM_FAILED("NORMAL_BUY_TCC_CONFIRM_FAILED", "订单创建失败"),
 
-    NORMAL_BUY_TCC_CANCEL_FAILED("NORMAL_BUY_TCC_CANCEL_FAILED","订单创建失败");
+    NORMAL_BUY_TCC_CANCEL_FAILED("NORMAL_BUY_TCC_CANCEL_FAILED", "订单创建失败");
 
     private String code;
 
     private String message;
 
-
-    @Override
-    public String getCode() {
-        return this.code;
-    }
-
-    @Override
-    public String getMessage() {
-        return this.message;
-    }
 }

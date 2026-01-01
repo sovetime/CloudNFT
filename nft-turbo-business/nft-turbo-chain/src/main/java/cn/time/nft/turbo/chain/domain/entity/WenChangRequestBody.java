@@ -4,9 +4,7 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author time
- */
+
 @Setter
 @Getter
 public class WenChangRequestBody implements RequestBody{

@@ -1,40 +1,22 @@
 package cn.time.nft.turbo.chain.infrastructure.exception;
 
 import cn.time.nft.turbo.base.exception.ErrorCode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-/**
- * 区块链错误码
- *
- * @author time
- */
+
+//区块链错误码
+@AllArgsConstructor
+@Getter
 public enum ChainErrorCode implements ErrorCode {
-    /**
-     * 区块链查询失败
-     */
+
     CHAIN_QUERY_FAIL("CHAIN_QUERY_FAIL", "区块链查询失败"),
-    /**
-     * 区块链状态不是成功
-     */
-    CHAIN_PROCESS_STATE_ERROR("CHAIN_PROCESS_STATE_ERROR", "区块链状态不是成功"),
+
+    CHAIN_PROCESS_STATE_ERROR("CHAIN_PROCESS_STATE_ERROR", "区块链状态不是成功")
     ;
 
     private String code;
 
-
     private String message;
 
-    ChainErrorCode(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
-
-    @Override
-    public String getCode() {
-        return this.code;
-    }
-
-    @Override
-    public String getMessage() {
-        return this.message;
-    }
 }

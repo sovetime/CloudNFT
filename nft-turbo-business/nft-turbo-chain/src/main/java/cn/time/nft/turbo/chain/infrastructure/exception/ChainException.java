@@ -3,11 +3,8 @@ package cn.time.nft.turbo.chain.infrastructure.exception;
 import cn.time.nft.turbo.base.exception.BizException;
 import cn.time.nft.turbo.base.exception.ErrorCode;
 
-/**
- * 链异常
- *
- * @author time
- */
+
+//链异常
 public class ChainException extends BizException {
 
     public ChainException(ErrorCode errorCode) {

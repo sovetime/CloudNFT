@@ -31,11 +31,8 @@ import static cn.time.nft.turbo.api.common.constant.CommonConstant.APP_NAME_UPPE
 import static cn.time.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.time.nft.turbo.chain.infrastructure.utils.WenChangChainUtils.configureHeaders;
 
-/**
- * 文昌链服务
- *
- * @author time
- */
+
+//文昌链服务
 @Service("wenChangChainService")
 @Slf4j
 public class WenChangChainServiceImpl extends AbstractChainService {

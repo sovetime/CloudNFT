@@ -77,7 +77,6 @@ public class TokenController {
     }
 
     private GoodsType getGoodsType(TokenSceneEnum tokenScene) {
-
         return switch (tokenScene) {
             case BUY_COLLECTION -> GoodsType.COLLECTION;
             case BUY_BLIND_BOX -> GoodsType.BLIND_BOX;

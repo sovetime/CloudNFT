@@ -5,6 +5,7 @@ import cn.time.nft.turbo.base.exception.ErrorCode;
 
 
 public class TradeException extends BizException {
+
     public TradeException(ErrorCode errorCode) {
         super(errorCode);
     }

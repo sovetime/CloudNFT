@@ -9,11 +9,8 @@ import org.springframework.http.HttpHeaders;
 
 import java.util.Map;
 
-/**
- * 文昌链工具类
- *
- * @author time
- */
+
+//文昌链工具类
 public class WenChangChainUtils {
 
     public static Map<String,String> configureHeaders(String signature, Long timestamp, String apiKey) {

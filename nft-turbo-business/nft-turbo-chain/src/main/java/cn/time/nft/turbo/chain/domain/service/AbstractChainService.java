@@ -51,8 +51,7 @@ public abstract class AbstractChainService implements ChainService {
     @Autowired
     private StreamProducer streamProducer;
 
-    private static ThreadFactory chainResultProcessFactory = new ThreadFactoryBuilder()
-            .setNameFormat("chain-result-process-pool-%d").build();
+    private static ThreadFactory chainResultProcessFactory = new ThreadFactoryBuilder().setNameFormat("chain-result-process-pool-%d").build();
 
     ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(10, chainResultProcessFactory);
 
@@ -62,8 +61,9 @@ public abstract class AbstractChainService implements ChainService {
             Boolean rateLimitResult = slidingWindowRateLimiter.tryAcquire(
                     "limit#" + chainProcessRequest.getBizType() + chainProcessRequest.getIdentifier(), 1, 60);
             if (!rateLimitResult) {
-                return new ChainProcessResponse.Builder().responseCode(ChainCodeEnum.PROCESSING.name()).data(
-                        new ChainOperationData(chainProcessRequest.getIdentifier())).buildSuccess();
+                return new ChainProcessResponse.Builder()
+                        .responseCode(ChainCodeEnum.PROCESSING.name())
+                        .data(new ChainOperationData(chainProcessRequest.getIdentifier())).buildSuccess();
             }
             ChainOperateInfo chainOperateInfo = chainOperateInfoService.queryByOutBizId(chainProcessRequest.getBizId(), chainProcessRequest.getBizType(),
                     chainProcessRequest.getIdentifier());

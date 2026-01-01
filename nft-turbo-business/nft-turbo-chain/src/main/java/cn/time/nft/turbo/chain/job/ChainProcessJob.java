@@ -16,6 +16,7 @@ import cn.time.nft.turbo.chain.infrastructure.exception.ChainErrorCode;
 import cn.time.nft.turbo.chain.infrastructure.exception.ChainException;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,12 +26,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * 链上处理任务
- *
- * @author time
- */
+
+//链上处理任务
 @Component
+@Slf4j
 public class ChainProcessJob {
 
     @Autowired
@@ -40,8 +39,6 @@ public class ChainProcessJob {
     private ChainServiceFactory chainServiceFactory;
 
     private static final int PAGE_SIZE = 5;
-
-    private static final Logger LOG = LoggerFactory.getLogger(ChainProcessJob.class);
 
     @XxlJob("unFinishOperateExecute")
     public ReturnT<String> execute() {
@@ -62,8 +59,7 @@ public class ChainProcessJob {
     }
 
     private void executeSingle(ChainOperateInfo chainOperateInfo) {
-
-        LOG.info("start to execute unfinish operate , id is {}", chainOperateInfo.getId());
+        log.info("start to execute unfinish operate , id is {}", chainOperateInfo.getId());
         try {
             ChainService chainService = chainServiceFactory.get(ChainType.valueOf(chainOperateInfo.getChainType()));
             ChainQueryRequest query = new ChainQueryRequest();
@@ -93,7 +89,7 @@ public class ChainProcessJob {
                 }
             }
         } catch (Exception e) {
-            LOG.error("start to execute unfinish operate error, id is {}, error is {}", chainOperateInfo.getId(), e);
+            log.error("start to execute unfinish operate error, id is {}, error is {}", chainOperateInfo.getId(), e.getMessage());
         }
     }
 

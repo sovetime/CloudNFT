@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * @author time
- */
+
 @Getter
 @Setter
 @AllArgsConstructor

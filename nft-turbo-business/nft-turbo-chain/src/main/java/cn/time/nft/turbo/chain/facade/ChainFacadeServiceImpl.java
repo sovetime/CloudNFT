@@ -15,9 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import static cn.time.nft.turbo.base.constant.ProfileConstant.PROFILE_DEV;
 
-/**
- * @author time
- */
+
 @DubboService(version = "1.0.0")
 public class ChainFacadeServiceImpl implements ChainFacadeService {
 

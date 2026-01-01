@@ -21,11 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * mock链服务
- *
- * @author time
- */
+
+//mock链服务
 @Service("mockChainService")
 public class MockChainServiceImpl extends AbstractChainService {
 
