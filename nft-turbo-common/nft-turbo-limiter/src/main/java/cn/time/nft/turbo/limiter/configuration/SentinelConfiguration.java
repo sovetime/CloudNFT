@@ -8,11 +8,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-/**
- * 为了解决这个问题：https://github.com/alibaba/Sentinel/issues/3298
- *
- * @author time
- */
+
 @Configuration
 public class SentinelConfiguration {
 

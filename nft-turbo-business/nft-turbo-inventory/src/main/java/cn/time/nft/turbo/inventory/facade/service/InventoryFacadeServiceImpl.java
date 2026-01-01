@@ -8,6 +8,7 @@ import cn.time.nft.turbo.base.response.SingleResponse;
 import cn.time.nft.turbo.inventory.domain.response.InventoryResponse;
 import cn.time.nft.turbo.inventory.domain.service.impl.BlindBoxInventoryRedisService;
 import cn.time.nft.turbo.inventory.domain.service.impl.CollectionInventoryRedisService;
+import com.alibaba.csp.sentinel.SphO;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
@@ -77,42 +78,49 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     //库存扣减(redis)
     @Override
     public SingleResponse<Boolean> decrease(InventoryRequest inventoryRequest) {
-        //获取商品类型
-        GoodsType goodsType = inventoryRequest.getGoodsType();
+        if (SphO.entry("INVENTORY_DECREASE")) {
+            try {
+                //获取商品类型
+                GoodsType goodsType = inventoryRequest.getGoodsType();
 
-        //优化方案，引入本地缓存进行过滤
-        //根据 商品类型_商品ID -> goodstype_goodsId 从本地缓存中获取库存
-        if (soldOutGoodsLocalCache.getIfPresent(goodsType + SEPARATOR + inventoryRequest.getGoodsId()) != null) {
-            return SingleResponse.fail(ERROR_CODE_INVENTORY_NOT_ENOUGH, "库存不足");
+                //优化方案，引入本地缓存进行过滤
+                //根据 商品类型_商品ID -> goodstype_goodsId 从本地缓存中获取库存
+                if (soldOutGoodsLocalCache.getIfPresent(goodsType + SEPARATOR + inventoryRequest.getGoodsId()) != null) {
+                    return SingleResponse.fail(ERROR_CODE_INVENTORY_NOT_ENOUGH, "库存不足");
+                }
+
+                //返回响应信息
+                InventoryResponse inventoryResponse = switch (goodsType) {
+                    //藏品
+                    case COLLECTION -> collectionInventoryRedisService.decrease(inventoryRequest);
+                    //盲盒
+                    case BLIND_BOX -> blindBoxInventoryRedisService.decrease(inventoryRequest);
+                    default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
+                };
+
+                //1、如果库存为0，则在本地缓存记录，用于对售罄商品快速决策
+                //2、当前库存已经是0了，本次扣减失败的情况
+                if (isSoldOut(inventoryResponse)) {
+                    soldOutGoodsLocalCache.put(goodsType + SEPARATOR + inventoryRequest.getGoodsId(), true);
+                }
+
+                if (!inventoryResponse.getSuccess()) {
+                    return SingleResponse.fail(inventoryResponse.getResponseCode(), inventoryResponse.getResponseMessage());
+                }
+
+                return SingleResponse.of(true);
+            } finally {
+                SphO.exit();
+            }
+        } else {
+            log.warn("INVENTORY_DECREASE 触发限流...");
+            return SingleResponse.of(false);
         }
-
-        //返回响应信息
-        InventoryResponse inventoryResponse = switch (goodsType) {
-            //藏品
-            case COLLECTION -> collectionInventoryRedisService.decrease(inventoryRequest);
-
-            //盲盒
-            case BLIND_BOX -> blindBoxInventoryRedisService.decrease(inventoryRequest);
-
-            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
-        };
-
-        //1、如果库存为0，则在本地缓存记录，用于对售罄商品快速决策
-        //2、当前库存已经是0了，本次扣减失败的情况
-        if (isSoldOut(inventoryResponse)) {
-            soldOutGoodsLocalCache.put(goodsType + SEPARATOR + inventoryRequest.getGoodsId(), true);
-        }
-
-        if (!inventoryResponse.getSuccess()) {
-            return SingleResponse.fail(inventoryResponse.getResponseCode(), inventoryResponse.getResponseMessage());
-        }
-
-        return SingleResponse.of(true);
     }
 
     // 判断是否售罄
     private static boolean isSoldOut(InventoryResponse inventoryResponse) {
-        if(inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0){
+        if (inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0) {
             //这部分代码没有实际功能作用，仅用于日志埋点，方便压测时判断延时，详见压测相关视频
             log.warn("debug:soldOut ...");
         }

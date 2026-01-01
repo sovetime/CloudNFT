@@ -15,6 +15,7 @@ import cn.time.nft.turbo.api.user.request.UserQueryRequest;
 import cn.time.nft.turbo.api.user.response.UserQueryResponse;
 import cn.time.nft.turbo.api.user.response.data.UserInfo;
 import cn.time.nft.turbo.api.user.service.UserFacadeService;
+import cn.time.nft.turbo.base.exception.SystemException;
 import cn.time.nft.turbo.base.response.BaseResponse;
 import cn.time.nft.turbo.base.response.PageResponse;
 import cn.time.nft.turbo.base.response.SingleResponse;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static cn.time.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
+import static cn.time.nft.turbo.base.exception.BlockErrorCode.REQUEST_IS_BLOCKED;
 
 
 @DubboService(version = "1.0.0")
@@ -90,22 +92,27 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
     @Facade
     public OrderResponse create(OrderCreateRequest request) {
-        try {
-            //订单校验
-            orderValidatorChain.validate(request);
-        } catch (OrderException e) {
-            return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
-        }
+        try (Entry entry = SphU.entry("ORDER_CREATE")) {
+            try {
+                //订单校验
+                orderValidatorChain.validate(request);
+            } catch (OrderException e) {
+                return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
+            }
 
-        //库存扣减(redis)
-        InventoryRequest inventoryRequest = new InventoryRequest(request);
-        SingleResponse<Boolean> decreaseResult = inventoryFacadeService.decrease(inventoryRequest);
+            //库存扣减(redis)
+            InventoryRequest inventoryRequest = new InventoryRequest(request);
+            SingleResponse<Boolean> decreaseResult = inventoryFacadeService.decrease(inventoryRequest);
 
-        //订单创建并异步执行确认
-        if (decreaseResult.getSuccess()) {
-            return orderService.createAndAsyncConfirm(request);
+            //订单创建并异步执行确认
+            if (decreaseResult.getSuccess()) {
+                return orderService.createAndAsyncConfirm(request);
+            }
+            throw new OrderException(OrderErrorCode.INVENTORY_DECREASE_FAILED);
+        } catch (BlockException e) {
+            // 限流、熔断、降级的处理逻辑
+            throw new SystemException(REQUEST_IS_BLOCKED);
         }
-        throw new OrderException(OrderErrorCode.INVENTORY_DECREASE_FAILED);
     }
 
     //取消订单
@@ -148,25 +155,28 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
     @Facade
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
-        try {
-            //订单校验
-            orderConfirmValidatorChain.validate(request);
-        } catch (OrderException e) {
-            return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
-        }
-
-        //进行库存扣减
-        if (request.isSyncDecreaseInventory()) {
-            GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
-            //进行库存扣减
-            GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
-            if (!response.getSuccess()) {
-                return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+        try (Entry entry = SphU.entry("ORDER_CREATE")) {
+            try {
+                //订单校验
+                orderConfirmValidatorChain.validate(request);
+            } catch (OrderException e) {
+                return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
             }
-        }
 
-        //创建并确认订单，订单落库
-        return orderService.createAndConfirm(request);
+            if (request.isSyncDecreaseInventory()) {
+                GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
+                //进行库存扣减
+                GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
+                if (!response.getSuccess()) {
+                    return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+                }
+            }
+
+            return orderService.createAndConfirm(request);
+        }catch (BlockException e) {
+            // 限流、熔断、降级的处理逻辑
+            throw new SystemException(REQUEST_IS_BLOCKED);
+        }
     }
 
     //发送事务消息关单

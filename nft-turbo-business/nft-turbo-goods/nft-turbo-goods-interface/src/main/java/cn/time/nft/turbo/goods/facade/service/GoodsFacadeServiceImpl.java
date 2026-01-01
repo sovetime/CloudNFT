@@ -27,7 +27,9 @@ import cn.time.nft.turbo.goods.entity.convertor.GoodsStreamConvertor;
 import cn.time.nft.turbo.goods.service.GoodsBookService;
 import cn.time.nft.turbo.goods.service.HotGoodsService;
 import cn.time.nft.turbo.rpc.facade.Facade;
-import groovy.util.logging.Slf4j;
+import com.alibaba.csp.sentinel.EntryType;
+import com.alibaba.csp.sentinel.SphO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,42 +113,55 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     @Override
     public GoodsSaleResponse sale(GoodsSaleRequest request) {
-        GoodsTrySaleRequest goodsTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
-        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
-
-        Boolean trySaleResult = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.sale(goodsTrySaleRequest);
-            case COLLECTION -> collectionService.sale(goodsTrySaleRequest);
-            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
-        };
-
         GoodsSaleResponse response = new GoodsSaleResponse();
-        response.setSuccess(trySaleResult);
-        return response;
+        if (SphO.entry("GOODS_SALE", EntryType.IN, 1, request.getGoodsId() + "_" + request.getGoodsType())) {
+            try {
+                GoodsTrySaleRequest goodsTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
+                GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+
+                Boolean trySaleResult = switch (goodsType) {
+                    case BLIND_BOX -> blindBoxService.sale(goodsTrySaleRequest);
+                    case COLLECTION -> collectionService.sale(goodsTrySaleRequest);
+                    default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
+                };
+                response.setSuccess(trySaleResult);
+                return response;
+            } finally {
+                SphO.exit();
+            }
+        } else {
+            log.warn("GOODS_SALE 触发限流...");
+            response.setSuccess(false);
+            return response;
+        }
     }
 
     // 藏品出售-无hint
     @Override
     public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request) {
-        GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
-        // 获取商品类型
-        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
-
-        Boolean trySaleResult = switch (goodsType) {
-            //藏品
-            case COLLECTION -> collectionService.saleWithoutHint(collectionTrySaleRequest);
-
-            //盲盒
-            case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
-
-            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
-        };
-
         GoodsSaleResponse response = new GoodsSaleResponse();
-        response.setSuccess(trySaleResult);
-        return response;
-    }
+        if (SphO.entry("GOODS_SALE", EntryType.IN, 1, request.getGoodsId() + "_" + request.getGoodsType())) {
+            try {
+                GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
 
+                GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+
+                Boolean trySaleResult = switch (goodsType) {
+                    case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
+                    case COLLECTION -> collectionService.saleWithoutHint(collectionTrySaleRequest);
+                    default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
+                };
+                response.setSuccess(trySaleResult);
+                return response;
+            } finally {
+                SphO.exit();
+            }
+        } else {
+            log.warn("GOODS_SALE 触发限流...");
+            response.setSuccess(false);
+            return response;
+        }
+    }
 
     @Override
     @Deprecated

@@ -10,3 +10,9 @@ spring:
             data-id: business-flow-rules
             group-id: SENTINEL_GROUP
             rule-type: FLOW
+      param-flow:
+        nacos:
+          server-addr: ${nft.turbo.nacos.server.url}
+          data-id: business-param-flow-rules
+          group-id: SENTINEL_GROUP
+          rule-type: PARAM_FLOW

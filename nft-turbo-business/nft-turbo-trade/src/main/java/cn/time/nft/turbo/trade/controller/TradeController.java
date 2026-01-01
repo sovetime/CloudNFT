@@ -43,7 +43,6 @@ import cn.time.nft.turbo.trade.param.PayParam;
 import cn.time.nft.turbo.web.vo.Result;
 import cn.time.turbo.stream.producer.StreamProducer;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
-import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.annotation.Resource;
@@ -52,7 +51,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -103,16 +105,6 @@ public class TradeController {
     @Resource
     private InventoryCheckFacadeService inventoryCheckFacadeService;
 
-    @GetMapping("/test")
-    @SentinelResource(value = "/trade/test",fallback = "fallback")
-    public String test() {
-        return "test";
-    }
-
-    public void fallback(BlockException ex) {
-        log.error("error",ex);
-    }
-
     //预约
     @PostMapping("/book")
     public Result<Long> book(@Valid @RequestBody BookParam bookParam) {
@@ -137,6 +129,7 @@ public class TradeController {
 
     //秒杀下单，(基于inventory hint的实现),热点商品
     @PostMapping("/buy")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
         try {
             //创建订单(从ThreadLocal中获取token)
@@ -162,6 +155,7 @@ public class TradeController {
 
     //秒杀下单（不基于inventory hint的实现），热点商品
     @PostMapping("/newBuy")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateRequest orderCreateRequest = null;
 
@@ -204,6 +198,7 @@ public class TradeController {
 
     //秒杀下单（不基于inventory hint的实现），热点商品，同步创建订单
     @PostMapping("/newBuyPlus")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
         try {
             //创建订单(从ThreadLocal中获取token)
@@ -266,6 +261,7 @@ public class TradeController {
 
     //普通下单，非热点商品
     @PostMapping("/normalBuy")
+    @SentinelResource(value = "/trade/normalBuy")
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
