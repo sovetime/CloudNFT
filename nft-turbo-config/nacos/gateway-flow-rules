@@ -1,0 +1,18 @@
+[
+  {
+  "resource": "nfturbo-auth",
+  "limitApp": "default",
+  "grade": 1,
+  "count": 1000.0,
+  "strategy": 0,
+  "controlBehavior": 0
+  },
+  {
+  "resource": "nfturbo-business",
+  "limitApp": "default",
+  "grade": 1,
+  "count": 35000.0,
+  "strategy": 0,
+  "controlBehavior": 0
+  }
+]

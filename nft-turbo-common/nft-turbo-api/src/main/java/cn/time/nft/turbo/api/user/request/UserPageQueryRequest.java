@@ -11,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 public class UserPageQueryRequest extends BaseRequest {
 
-
     //手机号关键字
     private String keyWord;
 

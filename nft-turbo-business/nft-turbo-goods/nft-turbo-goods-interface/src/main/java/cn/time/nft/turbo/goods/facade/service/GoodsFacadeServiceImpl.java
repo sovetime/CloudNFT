@@ -27,6 +27,7 @@ import cn.time.nft.turbo.goods.entity.convertor.GoodsStreamConvertor;
 import cn.time.nft.turbo.goods.service.GoodsBookService;
 import cn.time.nft.turbo.goods.service.HotGoodsService;
 import cn.time.nft.turbo.rpc.facade.Facade;
+import groovy.util.logging.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import java.util.List;
 
 //商品聚合服务
 @DubboService(version = "1.0.0")
+@Slf4j
 public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     private static final String ERROR_CODE_UNSUPPORTED_GOODS_TYPE = "UNSUPPORTED_GOODS_TYPE";

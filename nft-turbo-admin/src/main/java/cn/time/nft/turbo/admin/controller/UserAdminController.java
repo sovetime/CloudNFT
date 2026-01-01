@@ -44,13 +44,15 @@ public class UserAdminController {
     //默认登录超时时间：7天
     private static final Integer DEFAULT_LOGIN_SESSION_TIMEOUT = 60 * 60 * 24 * 7;
 
+    //获取当前登录用户信息
     @GetMapping("/getUserInfo")
     public Result<UserInfo> getUserInfo() {
         String userId = (String) StpUtil.getLoginId();
+        //用户查询请求
         UserQueryRequest request = new UserQueryRequest(Long.valueOf(userId));
+        //用户信息查询
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(request);
         UserInfo userInfo = userQueryResponse.getData();
-
         if (userInfo == null) {
             throw new AdminException(ADMIN_USER_NOT_EXIST);
         }
@@ -59,6 +61,7 @@ public class UserAdminController {
 
     @GetMapping("/userList")
     public MultiResult<UserInfo> userList(@NotBlank String state, String keyWord, int pageSize, int currentPage) {
+        //用户查询请求
         UserPageQueryRequest userPageQueryRequest = new UserPageQueryRequest();
         userPageQueryRequest.setState(state);
         userPageQueryRequest.setKeyWord(keyWord);
@@ -68,6 +71,7 @@ public class UserAdminController {
         return MultiResultConvertor.convert(pageResponse);
     }
 
+    //注册管理员
     @PostMapping("/registerAdmin")
     public Result<Boolean> registerAdmin(@Valid String phone) {
         //不直接提供管理员注册功能，通过数据订正进行管理员账号初始化
@@ -76,9 +80,9 @@ public class UserAdminController {
         return null;
     }
 
+    //登录
     @PostMapping("/login")
     public Result<AdminLoginVO> login(@Valid @RequestBody AdminLoginParam loginParam) {
-
         //查询用户信息
         UserQueryRequest userQueryRequest = new UserQueryRequest(loginParam.getTelephone(), loginParam.getPassword());
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
@@ -95,12 +99,14 @@ public class UserAdminController {
         }
     }
 
+    //登出
     @PostMapping("/logout")
     public Result<Boolean> logout() {
         StpUtil.logout();
         return Result.success(true);
     }
 
+    //冻结
     @PostMapping("/freeze")
     public Result<UserOperatorResponse> freeze(@Valid Long userId) {
         String adminUserId = (String) StpUtil.getLoginId();
@@ -116,10 +122,10 @@ public class UserAdminController {
 
         //重新查出用户信息，更新登录的session，确保用户权限实时更新
         refreshUserInSession(userId);
-
         return Result.success(res);
     }
 
+    //解冻
     @PostMapping("/unfreeze")
     public Result<UserOperatorResponse> unfreeze(@Valid Long userId) {
         String adminUserId = (String) StpUtil.getLoginId();
@@ -138,6 +144,7 @@ public class UserAdminController {
         return Result.success(res);
     }
 
+    //刷新用户信息
     private void refreshUserInSession(Long userId) {
         UserQueryRequest userQueryRequest = new UserQueryRequest(userId);
         UserQueryResponse userQueryResponse = userFacadeService.query(userQueryRequest);

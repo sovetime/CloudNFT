@@ -35,7 +35,6 @@ public class NoticeFacadeServiceImpl implements NoticeFacadeService {
     @Autowired
     private SmsService smsService;
 
-
     //生成并发送短信验证码
     @Facade
     @Override

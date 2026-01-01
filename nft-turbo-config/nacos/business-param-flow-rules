@@ -1,0 +1,11 @@
+[
+  {
+    "resource": "GOODS_SALE",
+    "controlBehavior": 0,
+    "paramIdx": 0,
+    "count": 800,
+    "grade": 1,
+    "durationInSec": 1,
+    "burst": 0
+  }
+]

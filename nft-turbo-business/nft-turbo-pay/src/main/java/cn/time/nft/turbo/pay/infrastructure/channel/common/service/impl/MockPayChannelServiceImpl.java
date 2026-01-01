@@ -63,8 +63,7 @@ public class MockPayChannelServiceImpl implements PayChannelService {
         params.put("payOrderId", payChannelRequest.getOrderId());
         params.put("paidAmount", payChannelRequest.getAmount());
         context.set(params);
-
-        //异步线程延迟3秒钟之后调用 notify 方法
+            //异步线程延迟3秒钟之后调用 notify 方法
             scheduler.schedule(() -> {
             this.notify(null, null);
         }, 3, TimeUnit.SECONDS);

@@ -15,12 +15,16 @@ public class BlindBoxListenerConfig {
     @Bean("blindBoxListenExecutor")
     public Executor orderListenExecutor() {
 
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-                .setNameFormat("blindBoxListener-%d").build();
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("blindBoxListener-%d").build();
 
-        ExecutorService executorService = new ThreadPoolExecutor(10, 20,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+        ExecutorService executorService = new ThreadPoolExecutor(
+                10,
+                20,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(1024),
+                namedThreadFactory,
+                new ThreadPoolExecutor.AbortPolicy());
 
         return executorService;
     }

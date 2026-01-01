@@ -150,6 +150,7 @@ public class BlindBoxAdminController {
         blindBoxPageQueryRequest.setKeyword(keyWord);
         blindBoxPageQueryRequest.setCurrentPage(currentPage);
         blindBoxPageQueryRequest.setPageSize(pageSize);
+
         PageResponse<BlindBoxVO> pageResponse = blindBoxReadFacadeService.pageQueryBlindBox(blindBoxPageQueryRequest);
         return MultiResultConvertor.convert(pageResponse);
     }

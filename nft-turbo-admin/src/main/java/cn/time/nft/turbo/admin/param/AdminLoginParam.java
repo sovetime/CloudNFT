@@ -8,8 +8,6 @@ import lombok.Setter;
 @Getter
 public class AdminLoginParam extends AdminRegisterParam {
 
-    /**
-     * 记住我
-     */
+    //记住我
     private Boolean rememberMe;
 }

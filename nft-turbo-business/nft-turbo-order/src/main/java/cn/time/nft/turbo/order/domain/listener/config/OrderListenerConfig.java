@@ -11,7 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-
+//订单监听器配置
 @Configuration
 @EnableAsync
 public class OrderListenerConfig {

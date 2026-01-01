@@ -47,14 +47,17 @@ public class NewBuyMsgListener extends AbstractStreamConsumer {
     private InventoryFacadeService inventoryFacadeService;
 
     @Bean
-    Consumer<Message<MessageBody>> newBuy() {
+    public Consumer<Message<MessageBody>> newBuy() {
         return msg -> {
+            //获取消息
             OrderCreateRequest orderCreateRequest = getMessage(msg, OrderCreateRequest.class);
             doNewBuyExecute(orderCreateRequest);
         };
     }
 
+    //消费消息
     public void doNewBuyExecute(OrderCreateRequest orderCreateRequest) {
+        //确认订单请求
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         BeanUtils.copyProperties(orderCreateRequest, orderCreateAndConfirmRequest);
         orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
