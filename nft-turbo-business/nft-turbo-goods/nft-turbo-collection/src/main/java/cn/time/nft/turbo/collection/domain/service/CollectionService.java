@@ -54,6 +54,6 @@ public interface CollectionService extends IService<Collection> {
     //查询
     public Collection queryById(Long collectionId);
 
-    //分页查询
+    //分页查询，分为Mysql/ES
     public PageResponse<Collection> pageQueryByState(String keyWord, String state, int currentPage, int pageSize);
 }

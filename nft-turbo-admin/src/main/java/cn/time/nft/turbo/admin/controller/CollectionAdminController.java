@@ -75,7 +75,7 @@ public class CollectionAdminController {
 
     @DubboReference(version = "1.0.0")
     private InventoryFacadeService inventoryFacadeService;
-
+    //上传藏品
     @PostMapping("/uploadCollection")
     public Result<String> uploadCollection(@RequestParam("file_data") MultipartFile file) throws Exception {
         if (null == file) {
@@ -95,6 +95,7 @@ public class CollectionAdminController {
 
     }
 
+    //创建藏品
     @PostMapping("/createCollection")
     public Result<Long> createCollection(@Valid @RequestBody AdminCollectionCreateParam param) throws Exception {
         String userId = (String) StpUtil.getLoginId();
@@ -123,6 +124,7 @@ public class CollectionAdminController {
         }
     }
 
+    //移除藏品
     @PostMapping("/removeCollection")
     public Result<Long> removeCollection(@Valid @RequestBody AdminCollectionRemoveParam param) {
         CollectionRemoveRequest request = new CollectionRemoveRequest();
@@ -136,6 +138,7 @@ public class CollectionAdminController {
         }
     }
 
+    //修改藏品库存
     @PostMapping("/modifyInventory")
     public Result<Long> modifyInventory(@Valid @RequestBody AdminCollectionModifyParam param) {
         CollectionModifyInventoryRequest request = new CollectionModifyInventoryRequest();
@@ -151,6 +154,7 @@ public class CollectionAdminController {
 
     }
 
+    //修改藏品价格
     @PostMapping("/modifyPrice")
     public Result<Long> modifyPrice(@Valid @RequestBody AdminCollectionModifyParam param) {
         CollectionModifyPriceRequest request = new CollectionModifyPriceRequest();
@@ -173,10 +177,12 @@ public class CollectionAdminController {
         collectionPageQueryRequest.setKeyword(keyWord);
         collectionPageQueryRequest.setCurrentPage(currentPage);
         collectionPageQueryRequest.setPageSize(pageSize);
+        //藏品分页查询
         PageResponse<CollectionVO> pageResponse = collectionReadFacadeService.pageQuery(collectionPageQueryRequest);
         return MultiResultConvertor.convert(pageResponse);
     }
 
+    //空投
     @PostMapping("/airDrop")
     public Result<String> airDrop(@Valid @RequestBody AdminCollectionAirDropParam param) {
         CollectionAirDropRequest request = new CollectionAirDropRequest(param.getRecipientUserId(), param.getQuantity(), GoodsSaleBizType.valueOf(param.getBizType()));
@@ -200,6 +206,7 @@ public class CollectionAdminController {
         }
     }
 
+    //空投列表
     @GetMapping("/airDropList")
     public MultiResult<AirDropStreamVO> airDropList(String collectionId, String userId, int pageSize, int currentPage) {
         AirDropPageQueryRequest request = new AirDropPageQueryRequest();

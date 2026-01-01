@@ -81,6 +81,7 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
 
     @Override
     public PageResponse<CollectionVO> pageQuery(CollectionPageQueryRequest request) {
+        //分页查询，分为ES/Mysql
         PageResponse<Collection> colletionPage = collectionService.pageQueryByState(request.getKeyword(), request.getState(), request.getCurrentPage(), request.getPageSize());
         return PageResponse.of(CollectionConvertor.INSTANCE.mapToVo(colletionPage.getDatas()), colletionPage.getTotal(), colletionPage.getPageSize(), request.getCurrentPage());
     }

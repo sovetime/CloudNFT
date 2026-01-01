@@ -28,6 +28,10 @@ public class CollectionDbService extends BaseCollectionService {
         if (StringUtils.isNotBlank(keyWord)) {
             wrapper.like("name", keyWord);
         }
+
+        //true启用排序
+        //false为升序,true为降序
+        //排序字段gmt_create
         wrapper.orderBy(true, false, "gmt_create");
 
         Page<Collection> collectionPage = this.page(page, wrapper);

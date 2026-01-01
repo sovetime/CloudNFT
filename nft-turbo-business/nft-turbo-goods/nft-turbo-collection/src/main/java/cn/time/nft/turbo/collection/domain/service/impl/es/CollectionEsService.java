@@ -66,7 +66,7 @@ public class CollectionEsService extends BaseCollectionService {
 
 
     //深度分页查询
-        public SAPageInfo<Collection> deepPageQueryByState(String name, String state, int pageSize, Long lastId) {
+    public SAPageInfo<Collection> deepPageQueryByState(String name, String state, int pageSize, Long lastId) {
         LambdaEsQueryWrapper<Collection> queryWrapper = new LambdaEsQueryWrapper<>();
         queryWrapper.match(Collection::getName, name)//名称
                 .and(wrapper -> wrapper
