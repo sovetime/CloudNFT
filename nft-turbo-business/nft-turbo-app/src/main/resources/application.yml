@@ -10,6 +10,7 @@ spring:
             classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:es.yml,
             classpath:seata.yml,classpath:prometheus.yml,classpath:limiter.yml
 
+  #消息处理器，每个对应一个业务场景
   cloud:
     function:
       definition: chain;orderClose;heldCollection;newBuy;newBuyPlus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
@@ -22,27 +23,29 @@ spring:
                 expression: 'COLLECTION || BLIND_BOX' # 这里设置你希望订阅的Tag
           orderClose-out-0:
             producer:
-              producerType: Trans
-              transactionListener: orderCloseTransactionListener
+              producerType: Trans #事务消息
+              transactionListener: orderCloseTransactionListener #本地事务监听器
           heldCollection-in-0:
             consumer:
               subscription:
                 expression: 'ACTIVE' # 这里设置你希望订阅的Tag
           newBuy-out-0:
             producer:
-              producerType: Trans
-              transactionListener: inventoryDecreaseTransactionListener
+              producerType: Trans #事务消息
+              transactionListener: inventoryDecreaseTransactionListener #本地事务监听器
+
       bindings:
-        heldCollection-out-0:
+        heldCollection-out-0:                       #生产者
+          content-type: application/json            #消息格式
+          destination: held-collection-result-topic #topic名称
+          group: held-collection-group              #生产者组
+          binder: rocketmq
+        heldCollection-in-0:                        #消费者
           content-type: application/json
           destination: held-collection-result-topic
           group: held-collection-group
           binder: rocketmq
-        heldCollection-in-0:
-          content-type: application/json
-          destination: held-collection-result-topic
-          group: held-collection-group
-          binder: rocketmq
+
         chain-out-0:
           content-type: application/json
           destination: chain-result-topic
@@ -53,6 +56,7 @@ spring:
           destination: chain-result-topic
           group: chain-group
           binder: rocketmq
+
         orderClose-out-0:
           content-type: application/json
           destination: order-close-topic
@@ -63,6 +67,7 @@ spring:
           destination: order-close-topic
           group: order-group
           binder: rocketmq
+
         newBuy-out-0:
           content-type: application/json
           destination: new-buy-topic
@@ -73,6 +78,7 @@ spring:
           destination: new-buy-topic
           group: trade-group
           binder: rocketmq
+
         newBuyPlus-out-0:
           content-type: application/json
           destination: new-buy-plus-topic
@@ -83,6 +89,7 @@ spring:
           destination: new-buy-plus-topic
           group: new-buy-plus-group
           binder: rocketmq
+
         normalBuyCancel-out-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
@@ -123,6 +130,7 @@ spring:
           destination: new-buy-plus-pre-cancel-topic
           group: new-buy-plus-pre-cancel-group
           binder: rocketmq
+
   shardingsphere:
     rules:
       sharding:

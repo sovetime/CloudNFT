@@ -143,7 +143,6 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         if (SphO.entry("GOODS_SALE", EntryType.IN, 1, request.getGoodsId() + "_" + request.getGoodsType())) {
             try {
                 GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
-
                 GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 
                 Boolean trySaleResult = switch (goodsType) {

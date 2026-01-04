@@ -23,9 +23,8 @@ public interface GoodsFacadeService {
     //藏品出售的try阶段，做库存占用
     public GoodsSaleResponse sale(GoodsSaleRequest request);
 
-    // 藏品出售-无hint
+    //藏品出售-无hint
     public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request);
-
 
     //@deprecated 废弃，这个方法之前是依赖数据库做的藏品的序号的生成，但是这里存在并发问题。当然也可以基于乐观锁/悲观锁的方式解决，但是会影响吞吐量，所以改用其他方式实现
     //藏品出售的confirm阶段，做真正售出

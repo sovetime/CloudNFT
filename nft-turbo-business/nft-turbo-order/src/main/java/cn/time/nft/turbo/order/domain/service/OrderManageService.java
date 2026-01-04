@@ -66,7 +66,6 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
         //创建订单
         TradeOrder tradeOrder = doCreate(request);
-
         return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
     }
 
@@ -147,7 +146,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         return doExecute(request, tradeOrder -> tradeOrder.close(request));
     }
 
-    //订单取消
+    //订单废弃
     public OrderResponse discard(OrderDiscardRequest request) {
         return doExecute(request, tradeOrder -> tradeOrder.discard(request));
     }
@@ -209,7 +208,6 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         OrderResponse response = new OrderResponse();
         //调用统一处理方法
         return handle(orderRequest, response, "doExecute", request -> {
-
             //根据订单号查询订单
             TradeOrder existOrder = orderMapper.selectByOrderId(request.getOrderId());
             if (existOrder == null) {

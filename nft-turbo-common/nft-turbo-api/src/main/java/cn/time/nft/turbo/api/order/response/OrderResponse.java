@@ -11,8 +11,10 @@ import static cn.time.nft.turbo.base.exception.BizErrorCode.DUPLICATED;
 @Setter
 public class OrderResponse extends BaseResponse {
 
+    //订单id
     private String orderId;
 
+    //流水id
     private String streamId;
 
     public static class OrderResponseBuilder {

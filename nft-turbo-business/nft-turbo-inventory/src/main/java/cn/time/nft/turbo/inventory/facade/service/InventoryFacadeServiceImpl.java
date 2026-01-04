@@ -128,7 +128,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
                 || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_IS_ZERO);
     }
 
-    //库存增加
+    //库存增加（redis库存）
     @Override
     public SingleResponse<Boolean> increase(InventoryRequest inventoryRequest) {
         GoodsType goodsType = inventoryRequest.getGoodsType();

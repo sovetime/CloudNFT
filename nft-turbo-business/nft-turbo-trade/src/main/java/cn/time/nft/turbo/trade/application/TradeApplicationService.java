@@ -50,48 +50,45 @@ public class TradeApplicationService {
     @Resource
     private OrderFacadeService orderFacadeService;
 
-    //普通交易，基于TCC实现分布式一致性
-    //Try -> Confirm ：Try成功，执行Confirm
-    //Try --> Cancel ： Try失败，执行Cancel
-    //Try -> Confirm --> Cancel ：Try成功，Confirm失败，执行Cancel
+    //普通下单，基于TCC实现分布式一致性
     public OrderResponse normalBuy(OrderCreateAndConfirmRequest orderCreateRequest) {
-
         boolean isTrySuccess = true;
 
-        //Try
         try {
+            //库存扣减-try
             GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateRequest);
             boolean result = goodsTransactionFacadeService.tryDecreaseInventory(goodsSaleRequest).getSuccess();
             Assert.isTrue(result, "decrease inventory failed");
 
+            //订单创建-try
             result = orderTransactionFacadeService.tryOrder(orderCreateRequest,"normalBuy").getSuccess();
-
             Assert.isTrue(result, "order create failed");
         } catch (Exception e) {
             isTrySuccess = false;
             log.error("normalBuy try failed, ", e);
         }
 
-        //Try失败，发【废单消息】，异步进行逆向补偿
+        //Try失败，发废单消息，异步进行逆向补偿
         if (!isTrySuccess) {
-            //消息监听： NormalBuyMsgListener
+            //消息监听:NormalBuyMsgListener
             streamProducer.send("normalBuyCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest));
             return new OrderResponse.OrderResponseBuilder().buildFail(NORMAL_BUY_TCC_CANCEL_FAILED.getCode(), NORMAL_BUY_TCC_CANCEL_FAILED.getMessage());
         }
 
-        //Confirm
+        //Try成功进行Confirm
         boolean isConfirmSuccess = false;
         int retryConfirmCount = 0;
-
         //最大努力执行，失败最多尝试2次.（Dubbo也会有重试机制，在服务突然不可用、超时等情况下会重试2次）
         while (!isConfirmSuccess && retryConfirmCount < MAX_RETRY_TIMES) {
             try {
+                //库存扣减-confirm
                 GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateRequest);
                 isConfirmSuccess = goodsTransactionFacadeService.confirmDecreaseInventory(goodsSaleRequest).getSuccess();
                 Assert.isTrue(isConfirmSuccess, "confirmDecreaseInventory failed");
-
                 OrderConfirmRequest orderConfirmRequest = new OrderConfirmRequest();
                 BeanUtils.copyProperties(orderCreateRequest, orderConfirmRequest);
+
+                //订单确认-confirm
                 isConfirmSuccess = orderTransactionFacadeService.confirmOrder(orderConfirmRequest,"normalBuy").getSuccess();
                 Assert.isTrue(isConfirmSuccess, "confirmOrder failed");
             } catch (Exception e) {
@@ -101,7 +98,7 @@ public class TradeApplicationService {
             }
         }
 
-        //Confirm失败，发【疑似废单消息】进行延迟检查
+        //Confirm失败，发疑似废单消息进行延迟检查
         if (!isConfirmSuccess) {
             //消息监听： NormalBuyMsgListener
             streamProducer.send("normalBuyPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_1_M);
@@ -123,8 +120,7 @@ public class TradeApplicationService {
             //获取库存操作流水
             SingleResponse<String> decreaseLogResp = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
             if (!decreaseLogResp.getSuccess() || decreaseLogResp.getData() == null) {
-                return new OrderResponse.OrderResponseBuilder().buildFail(
-                        INVENTORY_DECREASE_FAILED.getCode(), INVENTORY_DECREASE_FAILED.getMessage());
+                return new OrderResponse.OrderResponseBuilder().buildFail(INVENTORY_DECREASE_FAILED.getCode(), INVENTORY_DECREASE_FAILED.getMessage());
             }
         }
 
@@ -137,44 +133,39 @@ public class TradeApplicationService {
         } catch (Exception e) {
             //处理逻辑再NewBuyPlusBatchMsgListener中
             streamProducer.send("newBuyPlusPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_30_S);
-            return new OrderResponse.OrderResponseBuilder().buildFail(
-                    ORDER_CREATE_FAILED.getCode(), ORDER_CREATE_FAILED.getMessage());
+            return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_FAILED.getCode(), ORDER_CREATE_FAILED.getMessage());
         }
 
         return new OrderResponse.OrderResponseBuilder().orderId(orderCreateRequest.getOrderId()).buildSuccess();
     }
 
-
-    //秒杀第三套方案，基于TCC实现分布式一致性
+    //秒杀下单，基于自定义TCC实现分布式一致性
+    //进行库存扣减try，订单创建，库存扣减confirm，订单确认
     //Try -> Confirm ：Try成功，执行Confirm
-    //Try --> Cancel ： Try失败，执行Cancel
-    //Try -> Confirm --> Cancel ：Try成功，Confirm失败，执行Cancel
-    //废弃原因：这个TCC的方案，会有很多次数据库的操作（6次），所以会导致数据库的IO多，CPU高，不建议使用
-    //除非花钱去提升数据库的硬件配置，否则的话建议用newBuyPlus
-    @Deprecated
-    public OrderResponse newBuyPlusByTcc(   OrderCreateAndConfirmRequest orderCreateRequest) {
+    //Try -> Cancel ： Try失败，执行Cancel
+    //Try -> Confirm -> Cancel ：Try成功，Confirm失败，执行Cancel
+    //存在问题:这个TCC的方案，会有很多次数据库的操作（6次），所以会导致数据库的IO多，CPU高，不建议使用
+    //除非花钱去提升数据库的硬件配置，否则的话建议用newBuyPlus,公司里面不用考虑，配置很充足
+    public OrderResponse newBuyPlusByTcc(OrderCreateAndConfirmRequest orderCreateRequest) {
         boolean isTrySuccess = true;
 
-        //Try
         try {
-            //构造库存扣减请求
+            //库存扣减-try,try成功进行redis库存预扣减
             InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
-            //库存扣减-try
             boolean result = inventoryTransactionFacadeService.tryDecrease(inventoryRequest);
             Assert.isTrue(result, "decrease inventory failed");
 
-            //创建订单
+            //订单创建-try
             result = orderTransactionFacadeService.tryOrder(orderCreateRequest,"newBuyPlus").getSuccess();
             Assert.isTrue(result, "order create failed");
-
         } catch (Exception e) {
             isTrySuccess = false;
             log.error("newBuyPlus try failed, ", e);
         }
 
-        //Try失败，发【废单消息】，异步进行逆向补偿
+        //try失败，发废单消息，异步进行逆向补偿
         if (!isTrySuccess) {
-            //消息监听： NewBuyPlusMsgListener
+            //消息监听:NewBuyPlusMsgListener，newBuyPlusCancel()
             streamProducer.send("newBuyPlusCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest));
             return new OrderResponse.OrderResponseBuilder().buildFail(NORMAL_BUY_TCC_CANCEL_FAILED.getCode(), NORMAL_BUY_TCC_CANCEL_FAILED.getMessage());
         }
@@ -182,17 +173,16 @@ public class TradeApplicationService {
         //Try成功进行Confirm
         boolean isConfirmSuccess = false;
         int retryConfirmCount = 0;
-
         //最大努力执行，失败最多尝试2次.（Dubbo也会有重试机制，在服务突然不可用、超时等情况下会重试2次）
         while (!isConfirmSuccess && retryConfirmCount < MAX_RETRY_TIMES) {
             try {
                 //库存扣减-confirm
                 isConfirmSuccess = inventoryTransactionFacadeService.confirmDecrease(new InventoryRequest(orderCreateRequest));
                 Assert.isTrue(isConfirmSuccess, "confirmDecrease failed");
-
                 OrderConfirmRequest orderConfirmRequest = new OrderConfirmRequest();
                 BeanUtils.copyProperties(orderCreateRequest, orderConfirmRequest);
-                //确认订单
+
+                //确认订单-confirm
                 isConfirmSuccess = orderTransactionFacadeService.confirmOrder(orderConfirmRequest,"newBuyPlus").getSuccess();
                 Assert.isTrue(isConfirmSuccess, "confirmOrder failed");
             } catch (Exception e) {
@@ -202,10 +192,9 @@ public class TradeApplicationService {
             }
         }
 
-        //confirm失败可能是
-        //发【疑似废单消息】进行延迟检查
+        //confirm失败,可能是网络延迟/数据库异常导致的，检查有问题进行补偿，confirm失败进行回滚
         if (!isConfirmSuccess) {
-            //消息监听： NewBuyPlusMsgListener
+            //消息监听:NewBuyPlusMsgListener，newBuyPlusPreCancel()
             streamProducer.send("newBuyPlusPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_1_M);
             return new OrderResponse.OrderResponseBuilder().buildFail(NORMAL_BUY_TCC_CONFIRM_FAILED.getCode(), NORMAL_BUY_TCC_CONFIRM_FAILED.getMessage());
         }

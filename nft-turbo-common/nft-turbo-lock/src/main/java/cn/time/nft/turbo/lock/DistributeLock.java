@@ -23,8 +23,6 @@ public @interface DistributeLock {
      *     #id
      *     #insertResult.id
      * </pre>
-     *
-     * @return
      */
     public String keyExpression() default DistributeLockConstant.NONE_KEY;
 

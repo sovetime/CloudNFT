@@ -1,5 +1,6 @@
 package cn.time.nft.turbo.trade.listener;
 
+import cn.hutool.core.lang.Assert;
 import cn.time.nft.turbo.api.goods.request.GoodsSaleRequest;
 import cn.time.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.time.nft.turbo.api.goods.service.GoodsFacadeService;
@@ -17,7 +18,6 @@ import cn.time.nft.turbo.api.user.constant.UserType;
 import cn.time.nft.turbo.base.response.SingleResponse;
 import cn.time.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.time.turbo.stream.param.MessageBody;
-import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 
 @Component
 @Slf4j
+//TCC补偿监听器
 public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
 
     @Resource
@@ -48,37 +49,9 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
     @Resource
     private InventoryFacadeService inventoryFacadeService;
 
-    //由于网络延迟或者数据库异常而导致查询到的订单状态不是CONFIRM，但是后来又变成了CONFIRM的情况，的补偿机制
+    //try失败的补偿机制
     @Bean
-    Consumer<Message<MessageBody>> newBuyPlusPreCancel() {
-        return msg -> {
-            //获取消息
-            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
-            log.warn("NewBuyPlusMsgListener receive newBuyPlusPreCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
-
-            SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
-
-            //如果订单已经创建成功，则直接返回。不再需要做废单处理了。
-            if (response.getSuccess() && response.getData() != null && response.getData().getOrderState() == TradeOrderState.CONFIRM) {
-                //为了解决，OrderCreateTransactionListener里面存在的因为网络延迟或者数据库异常而导致查询到的订单状态不是CONFIRM，但是后来又变成了CONFIRM的情况，
-                //所以在这里需要做补偿
-                GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateAndConfirmRequest);
-                log.info("saleWithoutHint in newBuyPlusPreCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
-                //
-                GoodsSaleResponse goodsSaleResponse = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
-                Assert.isTrue(goodsSaleResponse.getSuccess(), "saleWithoutHint failed ," + response.getResponseMessage());
-                return;
-            }
-
-            //doCancel(orderCreateAndConfirmRequest);
-            SingleResponse<Boolean> increaseResponse = inventoryFacadeService.increase(new InventoryRequest(orderCreateAndConfirmRequest));
-            Assert.isTrue(increaseResponse.getSuccess() && increaseResponse.getData(), "increase inventory failed");
-        };
-    }
-
-    //
-    @Bean
-    Consumer<Message<MessageBody>> newBuyPlusCancel() {
+    public Consumer<Message<MessageBody>> newBuyPlusCancel() {
         return msg -> {
             //从msg中解析出消息对象
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
@@ -89,21 +62,47 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
         };
     }
 
-    //TCC场景下的cancel
-    @Deprecated
+    //数据回滚
     private void doCancel(OrderCreateAndConfirmRequest orderCreateAndConfirmRequest) {
-        //创建库存扣减请求
-        InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
         //库存扣减-cancel
+        InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
         boolean result = inventoryTransactionFacadeService.cancelDecrease(inventoryRequest);
-
         Assert.isTrue(result, "inventory increase failed");
         OrderDiscardRequest orderDiscardRequest = new OrderDiscardRequest();
         orderDiscardRequest.setOperatorType(UserType.PLATFORM);
         orderDiscardRequest.setOperator(UserType.PLATFORM.name());
         BeanUtils.copyProperties(orderCreateAndConfirmRequest, orderDiscardRequest);
 
+        //取消订单-cancel
         OrderResponse orderResponse = orderTransactionFacadeService.cancelOrder(orderDiscardRequest, "newBuyPlus");
         Assert.isTrue(orderResponse.getSuccess(), orderResponse.getResponseCode());
+    }
+
+    //confirm失败,可能是网络延迟/数据库异常导致的，检查有问题进行补偿，confirm失败进行回滚
+    //由于网络延迟或者数据库异常而导致查询到的订单状态不是CONFIRM，但是后来又变成了CONFIRM的情况，的补偿机制
+    @Bean
+    public Consumer<Message<MessageBody>> newBuyPlusPreCancel() {
+        return msg -> {
+            //获取消息
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
+            log.warn("NewBuyPlusMsgListener receive newBuyPlusPreCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
+
+            //获取订单详情
+            SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
+
+            //如果订单已经创建成功，则直接返回。不再需要做废单处理了
+            if (response.getSuccess() && response.getData() != null && response.getData().getOrderState() == TradeOrderState.CONFIRM) {
+                GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateAndConfirmRequest);
+                log.info("saleWithoutHint in newBuyPlusPreCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
+                //藏品出售 -无hit
+                GoodsSaleResponse goodsSaleResponse = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
+                Assert.isTrue(goodsSaleResponse.getSuccess(), "saleWithoutHint failed ," + response.getResponseMessage());
+                return;
+            }
+
+            //库存增加（redis库存）
+            SingleResponse<Boolean> increaseResponse = inventoryFacadeService.increase(new InventoryRequest(orderCreateAndConfirmRequest));
+            Assert.isTrue(increaseResponse.getSuccess() && increaseResponse.getData(), "increase inventory failed");
+        };
     }
 }

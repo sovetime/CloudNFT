@@ -28,31 +28,38 @@ public class OrderCreateTransactionListener implements TransactionListener {
     @Resource
     private OrderFacadeService orderFacadeService;
 
+    //TCC方案常量，默认不开启
+    private final static boolean TCC_ENABLED = false;
+
     //执行本地事务
     @Override
     public LocalTransactionState executeLocalTransaction(Message message, Object o) {
         try {
-            // 从消息中解析订单请求
+            //从消息中解析订单请求
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(
-                    JSON.parseObject(message.getBody()).getString("body"),
-                    OrderCreateAndConfirmRequest.class);
+                    JSON.parseObject(message.getBody()).getString("body"), OrderCreateAndConfirmRequest.class);
 
-//            //TCC方案，会多次访问数据库，占用很多IO，导致CPU飙高，这里没有采用
-//            tradeApplicationService.newBuyPlusByTcc(orderCreateAndConfirmRequest);
-//
-//            //为了避免在创建订单的时候，confirm假失败（比如网络超时），导致库存不扣减的问题，这里需要查询最新的状态决定是否要发消息
-//            //获取订单详情，
-//            SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
-//            //如果订单已经创建成功，不需要在做后续处理
-//            if (response.getSuccess() && response.getData() != null &&
-//                response.getData().getOrderState() == TradeOrderState.CONFIRM) {
-//                 return LocalTransactionState.COMMIT_MESSAGE;
-//            }
+            //TCC会导致多次数据库IO，导致CPU飙高，这里没开启
+            if (TCC_ENABLED) {
+                //TCC方案下单,进行库存扣减try，订单创建，库存扣减confirm，订单确认
+                OrderResponse orderResponse = tradeApplicationService.newBuyPlusByTcc(orderCreateAndConfirmRequest);
+                if (!orderResponse.getSuccess()) {
+                    return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
 
-            //秒杀第三套方案，不基于TCC
-            OrderResponse orderResponse = tradeApplicationService.newBuyPlus(orderCreateAndConfirmRequest);
+                //为了避免在创建订单的时候，confirm假失败（网络超时），导致库存不扣减的问题，这里获取订单详情
+                SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
+                //如果订单已经创建成功，不需要在做后续处理
+                if (response.getSuccess() && response.getData() != null && response.getData().getOrderState() == TradeOrderState.CONFIRM) {
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                }
 
-            return orderResponse.getSuccess() ? LocalTransactionState.COMMIT_MESSAGE : LocalTransactionState.ROLLBACK_MESSAGE;
+                return LocalTransactionState.ROLLBACK_MESSAGE;
+            } else {
+                //秒杀第三套方案，不基于TCC
+                OrderResponse orderResponse = tradeApplicationService.newBuyPlus(orderCreateAndConfirmRequest);
+                return orderResponse.getSuccess() ? LocalTransactionState.COMMIT_MESSAGE : LocalTransactionState.ROLLBACK_MESSAGE;
+            }
         } catch (Exception e) {
             log.error("executeLocalTransaction error, message = {}", message, e);
             return LocalTransactionState.ROLLBACK_MESSAGE;
@@ -65,8 +72,7 @@ public class OrderCreateTransactionListener implements TransactionListener {
     public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
         // 从消息中解析订单请求
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(
-                JSON.parseObject(new String(messageExt.getBody())).getString("body"),
-                OrderCreateAndConfirmRequest.class);
+                JSON.parseObject(new String(messageExt.getBody())).getString("body"), OrderCreateAndConfirmRequest.class);
 
         //获取订单详情
         SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());

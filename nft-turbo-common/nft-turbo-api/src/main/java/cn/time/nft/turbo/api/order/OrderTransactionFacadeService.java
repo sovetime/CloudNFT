@@ -10,13 +10,13 @@ import cn.time.nft.turbo.api.order.response.OrderResponse;
 //订单事务门面服务
 public interface OrderTransactionFacadeService {
 
-    //创建订单
+    //创建订单-try
     public OrderResponse tryOrder(OrderCreateRequest orderCreateRequest, String businessScene);
 
-    //确认订单
+    //确认订单-confirm
     public OrderResponse confirmOrder(OrderConfirmRequest orderConfirmRequest, String businessScene);
 
-    //撤销订单
+    //取消订单-cancel
     public OrderResponse cancelOrder(OrderDiscardRequest orderDiscardRequest, String businessScene);
 
 }

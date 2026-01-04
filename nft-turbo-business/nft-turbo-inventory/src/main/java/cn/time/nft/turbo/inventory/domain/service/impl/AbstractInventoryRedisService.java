@@ -221,7 +221,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         return stream;
     }
 
-    //增加库存
+    //增加库存（redis库存)
     @Override
     public InventoryResponse increase(InventoryRequest request) {
         InventoryResponse inventoryResponse = new InventoryResponse();

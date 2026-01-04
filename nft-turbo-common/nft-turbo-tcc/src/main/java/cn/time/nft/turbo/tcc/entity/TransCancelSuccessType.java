@@ -12,6 +12,6 @@ public enum TransCancelSuccessType {
     //空回滚
     EMPTY_CANCEL,
 
-    //幂等成功
+    //重复cancel
     DUPLICATED_CANCEL;
 }

@@ -58,7 +58,6 @@ public enum OrderErrorCode implements ErrorCode {
 
     COLLECTION_NO_EXIST("COLLECTION_NO_EXIST","藏品不存在" );
 
-
     private String code;
 
     private String message;

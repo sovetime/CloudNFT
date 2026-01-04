@@ -206,7 +206,7 @@ public class TradeController {
             //订单校验
             orderValidatorChain.validate(orderCreateAndConfirmRequest);
 
-            //消息监听：NewBuyPlusMsgListener or NewBuyPlusBatchMsgListener
+            //消息监听:NewBuyPlusBatchMsgListener
             //消息发送给broker之后同步不会立即推送给消费者，而是执行本地事务OrderCreateTransactionListener进行库存预扣减
             boolean result = streamProducer.send("newBuyPlus-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateAndConfirmRequest));
             //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功

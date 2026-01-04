@@ -6,6 +6,6 @@ public enum TransConfirmSuccessType {
     //Confirm成功
     CONFIRM_SUCCESS,
 
-    //幂等成功
+    //重复Confirm
     DUPLICATED_CONFIRM;
 }

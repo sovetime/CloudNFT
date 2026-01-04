@@ -23,36 +23,29 @@ spring:
             producer:
               producerType: Trans
               transactionListener: orderCreateTransactionListener
-      # 消息绑定配置
+
       bindings:
-        # 新购买消息输出通道配置
         newBuy-out-0:
-          # 消息内容类型为JSON格式
           content-type: application/json
-          # 目标主题为新购买主题
           destination: new-buy-topic
-          # 消费者组为交易组
           group: trade-group
-          # 使用的绑定器为RocketMQ
           binder: rocketmq
         newBuyPlus-out-0:
           content-type: application/json
           destination: new-buy-topic
           group: new-buy-plus-group
           binder: rocketmq
-        # 订单关闭消息输入通道配置
         orderClose-in-0:
           content-type: application/json
           destination: order-close-topic
           group: order-group
           binder: rocketmq
-        # 普通购买取消消息输出通道配置
+
         normalBuyCancel-out-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
           group: trade-cancel-group
           binder: rocketmq
-        # 普通购买预取消消息输出通道配置
         normalBuyPreCancel-out-0:
           content-type: application/json
           destination: normal-buy-pre-cancel-topic
@@ -68,13 +61,11 @@ spring:
           destination: new-buy-plus-pre-cancel-topic
           group: new-buy-plus-pre-cancel-group
           binder: rocketmq
-        # 普通购买取消消息输入通道配置
         normalBuyCancel-in-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
           group: trade-cancel-group
           binder: rocketmq
-        # 普通购买预取消消息输入通道配置
         normalBuyPreCancel-in-0:
           content-type: application/json
           destination: normal-buy-pre-cancel-topic

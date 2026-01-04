@@ -41,7 +41,6 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
     @Resource
     private ThreadPoolExecutor newBuyPlusConsumePool;
 
-
     @Override
     public void onMessage(List<Object> strings) {
         log.info("NewBuyPlusBatchMsgListener receive message: {}", strings);
@@ -59,7 +58,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
             CompletionService<Boolean> completionService = new ExecutorCompletionService<>(newBuyPlusConsumePool);
             List<Future<Boolean>> futures = new ArrayList<>();
 
-            // 1. 提交所有任务
+            // 提交所有任务
             msgs.forEach(messageExt -> {
                 Callable<Boolean> task = () -> {
                     try {
@@ -74,7 +73,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
                 futures.add(completionService.submit(task));
             });
 
-            // 2. 检查结果
+            // 检查结果
             boolean allSuccess = true;
             try {
                 for (int i = 0; i < msgs.size(); i++) {
@@ -88,9 +87,8 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
                 allSuccess = false;
             }
 
-            // 3. 根据结果返回消费状态
-            return allSuccess ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS
-                    : ConsumeConcurrentlyStatus.RECONSUME_LATER;
+            // 根据结果返回消费状态
+            return allSuccess ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS : ConsumeConcurrentlyStatus.RECONSUME_LATER;
         });
     }
 

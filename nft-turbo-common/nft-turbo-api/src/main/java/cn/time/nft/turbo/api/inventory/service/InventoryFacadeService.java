@@ -14,7 +14,7 @@ public interface InventoryFacadeService {
     //库存扣减(redis)
     public SingleResponse<Boolean> decrease(InventoryRequest inventoryRequest);
 
-    //库存增加
+    //库存增加（redis库存）
     public SingleResponse<Boolean> increase(InventoryRequest inventoryRequest);
 
     //库存失效

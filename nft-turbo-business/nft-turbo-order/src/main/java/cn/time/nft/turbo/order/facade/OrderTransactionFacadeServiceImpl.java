@@ -33,18 +33,18 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Autowired
     private TransactionLogService transactionLogService;
 
-    //创建订单
+    //创建订单-try
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
     @DistributeLock(keyExpression = "#orderCreateRequest.orderId", scene = "NORMAL_BUY_ORDER")
     public OrderResponse tryOrder(OrderCreateRequest orderCreateRequest, String businessScene) {
+        //订单创建-try
         TransactionTryResponse transactionTryResponse = transactionLogService.tryTransaction(
                 new TccRequest(orderCreateRequest.getOrderId(), businessScene, "ORDER"));
-
         Assert.isTrue(transactionTryResponse.getSuccess(), "transaction try failed");
 
-        //幂等处理，try成功就创建订单
+        //try成功就创建订单
         if (transactionTryResponse.getTransTrySuccessType() == TransTrySuccessType.TRY_SUCCESS) {
             OrderResponse orderResponse = orderManageService.create(orderCreateRequest);
             Assert.isTrue(orderResponse.getSuccess(), () -> new BizException(OrderErrorCode.CREATE_ORDER_FAILED));
@@ -54,12 +54,13 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
         return new OrderResponse.OrderResponseBuilder().buildSuccess();
     }
 
-    //确认订单
+    //确认订单-confirm
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
     @DistributeLock(keyExpression = "#orderConfirmRequest.orderId", scene = "NORMAL_BUY_ORDER")
     public OrderResponse confirmOrder(OrderConfirmRequest orderConfirmRequest, String businessScene) {
+        //确认订单-confirm
         TransactionConfirmResponse transactionConfirmResponse = transactionLogService.confirmTransaction(
                 new TccRequest(orderConfirmRequest.getOrderId(), businessScene, "ORDER"));
 
@@ -75,20 +76,20 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
         return new OrderResponse.OrderResponseBuilder().buildSuccess();
     }
 
-    //取消订单
+    //取消订单-cancel
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
     @DistributeLock(keyExpression = "#orderDiscardRequest.orderId", scene = "NORMAL_BUY_ORDER")
     public OrderResponse cancelOrder(OrderDiscardRequest orderDiscardRequest, String businessScene) {
+        //取消订单-cancel
         TransactionCancelResponse transactionCancelResponse = transactionLogService.cancelTransaction(
                 new TccRequest(orderDiscardRequest.getOrderId(), businessScene, "ORDER"));
-
         Assert.isTrue(transactionCancelResponse.getSuccess(), "transaction cancel failed");
 
         //如果发生空回滚，或者回滚幂等，则不进行废弃订单操作
         if (transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_TRY_SUCCESS
-                || transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_CONFIRM_SUCCESS) {
+        || transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_CONFIRM_SUCCESS) {
             OrderResponse orderResponse = orderManageService.discard(orderDiscardRequest);
             Assert.isTrue(orderResponse.getSuccess(), () -> new BizException(OrderErrorCode.UPDATE_ORDER_FAILED));
             return orderResponse;

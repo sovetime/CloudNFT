@@ -29,58 +29,43 @@ public class StreamProducer {
     @Autowired
     private StreamBridge streamBridge;
 
-    //发送消息
+    //发送普通消息
     public boolean send(String bingingName, String tag, String msg) {
-        // 构建消息对象
-        MessageBody message = new MessageBody()
-                //消息唯一标识符，进行幂等控制
-                .setIdentifier(UUID.randomUUID().toString())
-                .setBody(msg);
-
+        //uuid做消息唯一标识符，进行幂等控制
+        MessageBody message = new MessageBody().setIdentifier(UUID.randomUUID().toString()).setBody(msg);
         log.info("send message : {} , {} , {}", bingingName, tag, JSON.toJSONString(message));
 
         boolean result = streamBridge.send(bingingName, MessageBuilder.withPayload(message)
                 .setHeader("TAGS", tag)
                 .build());
-
         log.info("send result : {} , {} , {}", bingingName, tag, result);
         return result;
     }
 
     //发送延迟消息
     public boolean send(String bingingName, String tag, String msg, int delayLevel) {
-        // 构建消息对象
-        MessageBody message = new MessageBody()
-                //消息唯一标识符，进行幂等控制
-                .setIdentifier(UUID.randomUUID().toString())
-                .setBody(msg);
-
+        //uuid做消息唯一标识符，进行幂等控制
+        MessageBody message = new MessageBody().setIdentifier(UUID.randomUUID().toString()).setBody(msg);
         log.info("send message : {} , {} , {}", bingingName, tag, JSON.toJSONString(message));
 
         boolean result = streamBridge.send(bingingName, MessageBuilder.withPayload(message)
                 .setHeader("TAGS", tag)
                 .setHeader(MessageConst.PROPERTY_DELAY_TIME_LEVEL, delayLevel)
                 .build());
-
         log.info("send result : {} , {} , {}", bingingName, tag, result);
-
         return result;
     }
 
     //发送延迟消息
     public boolean send(String bingingName, String tag, String msg, String headerKey, String headerValue) {
-        // 构建消息对象
-        MessageBody message = new MessageBody()
-                .setIdentifier(UUID.randomUUID().toString())
-                .setBody(msg);
-
+        //uuid做消息唯一标识符，进行幂等控制
+        MessageBody message = new MessageBody().setIdentifier(UUID.randomUUID().toString()).setBody(msg);
         log.info("send message : {} , {}", bingingName, JSON.toJSONString(message));
 
         boolean result = streamBridge.send(bingingName, MessageBuilder.withPayload(message)
                 .setHeader("TAGS", tag)
                 .setHeader(headerKey, headerValue)
                 .build());
-
         log.info("send result : {} , {}", bingingName, result);
         return result;
     }

@@ -12,6 +12,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class TccRequest implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     //事务ID
