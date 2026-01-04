@@ -44,7 +44,6 @@ public class DistributeID {
     //创建分布式ID对象
     // businessCode->业务代码，externalId->userid，用于分表策略计算，sequenceNumber->分布式id
     public static DistributeID create(BusinessCode businessCode, String externalId, Long sequenceNumber) {
-
         DistributeID distributeId = new DistributeID();
         distributeId.businessCode = businessCode.getCodeString();
 

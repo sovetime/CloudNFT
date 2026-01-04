@@ -438,7 +438,6 @@ public class TradeController {
     public Result<Boolean> cancel(@Valid @RequestBody CancelParam cancelParam) {
         //获取用户id
         String userId = (String) StpUtil.getLoginId();
-
         OrderCancelRequest orderCancelRequest = new OrderCancelRequest();
         orderCancelRequest.setIdentifier(cancelParam.getOrderId());
         orderCancelRequest.setOperateTime(new Date());
@@ -448,7 +447,6 @@ public class TradeController {
 
         //取消订单
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.cancel(req), orderCancelRequest, "cancelOrder");
-
         if (orderResponse.getSuccess()) {
             return Result.success(true);
         }

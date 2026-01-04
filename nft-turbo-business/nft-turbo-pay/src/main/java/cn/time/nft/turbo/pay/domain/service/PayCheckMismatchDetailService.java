@@ -1,6 +1,7 @@
 package cn.time.nft.turbo.pay.domain.service;
 
 import cn.time.nft.turbo.pay.domain.entity.PayCheckMismatchDetail;
+import cn.time.nft.turbo.pay.infrastructure.mapper.PayCheckMismatchDetailMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

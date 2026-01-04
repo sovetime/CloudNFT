@@ -49,7 +49,7 @@ public class TradeOrderListener extends AbstractStreamConsumer {
             //获取关闭类型
             String closeType = msg.getHeaders().get("CLOSE_TYPE", String.class);
 
-            BaseOrderUpdateRequest orderUpdateRequest;
+            BaseOrderUpdateRequest orderUpdateRequest = null;
             if (TradeOrderEvent.CANCEL.name().equals(closeType)) {
                 //获取消息
                 orderUpdateRequest = getMessage(msg, OrderCancelRequest.class);
@@ -83,7 +83,7 @@ public class TradeOrderListener extends AbstractStreamConsumer {
             }
 
             InventoryRequest collectionInventoryRequest = new InventoryRequest(tradeOrderVO);
-            //库存增加
+            //库存增加（redis)
             SingleResponse<Boolean> decreaseResponse = inventoryFacadeService.increase(collectionInventoryRequest);
             if (decreaseResponse.getSuccess()) {
                 log.info("increase success,collectionInventoryRequest:{}", collectionInventoryRequest);
