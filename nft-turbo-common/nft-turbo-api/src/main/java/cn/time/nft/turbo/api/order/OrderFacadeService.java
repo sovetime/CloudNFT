@@ -25,7 +25,7 @@ public interface OrderFacadeService {
     //订单确认
     public OrderResponse confirm(OrderConfirmRequest request);
 
-    //创建并确认订单，进行库存扣减
+    //创建并确认订单，在本地事务执行的时候不数据库扣减库存，在MQ批量消费里面才进行数据库库存扣减
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request);
 
     //订单支付

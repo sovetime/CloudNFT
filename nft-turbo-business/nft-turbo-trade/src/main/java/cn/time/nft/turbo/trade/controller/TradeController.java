@@ -265,13 +265,16 @@ public class TradeController {
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+            //订单校验
             orderValidatorChain.validate(orderCreateAndConfirmRequest);
+            //普通下单，基于TCC实现分布式一致性
             OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
 
             if (orderResponse.getSuccess()) {
                 //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
                 try {
                     InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
+                    //库存扣减redis(这里没有单独的逻辑
                     inventoryFacadeService.decrease(inventoryRequest);
                 } catch (Exception e) {
                     log.error("decrease inventory from redis failed", e);

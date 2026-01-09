@@ -132,7 +132,7 @@ public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> i
         //查询出最新的值
         BlindBox blindBox = this.getById(request.goodsId());
 
-        //新增collection流水
+        //新增商品流水
         BlindBoxInventoryStream stream = new BlindBoxInventoryStream(blindBox, request.identifier(), request.eventType(), request.quantity());
         int result = blindBoxInventoryStreamMapper.insert(stream);
         Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));

@@ -1,5 +1,6 @@
 package cn.time.nft.turbo.order.domain.service;
 
+import cn.hutool.core.lang.Assert;
 import cn.time.nft.turbo.api.order.constant.OrderErrorCode;
 import cn.time.nft.turbo.api.order.constant.TradeOrderEvent;
 import cn.time.nft.turbo.api.order.request.*;
@@ -14,13 +15,11 @@ import cn.time.nft.turbo.order.domain.entity.TradeOrderStream;
 import cn.time.nft.turbo.order.domain.listener.event.OrderCreateEvent;
 import cn.time.nft.turbo.order.infrastructure.mapper.OrderMapper;
 import cn.time.nft.turbo.order.infrastructure.mapper.OrderStreamMapper;
-import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.transaction.annotation.ShardingSphereTransactionType;
 import org.apache.shardingsphere.transaction.core.TransactionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -39,9 +38,8 @@ import static java.util.Objects.requireNonNull;
 
 // 订单服务
 @Service
+@Slf4j
 public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
-
-    private static final Logger logger = LoggerFactory.getLogger(OrderManageService.class);
 
     @Autowired
     private OrderMapper orderMapper;
@@ -260,27 +258,26 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
     //统一订单处理方法
     //参数校验，日志记录，异常处理
     public static <T, R extends OrderResponse> OrderResponse handle(T request, R response, String method, Function<T, R> function) {
-        logger.info("before execute method={}, request={}", method, JSON.toJSONString(request));
+        log.info("before execute method={}, request={}", method, JSON.toJSONString(request));
         try {
             //参数校验
             requireNonNull(request);
             BeanValidator.validateObject(request);
 
-            //
             response = function.apply(request);
         } catch (OrderException e) {
-            logger.error(e.toString(), e);
+            log.error(e.toString(), e);
             response.setSuccess(false);
             response.setResponseCode(e.getErrorCode().getCode());
             response.setResponseMessage(e.getErrorCode().getMessage());
-            logger.error("failed execute method={}, exception={}", method, JSON.toJSONString(e));
+            log.error("failed execute method={}, exception={}", method, JSON.toJSONString(e));
         } catch (Exception e) {
             response.setSuccess(false);
             response.setResponseCode(SYSTEM_ERROR.name());
             response.setResponseMessage(e.getMessage());
-            logger.error("failed execute method={}, exception={}", method, JSON.toJSONString(e));
+            log.error("failed execute method={}, exception={}", method, JSON.toJSONString(e));
         } finally {
-            logger.info("after execute method={}, result={}", method, JSON.toJSONString(response));
+            log.info("after execute method={}, result={}", method, JSON.toJSONString(response));
         }
         return response;
     }

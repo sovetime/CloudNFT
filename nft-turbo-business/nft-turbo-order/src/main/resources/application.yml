@@ -115,10 +115,8 @@ spring:
             # 审计器类型为DML_SHARDING_CONDITIONS，确保DML操作包含分片键条件
             type: DML_SHARDING_CONDITIONS
 
-
 server:
   port: 9000
-
 
 seata:
   use-jdk-proxy: true

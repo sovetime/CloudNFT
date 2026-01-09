@@ -53,6 +53,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Resource
     private InventoryFacadeService inventoryFacadeService;
 
+    //ThreadPoolConfiguration newBuyConsumePool
     @Resource
     private ThreadPoolExecutor newBuyConsumePool;
 

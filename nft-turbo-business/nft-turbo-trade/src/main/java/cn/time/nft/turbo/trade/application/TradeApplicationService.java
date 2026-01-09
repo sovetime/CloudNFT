@@ -98,7 +98,8 @@ public class TradeApplicationService {
             }
         }
 
-        //Confirm失败，发疑似废单消息进行延迟检查
+        //Confirm失败，发疑似废单消息进行延迟检查，延迟1分钟，主要是为了避免Confirm假失败的情况，适合这里普通下单
+        //在秒杀场景下可能需要进一步修改,因为秒杀场景下会占用库存
         if (!isConfirmSuccess) {
             //消息监听： NormalBuyMsgListener
             streamProducer.send("normalBuyPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_1_M);
@@ -125,13 +126,14 @@ public class TradeApplicationService {
         }
 
         try {
-            //不再做数据库层面的同步扣减，库存的扣减已经在 Redis 中完成。
+            //这里本地事务不进行数据库库存扣减，只创建并确认订单，在MQ批量消费里面才进行数据库库存扣减
             orderCreateRequest.setSyncDecreaseInventory(false);
-            //确认并创建订单，这里传递参数是不做数据库库存扣减的
+            //确认并创建订单
             OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateRequest);
             Assert.isTrue(orderResponse.getSuccess(), "createAndConfirm failed");
         } catch (Exception e) {
-            //处理逻辑再NewBuyPlusBatchMsgListener中
+            //消息监听:NewBuyPlusMsgListener，newBuyPlusPreCancel()
+            //30s左右的延迟消息，秒杀场景下可以接受一定的少卖情况
             streamProducer.send("newBuyPlusPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_30_S);
             return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_FAILED.getCode(), ORDER_CREATE_FAILED.getMessage());
         }
@@ -192,7 +194,8 @@ public class TradeApplicationService {
             }
         }
 
-        //confirm失败,可能是网络延迟/数据库异常导致的，检查有问题进行补偿，confirm失败进行回滚
+        //Confirm失败，发疑似废单消息进行延迟检查，延迟1分钟，主要是为了避免Confirm假失败的情况，适合这里普通下单
+        //在秒杀场景下可能需要进一步修改,因为秒杀场景下会占用库存
         if (!isConfirmSuccess) {
             //消息监听:NewBuyPlusMsgListener，newBuyPlusPreCancel()
             streamProducer.send("newBuyPlusPreCancel-out-0", orderCreateRequest.getGoodsType().name(), JSON.toJSONString(orderCreateRequest), DELAY_LEVEL_1_M);

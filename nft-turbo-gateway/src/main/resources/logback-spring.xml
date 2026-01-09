@@ -42,9 +42,13 @@
 
     <!-- 添加异步 appender，提高性能 -->
     <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 队列剩余容量阈值（百分比），低于阈值时丢弃INFO以下级别日志（TRACE/DEBUG） -->
         <discardingThreshold>20</discardingThreshold>
+        <!-- 队列容量 -->
         <queueSize>1024</queueSize>
+        <!-- 异步获取调用者信息 -->
         <includeCallerData>true</includeCallerData>
+        <!-- 队列满的时候，true直接丢弃新事件，false阻塞等待队列空间 -->
         <neverBlock>true</neverBlock>
         <appender-ref ref="APPLICATION"/>
     </appender>

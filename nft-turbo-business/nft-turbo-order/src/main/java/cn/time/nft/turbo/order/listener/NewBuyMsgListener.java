@@ -63,8 +63,10 @@ public class NewBuyMsgListener extends AbstractStreamConsumer {
         orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
         orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
         orderCreateAndConfirmRequest.setOperateTime(new Date());
+        //设置进行库存扣减
         orderCreateAndConfirmRequest.setSyncDecreaseInventory(true);
 
+        //
         OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateAndConfirmRequest);
         //订单因为校验前置校验不通过而下单失败，回滚库存
         if (!orderResponse.getSuccess() && ORDER_CREATE_VALID_FAILED.getCode().equals(orderResponse.getResponseCode())) {

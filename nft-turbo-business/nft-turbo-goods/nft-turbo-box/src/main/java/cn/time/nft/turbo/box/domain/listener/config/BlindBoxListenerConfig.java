@@ -14,7 +14,6 @@ public class BlindBoxListenerConfig {
 
     @Bean("blindBoxListenExecutor")
     public Executor orderListenExecutor() {
-
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("blindBoxListener-%d").build();
 
         ExecutorService executorService = new ThreadPoolExecutor(

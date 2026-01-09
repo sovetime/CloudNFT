@@ -75,16 +75,15 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @Resource
     private ThreadPoolExecutor newBuyConsumePool;
 
+    //动态线程池设置
     public void setPool(int core, int max) {
         try (Entry entry = SphU.entry("testSphU")) {
             // 被保护的业务逻辑
-            // do something here...
             newBuyConsumePool.setMaximumPoolSize(max);
             newBuyConsumePool.setCorePoolSize(core);
         } catch (BlockException ex) {
             // 资源访问阻止，被限流或被降级
             // 在此处进行相应的处理操作
-
         }
     }
 
@@ -163,6 +162,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
                 return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
             }
 
+            //在本地事务执行的时候不数据库扣减库存，在MQ批量消费里面才进行数据库库存扣减
             if (request.isSyncDecreaseInventory()) {
                 GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
                 //进行库存扣减
@@ -172,6 +172,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
                 }
             }
 
+            //本地事务流程，创建并确认订单
             return orderService.createAndConfirm(request);
         }catch (BlockException e) {
             // 限流、熔断、降级的处理逻辑
