@@ -29,7 +29,7 @@ public interface InventoryFacadeService {
     //批量获取库存扣减流水
     public MultiResponse<String> getInventoryDecreaseLogs(InventoryRequest inventoryRequest);
 
-    //查询库存
+    //从redis中获取商品库存
     public SingleResponse<Integer> queryInventory(InventoryRequest inventoryRequest);
 
     //移除流水

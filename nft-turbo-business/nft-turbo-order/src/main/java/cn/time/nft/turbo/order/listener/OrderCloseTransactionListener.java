@@ -10,12 +10,11 @@ import cn.time.nft.turbo.order.domain.entity.TradeOrder;
 import cn.time.nft.turbo.order.domain.service.OrderManageService;
 import cn.time.nft.turbo.order.domain.service.OrderReadService;
 import com.alibaba.fastjson2.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.LocalTransactionState;
 import org.apache.rocketmq.client.producer.TransactionListener;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageExt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +22,8 @@ import java.util.Map;
 
 
 @Component
+@Slf4j
 public class OrderCloseTransactionListener implements TransactionListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(OrderCloseTransactionListener.class);
 
     @Autowired
     private OrderManageService orderManageService;
@@ -42,11 +40,11 @@ public class OrderCloseTransactionListener implements TransactionListener {
             OrderResponse response = null;
             if (TradeOrderEvent.CANCEL.name().equals(closeType)) {
                 OrderCancelRequest cancelRequest = JSON.parseObject(JSON.parseObject(message.getBody()).getString("body"), OrderCancelRequest.class);
-                logger.info("executeLocalTransaction , baseOrderUpdateRequest = {} , closeType = {}", JSON.toJSONString(cancelRequest), closeType);
+                log.info("executeLocalTransaction , baseOrderUpdateRequest = {} , closeType = {}", JSON.toJSONString(cancelRequest), closeType);
                 response = orderManageService.cancel(cancelRequest);
             } else if (TradeOrderEvent.TIME_OUT.name().equals(closeType)) {
                 OrderTimeoutRequest timeoutRequest = JSON.parseObject(JSON.parseObject(message.getBody()).getString("body"), OrderTimeoutRequest.class);
-                logger.info("executeLocalTransaction , baseOrderUpdateRequest = {} , closeType = {}", JSON.toJSONString(timeoutRequest), closeType);
+                log.info("executeLocalTransaction , baseOrderUpdateRequest = {} , closeType = {}", JSON.toJSONString(timeoutRequest), closeType);
                 response = orderManageService.timeout(timeoutRequest);
             } else {
                 throw new UnsupportedOperationException("unsupported closeType " + closeType);
@@ -58,7 +56,7 @@ public class OrderCloseTransactionListener implements TransactionListener {
                 return LocalTransactionState.ROLLBACK_MESSAGE;
             }
         } catch (Exception e) {
-            logger.error("executeLocalTransaction error, message = {}", message, e);
+            log.error("executeLocalTransaction error, message = {}", message, e);
             return LocalTransactionState.ROLLBACK_MESSAGE;
         }
     }

@@ -57,7 +57,6 @@ public class UserController {
     public Result<UserInfo> getUserInfo() {
         String userId = (String) StpUtil.getLoginId();
         User user = userService.findById(Long.valueOf(userId));
-
         if (user == null) {
             throw new UserException(USER_NOT_EXIST);
         }

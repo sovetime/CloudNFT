@@ -111,8 +111,7 @@ public class AuthController {
             if (response.getSuccess()) {
                 userQueryResponse = userFacadeService.query(userQueryRequest);
                 userInfo = userQueryResponse.getData();
-                StpUtil.login(userInfo.getUserId(),
-                        new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())
+                StpUtil.login(userInfo.getUserId(), new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())
                         .setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));
 
                 StpUtil.getSession().set(userInfo.getUserId().toString(), userInfo);

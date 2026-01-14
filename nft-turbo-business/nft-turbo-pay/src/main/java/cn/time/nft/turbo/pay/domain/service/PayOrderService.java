@@ -1,5 +1,6 @@
 package cn.time.nft.turbo.pay.domain.service;
 
+import cn.hutool.core.lang.Assert;
 import cn.time.nft.turbo.api.pay.constant.PayOrderState;
 import cn.time.nft.turbo.api.pay.request.PayCreateRequest;
 import cn.time.nft.turbo.base.exception.BizException;
@@ -8,13 +9,10 @@ import cn.time.nft.turbo.pay.domain.entity.PayOrder;
 import cn.time.nft.turbo.pay.domain.event.PaySuccessEvent;
 import cn.time.nft.turbo.pay.domain.event.RefundSuccessEvent;
 import cn.time.nft.turbo.pay.infrastructure.mapper.PayOrderMapper;
-import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +23,6 @@ import java.util.List;
 
 @Service
 public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
-    private static final Logger logger = LoggerFactory.getLogger(PayOrderService.class);
 
     @Autowired
     private PayOrderMapper payOrderMapper;

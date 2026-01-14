@@ -66,7 +66,7 @@ public class NewBuyMsgListener extends AbstractStreamConsumer {
         //设置进行库存扣减
         orderCreateAndConfirmRequest.setSyncDecreaseInventory(true);
 
-        //
+        //创建并确认订单
         OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateAndConfirmRequest);
         //订单因为校验前置校验不通过而下单失败，回滚库存
         if (!orderResponse.getSuccess() && ORDER_CREATE_VALID_FAILED.getCode().equals(orderResponse.getResponseCode())) {

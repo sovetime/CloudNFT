@@ -231,15 +231,16 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         return SingleResponse.of(inventoryResponse);
     }
 
+    //从redis中获取商品库存
     @Override
     public SingleResponse<Integer> queryInventory(InventoryRequest inventoryRequest) {
-
         GoodsType goodsType = inventoryRequest.getGoodsType();
-
+        //售罄商品
         if (soldOutGoodsLocalCache.getIfPresent(goodsType + SEPARATOR + inventoryRequest.getGoodsId()) != null) {
             return SingleResponse.of(0);
         }
 
+        //从redis中获取库存
         Integer inventory = switch (goodsType) {
             case COLLECTION -> collectionInventoryRedisService.getInventory(inventoryRequest);
             case BLIND_BOX -> blindBoxInventoryRedisService.getInventory(inventoryRequest);

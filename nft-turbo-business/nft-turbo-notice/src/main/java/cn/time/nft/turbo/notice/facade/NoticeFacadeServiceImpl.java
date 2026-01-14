@@ -39,9 +39,8 @@ public class NoticeFacadeServiceImpl implements NoticeFacadeService {
     @Facade
     @Override
     public NoticeResponse generateAndSendSmsCaptcha(String telephone) {
-        //
+        // 访问控制
         Boolean access = slidingWindowRateLimiter.tryAcquire(telephone, 1, 60);
-
         if (!access) {
             throw new SystemException(SEND_NOTICE_DUPLICATED);
         }

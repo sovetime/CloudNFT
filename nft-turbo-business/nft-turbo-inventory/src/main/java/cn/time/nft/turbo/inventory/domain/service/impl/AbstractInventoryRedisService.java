@@ -24,7 +24,6 @@ import static cn.time.nft.turbo.base.response.ResponseCode.DUPLICATED;
 @Slf4j
 public abstract class AbstractInventoryRedisService implements InventoryService {
 
-
     @Autowired
     private RedissonClient redissonClient;
 
@@ -57,6 +56,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         return inventoryResponse;
     }
 
+    //从redis中获取商品库存
     @Override
     public Integer getInventory(InventoryRequest request) {
         Integer stock = (Integer) redissonClient.getBucket(getCacheKey(request), IntegerCodec.INSTANCE).get();
@@ -170,7 +170,8 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         String stream = redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
                 luaScript,
                 RScript.ReturnType.STATUS,
-                Arrays.asList(getCacheStreamKey(request)), "DECREASE_" + request.getIdentifier());
+                Arrays.asList(getCacheStreamKey(request)),
+                "DECREASE_" + request.getIdentifier());
         return stream;
     }
 
@@ -185,7 +186,8 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
         String stream = redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
                 luaScript,
                 RScript.ReturnType.STATUS,
-                Arrays.asList(getCacheStreamKey(request)), "INCREASE_" + request.getIdentifier());
+                Arrays.asList(getCacheStreamKey(request)),
+                "INCREASE_" + request.getIdentifier());
         return stream;
     }
 

@@ -48,13 +48,17 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
 
     @Override
     public void prepareStart(DefaultMQPushConsumer consumer) {
+        // 设置拉取间隔
         consumer.setPullInterval(500);
+        // 批量拉取数量
         consumer.setConsumeMessageBatchMaxSize(64);
+        // 批量消费数量
         consumer.setPullBatchSize(64);
         //注册顺序消息监听器
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             log.warn("NewBuyPlusBatchMsgListener receive message size: {}", msgs.size());
 
+            // 使用 CompletionService 管理并发任务，方便获取执行结果
             CompletionService<Boolean> completionService = new ExecutorCompletionService<>(newBuyPlusConsumePool);
             List<Future<Boolean>> futures = new ArrayList<>();
 
@@ -62,6 +66,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
             msgs.forEach(messageExt -> {
                 Callable<Boolean> task = () -> {
                     try {
+                        //解析消息
                         OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(messageExt.getBody()).getString("body"), OrderCreateRequest.class);
                         //执行实际的下单逻辑
                         return doNewBuyPlusExecute(orderCreateRequest);
@@ -70,6 +75,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
                         return false;
                     }
                 };
+                //将任务提交到线程池中
                 futures.add(completionService.submit(task));
             });
 
@@ -77,8 +83,9 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
             boolean allSuccess = true;
             try {
                 for (int i = 0; i < msgs.size(); i++) {
+                    //从线程池中获取执行结果
                     Future<Boolean> future = completionService.take();
-                    if (!future.get()) { // 3.发现一个失败立即终止
+                    if (!future.get()) {
                         allSuccess = false;
                         break;
                     }
@@ -101,7 +108,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
         orderCreateAndConfirmRequest.setOperateTime(new Date());
         GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateAndConfirmRequest);
 
-        //商品出售
+        //商品出售，订单已经创建，不需要再去创建订单
         GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
         Assert.isTrue(response.getSuccess(), "saleWithoutHint failed ," + response.getResponseMessage());
         return true;

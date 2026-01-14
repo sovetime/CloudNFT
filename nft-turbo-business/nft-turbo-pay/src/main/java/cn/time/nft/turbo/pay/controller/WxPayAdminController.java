@@ -1,14 +1,5 @@
 package cn.time.nft.turbo.pay.controller;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import cn.time.nft.turbo.pay.infrastructure.channel.wechat.entity.WxPayBean;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileWriter;
@@ -16,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.time.nft.turbo.pay.infrastructure.channel.wechat.entity.WxPayBean;
 import com.ijpay.core.IJPayHttpResponse;
 import com.ijpay.core.enums.AuthTypeEnum;
 import com.ijpay.core.enums.RequestMethodEnum;
@@ -31,13 +23,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
+
 
 @Slf4j
 @Controller
 @RequestMapping("/wxPayAdmin")
 public class WxPayAdminController {
+
     @Resource
-    WxPayBean wxPayBean;
+    private WxPayBean wxPayBean;
 
     String serialNo;
 

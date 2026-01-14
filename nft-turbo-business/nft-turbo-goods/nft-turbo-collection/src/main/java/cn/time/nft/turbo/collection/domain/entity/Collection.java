@@ -24,14 +24,19 @@ public class Collection extends BaseEntity {
 
     //藏品名称
     private String name;
+
     //藏品封面
     private String cover;
+
     //藏品类目id
     private String classId;
+
     //价格
     private BigDecimal price;
+
     //藏品数量
     private Integer quantity;
+
     //藏品详情
     private String detail;
 
@@ -45,6 +50,7 @@ public class Collection extends BaseEntity {
 
     //被冻结库存
     private Long frozenInventory;
+
     //状态
     private CollectionStateEnum state;
 

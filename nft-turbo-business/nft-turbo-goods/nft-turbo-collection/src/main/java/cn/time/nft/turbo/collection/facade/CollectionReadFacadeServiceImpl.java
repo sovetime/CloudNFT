@@ -26,8 +26,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static cn.time.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_NOT_EXIST;
@@ -36,8 +34,6 @@ import static cn.time.nft.turbo.collection.exception.CollectionErrorCode.COLLECT
 //藏品服务
 @DubboService(version = "1.0.0")
 public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeService {
-
-    private static final Logger logger = LoggerFactory.getLogger(CollectionReadFacadeServiceImpl.class);
 
     @Autowired
     private CollectionService collectionService;
@@ -56,6 +52,7 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
 
     @Override
     public SingleResponse<CollectionVO> queryById(Long collectionId) {
+        //查询商品，对商品信息做多级缓存
         Collection collection = collectionService.queryById(collectionId);
         if (collection == null) {
             return SingleResponse.fail(COLLECTION_NOT_EXIST.getCode(), COLLECTION_NOT_EXIST.getMessage());
@@ -64,6 +61,7 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
         InventoryRequest request = new InventoryRequest();
         request.setGoodsId(collectionId.toString());
         request.setGoodsType(GoodsType.COLLECTION);
+        //从redis中获取商品库存
         SingleResponse<Integer> response = inventoryFacadeService.queryInventory(request);
 
         //没查到的情况下，默认用数据库里面的库存做兜底

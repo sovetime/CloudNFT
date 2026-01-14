@@ -12,7 +12,6 @@ public class WorkerIdHolder implements CommandLineRunner {
 
     private RedissonClient redissonClient;
 
-    //默认值workerId
     @Value("${order.client.name:workerId}")
     private String clientName;
 
@@ -22,13 +21,11 @@ public class WorkerIdHolder implements CommandLineRunner {
         this.redissonClient = redissonClient;
     }
 
-    //从Redisson获取原子长整型值，递增后对32取模作为工作者ID
     @Override
     public void run(String... args) throws Exception {
-        // 获取分布式对象，clientName为redis key-value的key
-        //计时器是全局共享的，value是根据redis 中全局自增计数器生成的
+        //从redis中获取自增id,全局唯一
         RAtomicLong atomicLong = redissonClient.getAtomicLong(clientName);
-        // 递增原子值并取模32，确保工作者ID在0-31范围内
+        //对自增id取32，雪花算法限制机器id32位
         WORKER_ID = atomicLong.incrementAndGet() % 32;
     }
 }

@@ -162,7 +162,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
                 return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
             }
 
-            //在本地事务执行的时候不数据库扣减库存，在MQ批量消费里面才进行数据库库存扣减
+            //秒杀第二套方案执行，进行库存扣减，库存扣减无异常再去执行下面的订单创建，相当于是用库存进行兜底，不会超卖
             if (request.isSyncDecreaseInventory()) {
                 GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
                 //进行库存扣减
@@ -172,7 +172,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
                 }
             }
 
-            //本地事务流程，创建并确认订单
+            //秒杀第三套方案执行的，本地事务不进行数据库扣减，创建并确认订单
             return orderService.createAndConfirm(request);
         }catch (BlockException e) {
             // 限流、熔断、降级的处理逻辑

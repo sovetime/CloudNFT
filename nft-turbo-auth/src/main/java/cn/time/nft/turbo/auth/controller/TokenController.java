@@ -51,11 +51,10 @@ public class TokenController {
          */
         TokenSceneEnum tokenScene = Arrays.stream(TokenSceneEnum.values())
                 .filter(tokenSceneEnum -> tokenSceneEnum.getScene().equals(scene))
-                .findFirst()
+                .findFirst()//返回流中第一个元素
                 .orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_SCENE_NOT_EXIST));
 
         BaseGoodsVO baseGoodsVO = goodsFacadeService.getGoods(key, getGoodsType(tokenScene));
-
         if (baseGoodsVO == null || !baseGoodsVO.available()) {
             throw new AuthException(AuthErrorCode.TOKEN_KEY_IS_ILLEGAL);
         }
@@ -64,7 +63,7 @@ public class TokenController {
             //获取用户id
             String userId = (String) StpUtil.getLoginId();
 
-            //key：(token:+场景+userid:+key(商品id) ) -> token:buy:29:10085
+            //key: token:+场景+userid:+key(商品id) -> token:buy:29:10085
             String tokenKey = TOKEN_PREFIX + scene + CACHE_KEY_SEPARATOR + userId + CACHE_KEY_SEPARATOR + key;
             //通过tokenkey生成value值
             String tokenValue = TokenUtil.getTokenValueByKey(tokenKey);

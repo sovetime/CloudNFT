@@ -2,6 +2,7 @@ package cn.time.nft.turbo.auth.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Arrays;
 
@@ -13,7 +14,6 @@ public enum TokenSceneEnum {
 
     //下单-藏品
     BUY_COLLECTION("buy"),
-
 
     //下单-盲盒
     BUY_BLIND_BOX("buyBb");

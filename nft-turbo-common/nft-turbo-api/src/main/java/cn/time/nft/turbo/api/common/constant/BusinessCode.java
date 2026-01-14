@@ -1,6 +1,6 @@
 package cn.time.nft.turbo.api.common.constant;
 
-
+//订单类型
 public enum BusinessCode {
 
     //订单，tablecount是分表数量

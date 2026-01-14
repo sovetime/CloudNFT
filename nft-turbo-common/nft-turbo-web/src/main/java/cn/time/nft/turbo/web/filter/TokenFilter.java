@@ -9,7 +9,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.RedisException;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,8 +28,6 @@ public class TokenFilter implements Filter {
     private static final String HEADER_VALUE_UNDEFINED = "undefined";
 
     private RedissonClient redissonClient;
-
-    private RedisTemplate redisTemplate;
 
     public TokenFilter(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;

@@ -51,7 +51,7 @@ public interface CollectionService extends IService<Collection> {
     //空投
     public CollectionAirdropResponse airDrop(CollectionAirDropRequest request,Collection collection);
 
-    //查询
+    //查询商品，对商品信息做多级缓存
     public Collection queryById(Long collectionId);
 
     //分页查询，分为Mysql/ES

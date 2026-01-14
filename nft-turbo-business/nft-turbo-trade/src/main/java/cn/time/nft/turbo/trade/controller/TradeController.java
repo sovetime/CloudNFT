@@ -31,7 +31,6 @@ import cn.time.nft.turbo.base.response.SingleResponse;
 import cn.time.nft.turbo.base.utils.RemoteCallWrapper;
 import cn.time.nft.turbo.order.OrderException;
 import cn.time.nft.turbo.order.sharding.id.DistributeID;
-import cn.time.nft.turbo.order.sharding.id.WorkerIdHolder;
 import cn.time.nft.turbo.order.validator.OrderCreateValidator;
 import cn.time.nft.turbo.trade.application.TradeApplicationService;
 import cn.time.nft.turbo.trade.exception.TradeErrorCode;
@@ -267,9 +266,9 @@ public class TradeController {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
             //订单校验
             orderValidatorChain.validate(orderCreateAndConfirmRequest);
+
             //普通下单，基于TCC实现分布式一致性
             OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
-
             if (orderResponse.getSuccess()) {
                 //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
                 try {
@@ -295,10 +294,10 @@ public class TradeController {
     //创建订单(从ThreadLocal中获取token)
     @NotNull
     private OrderCreateRequest getOrderCreateRequest(BuyParam buyParam) {
-        //获取用户id
+        //获取用户Id
         String userId = (String) StpUtil.getLoginId();
-        //使用雪花算法生成唯一的订单id
-        String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
+        //生成分布式唯一Id
+        String orderId = DistributeID.generateWithDefaultWorkerId(BusinessCode.TRADE_ORDER, userId);
         //创建订单
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
         orderCreateRequest.setOrderId(orderId);
@@ -331,7 +330,7 @@ public class TradeController {
         //获取用户id
         String userId = (String) StpUtil.getLoginId();
         //使用雪花算法生成唯一的订单id
-        String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
+        String orderId = DistributeID.generateWithDefaultWorkerId(BusinessCode.TRADE_ORDER, userId);
         //创建订单
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         orderCreateAndConfirmRequest.setOrderId(orderId);

@@ -404,9 +404,16 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         return true;
     }
 
+    //查询商品，对商品信息做多级缓存
     @Override
-    @Cached(name = ":collection:cache:id:", expire = 60, localExpire = 10, timeUnit = TimeUnit.MINUTES, cacheType = CacheType.BOTH, key = "#collectionId", cacheNullValue = true)
-    @CacheRefresh(refresh = 50, timeUnit = TimeUnit.MINUTES)
+    @Cached(name = ":collection:cache:id:",
+            expire = 60,                //redis缓存60min
+            localExpire = 10,           //本地缓存10min
+            timeUnit = TimeUnit.MINUTES,
+            cacheType = CacheType.BOTH,
+            key = "#collectionId",
+            cacheNullValue = true)      //缓存空值防止缓存穿透
+    @CacheRefresh(refresh = 50, timeUnit = TimeUnit.MINUTES) //每50分钟自动刷新
     public Collection queryById(Long collectionId) {
         return getById(collectionId);
     }

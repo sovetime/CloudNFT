@@ -30,7 +30,7 @@
 
     <select id="selectByBizNoAndPayer" resultMap="payOrderMap">
         SELECT
-        *
+            *
         FROM `pay_order`
         where deleted=0
         <if test="payerId!=null">

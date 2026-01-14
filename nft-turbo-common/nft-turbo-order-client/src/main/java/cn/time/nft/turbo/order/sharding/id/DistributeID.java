@@ -1,57 +1,60 @@
 package cn.time.nft.turbo.order.sharding.id;
+
+import cn.hutool.core.util.IdUtil;
 import cn.time.nft.turbo.api.common.constant.BusinessCode;
 import cn.time.nft.turbo.order.sharding.strategy.DefaultShardingTableStrategy;
-import cn.hutool.core.util.IdUtil;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 
 
 //分布式ID
 @NoArgsConstructor
+@ToString
 public class DistributeID {
 
     //系统标识码
     private String businessCode;
+
     //表下标
     private String table;
+
     //序列号
     private String seq;
+
     //分表策略
     private static DefaultShardingTableStrategy shardingTableStrategy = new DefaultShardingTableStrategy();
 
-    //生成唯一ID
-    //businessCode->业务码，workerId->分布式的ID，externalId->userid
-    public static String generateWithSnowflake(BusinessCode businessCode, long workerId, String externalId) {
-        //利用雪花算法生成一个唯一ID
-        long id = IdUtil.getSnowflake(workerId).nextId();
-        //生成一个唯一ID：业务吗（10)+序列号+表下标（0001）
-        return generate(businessCode, externalId, id);
+    //生成分布式唯一Id
+    public static String generateWithDefaultWorkerId(BusinessCode businessCode, String userId) {
+        return generateWithSnowflake(businessCode, WorkerIdHolder.WORKER_ID, userId);
     }
 
-    //生成一个唯一ID：业务吗+序列号+表下标
-    //sequenceNumber-> 分布式唯一workerId
-    public static String generate(BusinessCode businessCode, String externalId, Long sequenceNumber) {
-        DistributeID distributeId = create(businessCode, externalId, sequenceNumber);
+    //生成唯一Id，订单类型 + workerId + 表下标
+    public static String generateWithSnowflake(BusinessCode businessCode, long workerId, String userId) {
+        //workerId是全局唯一的，通过雪花算法来生成分布式唯一Id
+        long id = IdUtil.getSnowflake(workerId).nextId();
+        //因为这里做了分库分表，需要进行表的映射
+        return generate(businessCode, id, userId);
+    }
+
+    //生成一个唯一ID：订单类型 + 序列号 + 表下标
+    //sequenceNumber-> 雪花算法生成Id
+    public static String generate(BusinessCode businessCode, Long sequenceNumber,String userId) {
+        DistributeID distributeId = create(businessCode, sequenceNumber, userId);
         return distributeId.businessCode + distributeId.seq + distributeId.table;
     }
 
-    @Override
-    public String toString() {
-        return this.businessCode + this.seq + this.table;
-    }
-
-    //创建分布式ID对象
-    // businessCode->业务代码，externalId->userid，用于分表策略计算，sequenceNumber->分布式id
-    public static DistributeID create(BusinessCode businessCode, String externalId, Long sequenceNumber) {
+    // businessCode-> 订单类型，sequenceNumber->分布式id
+    public static DistributeID create(BusinessCode businessCode, Long sequenceNumber, String userId) {
         DistributeID distributeId = new DistributeID();
         distributeId.businessCode = businessCode.getCodeString();
-
-        //判断userid应该分到哪一张表
-        String table = String.valueOf(shardingTableStrategy.getTable(externalId, businessCode.tableCount()));
-        // 生成table字符换，根据table转变为0001，0002，0003...
+        //根据userId 路由到对应的分表
+        String table = String.valueOf(shardingTableStrategy.getTable(userId, businessCode.tableCount()));
+        //表下表生成，0001、0002、0003、0004
         distributeId.table = StringUtils.leftPad(table, 4, "0");
-        // 设置序列号
+        //设置序列号
         distributeId.seq = String.valueOf(sequenceNumber);
         return distributeId;
     }

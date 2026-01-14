@@ -77,7 +77,7 @@ public class CollectionController {
     //藏品详情（引入缓存，在订单中有redis做的库存扣减）
     @GetMapping("/collectionInfo")
     public Result<CollectionVO> collectionInfo(@NotBlank String collectionId) {
-        //获取商品，引入缓存
+        //获取商品，对商品信息做了多级缓存
         CollectionVO collectionVO = (CollectionVO) goodsFacadeService.getGoods(collectionId, GoodsType.COLLECTION);
         if (collectionVO.canBook()) {
             try {

@@ -125,6 +125,7 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
         orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
         orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
         orderCreateAndConfirmRequest.setOperateTime(new Date());
+        //设置进行库存扣减
         orderCreateAndConfirmRequest.setSyncDecreaseInventory(true);
 
         //创建并确认订单，进行库存扣减
