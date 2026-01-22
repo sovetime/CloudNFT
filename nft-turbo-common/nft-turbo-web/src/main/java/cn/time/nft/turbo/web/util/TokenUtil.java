@@ -26,7 +26,7 @@ public class TokenUtil {
         //value: token:buy:29:10085:uuid(5ac6542b-64b1-4d41-91b9-e6c55849bb7f)
         String tokenValue = tokenKey + CACHE_KEY_SEPARATOR + uuid;
 
-        //使用aes加墨算法进行加密，返回base64编码
+        //使用aes加密算法进行加密，返回base64编码
         return SecureUtil.aes(TOEKN_AES_KEY.getBytes(StandardCharsets.UTF_8)).encryptBase64(tokenValue);
     }
 

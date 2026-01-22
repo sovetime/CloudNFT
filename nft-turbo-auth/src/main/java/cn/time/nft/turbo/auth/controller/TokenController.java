@@ -68,6 +68,7 @@ public class TokenController {
             //通过tokenkey生成value值
             String tokenValue = TokenUtil.getTokenValueByKey(tokenKey);
 
+            log.info("生成token成功，tokenKey:{}, tokenValue:{}", tokenKey, tokenValue);
             //缓存在Redis中
             stringRedisTemplate.opsForValue().set(tokenKey, tokenValue, 30, TimeUnit.MINUTES);
             return Result.success(tokenValue);

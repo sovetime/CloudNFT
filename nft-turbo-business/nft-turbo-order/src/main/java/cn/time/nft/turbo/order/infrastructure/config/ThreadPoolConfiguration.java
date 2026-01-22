@@ -14,9 +14,10 @@ public class ThreadPoolConfiguration {
 
     @Bean
     public ThreadPoolExecutor newBuyConsumePool(MeterRegistry registry) {
+        //使用LinkedBlockingQueue无界队列，最大线程数失效（超过核心线程数的线程不会创建）
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 20,
-                32,
+                20,
                 60, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>());
 
@@ -30,7 +31,7 @@ public class ThreadPoolConfiguration {
     public ThreadPoolExecutor newBuyPlusConsumePool(MeterRegistry registry) {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 20,
-                32,
+                20,
                 60, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>());
 

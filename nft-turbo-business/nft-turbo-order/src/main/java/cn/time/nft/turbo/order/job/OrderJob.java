@@ -54,7 +54,6 @@ public class OrderJob {
     //订单超时队列
     private final BlockingQueue<TradeOrder> orderTimeoutBlockingQueue = new LinkedBlockingQueue<>(CAPACITY);
 
-    //使用动态线程池
     private final ForkJoinPool forkJoinPool = new ForkJoinPool(10);
 
     //page最大数量
@@ -98,7 +97,7 @@ public class OrderJob {
                     List<TradeOrder> tradeOrders = orderReadService.pageQueryTimeoutOrders(PAGE_SIZE, buyerIdTailNumber, null);
                     //其实这里用put更好一点，可以避免因为队列满了而导致异常而提前结束。
                     orderTimeoutBlockingQueue.addAll(tradeOrders);
-                    //启动一个线程执行
+                    //提交一个任务到forkJoinPool
                     forkJoinPool.execute(this::executeTimeout);
 
                     //循环分页处理，获取当前页最大订单id，查询下一页

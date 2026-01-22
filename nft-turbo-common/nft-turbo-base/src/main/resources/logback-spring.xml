@@ -54,7 +54,9 @@
     </appender>
 
     <!-- 日志级别，同时输出到控制台、异步文件（开发环境不需要） -->
-    <root level="WARN">
+    <!-- 日志降级,生产环境使用，本地开发还是Info -->
+<!--    <root level="WARN">-->
+    <root level="INFO">
 <!--        <appender-ref ref="ASYNC"/>-->
         <appender-ref ref="CONSOLE"/>
     </root>

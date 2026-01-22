@@ -59,17 +59,16 @@ public class DistributeID {
         return distributeId;
     }
 
-
-    public static String getShardingTable(DistributeID distributeId){
-        return distributeId.table;
-    }
-
     public static String getShardingTable(String externalId, int tableCount) {
         return StringUtils.leftPad(String.valueOf(shardingTableStrategy.getTable(externalId, tableCount)), 4, "0");
     }
 
     public static String getShardingTable(String id){
         return getShardingTable(valueOf(id));
+    }
+
+    public static String getShardingTable(DistributeID distributeId){
+        return distributeId.table;
     }
 
     public static DistributeID valueOf(String id) {
