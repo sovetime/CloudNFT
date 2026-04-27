@@ -30,9 +30,11 @@ public class HeldCollectionMsgListener extends AbstractStreamConsumer {
     @Bean
     Consumer<Message<MessageBody>> heldCollection() {
         return msg -> {
+            // 获取消息体
             HeldCollectionDTO heldCollectionDTO = getMessage(msg, HeldCollectionDTO.class);
 
-            if (heldCollectionDTO.getState().equals(HeldCollectionState.ACTIVED.name()) && !GoodsSaleBizType.AIR_DROP.name().equals(heldCollectionDTO.getBizType())) {
+            if (heldCollectionDTO.getState().equals(HeldCollectionState.ACTIVED.name()) &&
+                    !GoodsSaleBizType.AIR_DROP.name().equals(heldCollectionDTO.getBizType())) {
                 String orderId = heldCollectionDTO.getBizNo();
                 OrderFinishRequest orderFinishRequest = new OrderFinishRequest();
                 orderFinishRequest.setIdentifier("order_confirm_" + heldCollectionDTO.getId());

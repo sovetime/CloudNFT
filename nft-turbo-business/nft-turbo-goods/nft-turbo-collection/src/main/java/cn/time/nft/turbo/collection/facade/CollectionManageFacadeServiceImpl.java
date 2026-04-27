@@ -157,13 +157,14 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
         }
     }
 
+    //商品库存修改
     @Override
     public CollectionModifyResponse modifyInventory(CollectionModifyInventoryRequest request) {
         CollectionModifyResponse response = new CollectionModifyResponse();
         response.setCollectionId(request.getCollectionId());
 
+        //更新数据库库存
         CollectionInventoryModifyResponse modifyResponse = collectionService.modifyInventory(request);
-
         if (!modifyResponse.getSuccess()) {
             response.setSuccess(false);
             response.setResponseCode(COLLECTION_INVENTORY_UPDATE_FAILED.getCode());
@@ -182,6 +183,8 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
         inventoryRequest.setIdentifier(request.getIdentifier());
         inventoryRequest.setInventory(modifyResponse.getQuantityModified().intValue());
         SingleResponse<Boolean> inventoryResponse;
+
+        //更新redis库存
         if (modifyResponse.getModifyType() == CollectionInventoryModifyType.INCREASE) {
             inventoryResponse = inventoryFacadeService.increase(inventoryRequest);
         } else {

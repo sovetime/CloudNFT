@@ -145,6 +145,8 @@ public class CollectionAdminController {
         request.setIdentifier(UUID.randomUUID().toString());
         request.setCollectionId(param.getCollectionId());
         request.setQuantity(param.getQuantity());
+
+        //藏品库存修改
         CollectionModifyResponse response = collectionManageFacadeService.modifyInventory(request);
         if (response.getSuccess()) {
             return Result.success(response.getCollectionId());

@@ -70,11 +70,13 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
     //订单创建并异步执行确认
     @Transactional(rollbackFor = Exception.class)
     public OrderResponse createAndAsyncConfirm(OrderCreateRequest request) {
+        //根据幂等号查询订单
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
         if (existOrder != null) {
             return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
         }
 
+        //订单创建
         TradeOrder tradeOrder = doCreate(request);
 
         //发布事件

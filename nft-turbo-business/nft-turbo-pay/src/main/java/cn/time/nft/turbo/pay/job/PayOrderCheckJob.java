@@ -68,6 +68,7 @@ public class PayOrderCheckJob {
             paySuccessEvent.setPayOrderId(wxPayNotifyEntity.getOutTradeNo());
             paySuccessEvent.setPaySucceedTime(DateUtil.parseUTC(wxPayNotifyEntity.getSuccessTime()));
             paySuccessEvent.setPayChannel(payOrder.getPayChannel());
+            //订单支付逻辑
             payApplicationService.paySuccess(paySuccessEvent);
         }
     }

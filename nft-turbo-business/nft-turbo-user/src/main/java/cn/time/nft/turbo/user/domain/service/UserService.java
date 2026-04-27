@@ -247,6 +247,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse freeze(Long userId) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
+        //查询用户信息
         User user = userMapper.findById(userId);
         Assert.notNull(user, () -> new UserException(USER_NOT_EXIST));
         Assert.isTrue(user.getState() == UserStateEnum.ACTIVE, () -> new UserException(USER_STATUS_IS_NOT_ACTIVE));

@@ -50,12 +50,14 @@ public class WxPayController {
     @RequestMapping("/nativePay")
     @ResponseBody
     public String nativePay() {
+        //获取支付渠道服务
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
         PayChannelRequest payChannelRequest = new PayChannelRequest();
         payChannelRequest.setOrderId(PayKit.generateStr());
         payChannelRequest.setAmount(1L);
         payChannelRequest.setDescription("支付测试");
         payChannelRequest.setAttach("支付测试");
+        //支付
         WxPayChannelResponse response = (WxPayChannelResponse) wxPayChannelService.pay(payChannelRequest);
         return response.getPayUrl();
     }
@@ -64,7 +66,9 @@ public class WxPayController {
     @RequestMapping(value = "/payNotify", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
     public void payNotify(HttpServletRequest request, HttpServletResponse response) {
+        //获取支付渠道服务
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
+        //支付结果回调
         boolean result = wxPayChannelService.notify(request, response);
         if (!result) {
             response.setStatus(HTTP_SERVER_ERROR_CODE);
@@ -75,6 +79,7 @@ public class WxPayController {
     @RequestMapping(value = "/payNotifyMock", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
     public void payNotifyMock(String payOrderId, String paidAmount) {
+        //获取支付渠道服务
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.MOCK);
 
         Map<String, Serializable> params = new HashMap<>(12);
@@ -82,6 +87,7 @@ public class WxPayController {
         params.put("paidAmount", MoneyUtils.yuanToCent(new BigDecimal(paidAmount)));
         context.set(params);
 
+        //支付结果回调
         boolean result = wxPayChannelService.notify(null, null);
 
         Assert.isTrue(result, "支付通知失败");
@@ -91,7 +97,9 @@ public class WxPayController {
     @RequestMapping(value = "/refundNotify", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
     public void refundNotify(HttpServletRequest request, HttpServletResponse response) {
+        //获取支付渠道服务
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
+        //退款结果回调
         boolean result = wxPayChannelService.refundNotify(request, response);
         if (!result) {
             response.setStatus(HTTP_SERVER_ERROR_CODE);

@@ -25,7 +25,7 @@ public class PayChannelServiceFactory {
     @Value("${spring.profiles.active}")
     private String profile;
 
-    //payChannel 传入支付渠道
+    //获取支付渠道服务
     public PayChannelService get(PayChannel payChannel) {
 
         //在开发环境获取mock 服务

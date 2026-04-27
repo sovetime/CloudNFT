@@ -20,7 +20,6 @@ public class UserCacheDelayDeleteService {
 
     //自定义线程工厂
     private static ThreadFactory userCacheDelayProcessFactory = new ThreadFactoryBuilder()
-            //设置线程名称格式
             .setNameFormat("user-cache-delay-delete-pool-%d").build();
 
     //定时任务线程池

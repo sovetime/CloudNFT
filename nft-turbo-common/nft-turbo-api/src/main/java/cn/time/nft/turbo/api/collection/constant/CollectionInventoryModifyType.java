@@ -5,8 +5,10 @@ package cn.time.nft.turbo.api.collection.constant;
 public enum CollectionInventoryModifyType {
     //增加库存
     INCREASE,
+
     //减少库存
     DECREASE,
+
     //未修改
     UNMODIFIED;
 }

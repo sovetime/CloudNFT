@@ -120,6 +120,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
                 GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 
                 Boolean trySaleResult = switch (goodsType) {
+                    //商品销售
                     case BLIND_BOX -> blindBoxService.sale(goodsTrySaleRequest);
                     case COLLECTION -> collectionService.sale(goodsTrySaleRequest);
                     default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
